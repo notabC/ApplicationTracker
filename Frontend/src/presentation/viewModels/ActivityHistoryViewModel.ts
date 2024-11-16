@@ -1,5 +1,5 @@
 // src/presentation/viewModels/ActivityHistoryViewModel.ts
-import { makeAutoObservable, runInAction, reaction } from 'mobx';
+import { makeAutoObservable, reaction } from 'mobx';
 import { inject, injectable } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { Application } from '@/core/domain/models/Application';
@@ -27,9 +27,14 @@ export class ActivityHistoryViewModel {
     makeAutoObservable(this);
     this.initialize();
 
-    // Observe changes in the RootStore's applications and update logs accordingly
-    this.rootStore = rootStore;
-    this.setupReactions();
+    // Set up a reaction to update logs whenever applications change
+    reaction(
+      () => this.rootStore.applications.slice(),
+      (applications) => {
+        this._logs = this.createLogsFromApplications(applications);
+        this.updateDateFiltered();
+      }
+    );
   }
 
   /**
@@ -38,27 +43,6 @@ export class ActivityHistoryViewModel {
   private initialize(): void {
     this._logs = this.createLogsFromApplications(this.rootStore.applications);
     this.updateDateFiltered(); // Initial date filtering
-  }
-
-  /**
-   * Sets up MobX reactions to observe changes in the RootStore's applications.
-   */
-  private setupReactions(): void {
-    // Reaction when applications change
-    // You can use MobX reactions or autorun here, but makeAutoObservable with observables will handle it
-    // So whenever `rootStore.applications` changes, createLogsFromApplications and update dateFilteredLogs
-    // To achieve this, we can make `_logs` a computed value, but since it's a flat map, it's better to use reactions
-
-    // Alternatively, watch the RootStore's applications and update logs accordingly
-    // Here, we'll use a MobX `reaction`
-
-    reaction(
-      () => this.rootStore.applications.slice(),
-      (applications) => {
-        this._logs = this.createLogsFromApplications(applications);
-        this.updateDateFiltered();
-      }
-    );
   }
 
   /**
@@ -225,24 +209,7 @@ export class ActivityHistoryViewModel {
    * @param applicationId The ID of the application to retrieve.
    * @returns The Application object if found, undefined otherwise.
    */
-  async getApplicationDetails(applicationId: string): Promise<Application | undefined> {
-    this.isLoading = true;
-    try {
-      const application = this.rootStore.getApplicationById(applicationId);
-      runInAction(() => {
-        this.error = null;
-      });
-      return application;
-    } catch (error) {
-      runInAction(() => {
-        this.error = 'Failed to retrieve application details.';
-        console.error('Error retrieving application details:', error);
-      });
-      return undefined;
-    } finally {
-      runInAction(() => {
-        this.isLoading = false;
-      });
-    }
+  getApplicationDetails(applicationId: string): Application | undefined {
+    return this.rootStore.getApplicationById(applicationId);
   }
 }
