@@ -1,6 +1,6 @@
 // src/presentation/viewModels/JobTrackerViewModel.ts
 import { injectable, inject } from "inversify";
-import { makeAutoObservable, computed, runInAction } from 'mobx';
+import { makeAutoObservable } from 'mobx';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { Application } from '@/core/domain/models/Application';
 import type { IWorkflowService } from '@/core/interfaces/services';
