@@ -4,6 +4,7 @@
     name: string;
     color: string;
     editable: boolean;
+    visible: boolean;
   }
   
   export interface Workflow {

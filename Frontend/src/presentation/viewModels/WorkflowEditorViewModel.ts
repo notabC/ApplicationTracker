@@ -5,6 +5,7 @@ import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { WorkflowStage, Workflow } from '@/core/domain/models/Workflow';
 import { UnsavedChangesViewModel } from './UnsavedChangesViewModel';
 import type { IWorkflowService } from '@/core/interfaces/services';
+import { s } from 'node_modules/vite/dist/node/types.d-aGj9QkWt';
 
 @injectable()
 export class WorkflowEditorViewModel {
@@ -48,6 +49,22 @@ export class WorkflowEditorViewModel {
   }
 
   @action
+  updateStageVisibility(stageId: string, visible: boolean): void {
+    const stageIndex = this._workflow.stages.findIndex(s => s.id === stageId);
+    if (stageIndex !== -1) {
+      // Create a new reference to trigger reactivity
+      this._workflow.stages = [
+        ...this._workflow.stages.slice(0, stageIndex),
+        { 
+          ...this._workflow.stages[stageIndex], 
+          visible 
+        },
+        ...this._workflow.stages.slice(stageIndex + 1)
+      ];
+    }
+  }
+
+  @action
   updateStageColor(stageId: string, color: WorkflowStage['color']): void {
     const stage = this._workflow.stages.find(s => s.id === stageId);
     if (stage && stage.editable !== false) {
@@ -86,7 +103,8 @@ export class WorkflowEditorViewModel {
       id: `stage-${Date.now()}`,
       name: 'New Stage',
       color: 'gray',
-      editable: true
+      editable: true,
+      visible: true
     };
 
     this._workflow.stages.push(newStage);

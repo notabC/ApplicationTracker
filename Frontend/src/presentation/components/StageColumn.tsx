@@ -7,6 +7,8 @@ import { DragEvent } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { EmailCard } from './EmailCard';
 import { ApplicationCard } from './ApplicationCard';
+import { container, SERVICE_IDENTIFIERS } from '@/di/container';
+import { IWorkflowService } from '@/core/interfaces/services';
 
 interface Props {
   stage: WorkflowStage;
@@ -15,6 +17,10 @@ interface Props {
 }
 
 export const StageColumn = observer(({ stage, applications, viewModel }: Props) => {
+  const workFlowService = container.get<IWorkflowService>(SERVICE_IDENTIFIERS.WorkflowService);
+  const currentStage = workFlowService.getStageById(stage.id);
+  const isVisible = currentStage?.visible ?? stage.visible;
+
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
@@ -29,6 +35,10 @@ export const StageColumn = observer(({ stage, applications, viewModel }: Props) 
     e.preventDefault();
     await viewModel.dragDropVM.handleDrop(stage.name);
   };
+
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <div className="flex-none w-[280px] sm:w-80">

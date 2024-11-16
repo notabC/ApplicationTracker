@@ -8,12 +8,12 @@ import { IWorkflowService } from '../interfaces/services';
 export class WorkflowService implements IWorkflowService {
   @observable private workflow: Workflow = {
     stages: [
-      { id: 'unassigned', name: 'Unassigned', color: 'gray', editable: false },
-      { id: 'resume-submitted', name: 'Resume Submitted', color: 'blue', editable: true },
-      { id: 'online-assessment', name: 'Online Assessment', color: 'yellow', editable: true },
-      { id: 'interview-process', name: 'Interview Process', color: 'purple', editable: true },
-      { id: 'offer', name: 'Offer', color: 'green', editable: true },
-      { id: 'rejected', name: 'Rejected', color: 'red', editable: true }
+      { id: 'unassigned', name: 'Unassigned', color: 'gray', editable: false, visible: true },
+      { id: 'resume-submitted', name: 'Resume Submitted', color: 'blue', editable: true, visible: true },
+      { id: 'online-assessment', name: 'Online Assessment', color: 'yellow', editable: true, visible: true },
+      { id: 'interview-process', name: 'Interview Process', color: 'purple', editable: true, visible: true },
+      { id: 'offer', name: 'Offer', color: 'green', editable: true, visible: true },
+      { id: 'rejected', name: 'Rejected', color: 'red', editable: true, visible: true }
     ],
     stageOrder: [
       'unassigned',
@@ -36,6 +36,10 @@ export class WorkflowService implements IWorkflowService {
   @action
   updateWorkflow(workflow: Workflow) {
     this.workflow = workflow;
+  }
+
+  getStageById(stageId: string): WorkflowStage | undefined {
+    return this.workflow.stages.find(s => s.id === stageId);
   }
 
   getStages(): WorkflowStage[] {

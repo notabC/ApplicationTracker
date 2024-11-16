@@ -15,6 +15,7 @@ export interface IWorkflowService {
   updateWorkflow(workflow: Workflow): void;
   getStages(): WorkflowStage[];
   getColorForStage(stageId: string): string;
+  getStageById(stageId: string): WorkflowStage | undefined;
 }
 
 // a viewmodel that can update fields of an application
