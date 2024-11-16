@@ -1,4 +1,5 @@
 // src/core/services/AnalyticsService.ts
+
 import { injectable, inject } from 'inversify';
 import {
   IAnalyticsService,
@@ -42,7 +43,7 @@ export class AnalyticsService implements IAnalyticsService {
 
     applications.forEach(app => {
       const date = new Date(app.dateApplied);
-      const month = date.toLocaleString('default', { month: 'short', year: 'numeric' });
+      const month = date.toLocaleString('default', { month: 'short', year: 'numeric' }); // e.g., "Mar 2024"
       if (!monthlyData[month]) {
         monthlyData[month] = { month, applications: 0, interviews: 0, offers: 0 };
       }
@@ -52,7 +53,14 @@ export class AnalyticsService implements IAnalyticsService {
       if (app.stage === 'Offer') monthlyData[month].offers++;
     });
 
-    return Object.values(monthlyData);
+    // Sort the data by date to ensure chronological order
+    const sortedMonths = Object.keys(monthlyData).sort((a, b) => {
+      const dateA = new Date(a);
+      const dateB = new Date(b);
+      return dateA.getTime() - dateB.getTime();
+    });
+
+    return sortedMonths.map(month => monthlyData[month]);
   }
 
   getResponseRates(dateRange: DateRange): ResponseRate[] {

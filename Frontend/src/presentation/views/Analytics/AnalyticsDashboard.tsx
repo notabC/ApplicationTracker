@@ -1,4 +1,5 @@
 // src/presentation/views/Analytics/AnalyticsDashboard.tsx
+
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import {
@@ -45,6 +46,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = observer(({ viewMo
             <option value="7d">Last 7 Days</option>
             <option value="1m">Last Month</option>
             <option value="3m">Last 3 Months</option>
+            <option value="all">All Time</option>
             <option value="custom">Custom</option>
           </select>
         </div>

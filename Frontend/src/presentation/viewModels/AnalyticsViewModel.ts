@@ -1,4 +1,5 @@
 // src/presentation/viewModels/AnalyticsViewModel.ts
+
 import { injectable, inject } from 'inversify';
 import { makeAutoObservable, action, computed, runInAction } from 'mobx';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
@@ -11,7 +12,7 @@ import type {
   DateRange
 } from '@/core/interfaces/services/IAnalyticsService';
 
-type DateRangeOption = '1d' | '7d' | '1m' | '3m' | 'custom';
+type DateRangeOption = '1d' | '7d' | '1m' | '3m' | 'all' | 'custom';
 
 @injectable()
 export class AnalyticsViewModel {
@@ -76,6 +77,10 @@ export class AnalyticsViewModel {
       case '3m':
         from = new Date(now);
         from.setMonth(now.getMonth() - 3);
+        break;
+      case 'all':
+        from = new Date(0); // Earliest possible date
+        to = new Date(9999, 11, 31); // Latest possible date
         break;
       case 'custom':
         from = new Date(this.customFromDate);
