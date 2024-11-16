@@ -1,4 +1,4 @@
-// File: src/presentation/components/ApplicationCard/ApplicationCard.tsx
+// src/presentation/components/ApplicationCard/ApplicationCard.tsx
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { GripVertical, ChevronDown, Clock } from 'lucide-react';
@@ -6,7 +6,7 @@ import { Application } from '@/core/domain/models/Application';
 
 interface Props {
   application: Application;
-  onStageChange: (applicationId: number, newStage: string) => void;
+  onStageChange: (applicationId: string, newStage: string) => void;
   onClick: () => void;
 }
 

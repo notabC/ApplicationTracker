@@ -1,8 +1,5 @@
 import React from 'react';
 
-
-
-
 interface ContainerProviderProps {
   children: React.ReactNode;
 }

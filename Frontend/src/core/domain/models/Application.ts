@@ -1,6 +1,6 @@
 // File: src/core/domain/models/Application.ts
 export interface Application {
-    id: number;
+    id: string;
     company: string;
     position: string;
     dateApplied: string;
@@ -16,13 +16,13 @@ export interface Application {
   }
   
   export interface ApplicationLog {
-    id: number;
+    id: string;
     date: string;
     fromStage: string | null;
     toStage: string;
     message: string;
     source: string;
-    emailId?: number;
+    emailId?: string;
     emailTitle?: string;
     emailBody?: string;
   }

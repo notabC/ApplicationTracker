@@ -1,7 +1,7 @@
 // File: src/App.tsx
 import React from 'react';
 import { ContainerProvider } from '@/di/ContainerProvider';
-import { JobTracker } from '@/presentation/views/JobTracker/JobTracker';
+import { JobTracker } from '@/presentation/views/JobTracker';
 
 const App: React.FC = () => {
   return (
