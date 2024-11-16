@@ -3,6 +3,9 @@ import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { X } from 'lucide-react';
 import type { Application } from '@/core/domain/models/Application';
+import { IWorkflowService } from '@/core/interfaces/services';
+import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
+import { container } from '@/di/container';
 
 interface Props {
   application: Application;
@@ -19,6 +22,8 @@ export const StageSelector: React.FC<Props> = observer(({
   onStageChange,
   onClose
 }) => {
+  const workflowService = container.get<IWorkflowService>(SERVICE_IDENTIFIERS.WorkflowService);
+
   return (
     <div
       className="fixed inset-0 bg-black/70 flex items-end justify-center sm:items-center z-50"
@@ -47,7 +52,7 @@ export const StageSelector: React.FC<Props> = observer(({
               }}
               className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-700/50"
             >
-              <div className={`w-2.5 h-2.5 rounded-full bg-${stage.toLowerCase()}-400`} />
+              <div className={`w-2.5 h-2.5 rounded-full bg-${workflowService.getColorForStage(stage.toLowerCase())}-400`} />
               <span className="flex-1 text-left text-gray-300">{stage}</span>
             </button>
           ))}

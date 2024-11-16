@@ -1,19 +1,43 @@
-// src/presentation/components/ApplicationCard/ApplicationCard.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { GripVertical, ChevronDown, Clock } from 'lucide-react';
 import { Application } from '@/core/domain/models/Application';
 import type { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
+import { StageSelector } from './StageSelector';
+import { IWorkflowService } from '@/core/interfaces/services';
+import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
+import { container } from '@/di/container';
 
 interface Props {
   application: Application;
-  viewModel: JobTrackerViewModel; // Changed from onClick to viewModel
+  viewModel: JobTrackerViewModel;
 }
 
 export const ApplicationCard: React.FC<Props> = observer(({ 
   application, 
   viewModel 
 }) => {
+  // Local state instead of using singleton
+  const [showStageSelect, setShowStageSelect] = useState(false);
+  
+  // Get workflow service directly
+  const workflowService = container.get<IWorkflowService>(SERVICE_IDENTIFIERS.WorkflowService);
+
+  const getAvailableStages = (currentStage: string): string[] => {
+    const workflow = workflowService.getWorkflow();
+    const { stages, stageOrder } = workflow;
+    const currentStageObj = stages.find(s => s.name === currentStage);
+    if (!currentStageObj) return [];
+
+    const currentIndex = stageOrder.indexOf(currentStageObj.id);
+    return stages
+      .filter(stage => 
+        stage.name === 'Rejected' || 
+        stageOrder.indexOf(stage.id) > currentIndex
+      )
+      .map(stage => stage.name);
+  };
+
   const getTypeColor = (type: string) => {
     const colors: Record<string, string> = {
       frontend: 'bg-blue-900 text-blue-200',
@@ -56,7 +80,7 @@ export const ApplicationCard: React.FC<Props> = observer(({
             className="p-2 hover:bg-gray-600 rounded-lg transition-colors"
             onClick={(e) => {
               e.stopPropagation();
-              // Handle stage change menu
+              setShowStageSelect(true);
             }}
           >
             <ChevronDown className="h-4 w-4 text-gray-400" />
@@ -85,6 +109,20 @@ export const ApplicationCard: React.FC<Props> = observer(({
           {application.lastUpdated}
         </div>
       </div>
+
+      {/* Stage Selector Modal */}
+      {showStageSelect && (
+        <StageSelector
+          application={application}
+          onStageChange={(newStage) => {
+            viewModel.handleStageChange(application, newStage);
+            setShowStageSelect(false);
+          }}
+          currentStage={application.stage}
+          onClose={() => setShowStageSelect(false)}
+          availableStages={getAvailableStages(application.stage)}
+        />
+      )}
     </div>
   );
 });

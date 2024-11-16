@@ -5,8 +5,8 @@ import type { Application } from '@/core/domain/models/Application';
 import type { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
 import { DragEvent } from 'react';
 import { PlusCircle } from 'lucide-react';
-import { EmailCard } from '../EmailCard';
-import { ApplicationCard } from '../ApplicationCard';
+import { EmailCard } from './EmailCard';
+import { ApplicationCard } from './ApplicationCard';
 
 interface Props {
   stage: WorkflowStage;

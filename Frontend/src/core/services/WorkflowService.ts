@@ -41,5 +41,10 @@ export class WorkflowService implements IWorkflowService {
   getStages(): WorkflowStage[] {
     return this.workflow.stages;
   }
+
+  getColorForStage(stageId: string): string {
+    const stage = this.workflow.stages.find(s => s.id === stageId);
+    return stage ? stage.color : 'gray';
+  }
 }
 

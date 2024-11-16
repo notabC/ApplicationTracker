@@ -14,4 +14,5 @@ export interface IWorkflowService {
   getWorkflow(): Workflow;
   updateWorkflow(workflow: Workflow): void;
   getStages(): WorkflowStage[];
+  getColorForStage(stageId: string): string;
 }

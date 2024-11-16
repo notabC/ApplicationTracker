@@ -10,7 +10,7 @@ import { GmailImportModal } from '@/presentation/components/modals/GmailImportMo
 import { EmailCard } from '../components/EmailCard';
 import { EmailProcessingModal } from '../components/modals/EmailProcessingModal';
 import { ApplicationModal } from '../components/modals/ApplicationModal';
-import { StageColumn } from '../components/StageColumn/StageColumn'; // Added
+import { StageColumn } from '../components/StageColumn'; // Added
 
 export const JobTracker: React.FC = observer(() => {
   const viewModel = container.get<JobTrackerViewModel>(SERVICE_IDENTIFIERS.JobTrackerViewModel);
