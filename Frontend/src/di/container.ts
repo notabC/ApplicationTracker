@@ -20,6 +20,7 @@ import { IAnalyticsService } from '@/core/interfaces/services/IAnalyticsService'
 import { AnalyticsService } from '@/core/services/AnalyticsService';
 import { AnalyticsViewModel } from '@/presentation/viewModels/AnalyticsViewModel';
 import { ActivityHistoryViewModel } from '@/presentation/viewModels/ActivityHistoryViewModel';
+import { RootStore } from '@/presentation/viewModels/RootStore';
 
 export const container = new Container();
 
@@ -88,4 +89,7 @@ container.bind<ActivityHistoryViewModel>(SERVICE_IDENTIFIERS.ActivityHistoryView
   .to(ActivityHistoryViewModel)
   .inSingletonScope();
 
+container.bind<RootStore>(SERVICE_IDENTIFIERS.RootStore)
+  .to(RootStore)
+  .inSingletonScope();
 export { SERVICE_IDENTIFIERS };

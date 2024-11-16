@@ -1,10 +1,10 @@
 // src/presentation/viewModels/ActivityHistoryViewModel.ts
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable, runInAction, reaction } from 'mobx';
 import { inject, injectable } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { Application } from '@/core/domain/models/Application';
 import type { ActivityLog } from '@/core/domain/models/ActivityLog';
-import type { IApplicationService } from '@/core/interfaces/services';
+import { RootStore } from './RootStore';
 
 @injectable()
 export class ActivityHistoryViewModel {
@@ -22,42 +22,43 @@ export class ActivityHistoryViewModel {
   error: string | null = null;
 
   constructor(
-    @inject(SERVICE_IDENTIFIERS.ApplicationService) 
-    private readonly applicationService: IApplicationService
+    @inject(SERVICE_IDENTIFIERS.RootStore) private rootStore: RootStore
   ) {
     makeAutoObservable(this);
     this.initialize();
+
+    // Observe changes in the RootStore's applications and update logs accordingly
+    this.rootStore = rootStore;
+    this.setupReactions();
   }
 
   /**
-   * Initializes the ViewModel by loading applications and creating logs.
+   * Initializes the ViewModel by creating logs from applications.
    */
-  private async initialize(): Promise<void> {
-    await this.loadApplications();
+  private initialize(): void {
+    this._logs = this.createLogsFromApplications(this.rootStore.applications);
+    this.updateDateFiltered(); // Initial date filtering
   }
 
   /**
-   * Loads applications from the ApplicationService and creates activity logs.
+   * Sets up MobX reactions to observe changes in the RootStore's applications.
    */
-  private async loadApplications(): Promise<void> {
-    this.isLoading = true;
-    try {
-      const applications: Application[] = await this.applicationService.getApplications();
-      runInAction(() => {
+  private setupReactions(): void {
+    // Reaction when applications change
+    // You can use MobX reactions or autorun here, but makeAutoObservable with observables will handle it
+    // So whenever `rootStore.applications` changes, createLogsFromApplications and update dateFilteredLogs
+    // To achieve this, we can make `_logs` a computed value, but since it's a flat map, it's better to use reactions
+
+    // Alternatively, watch the RootStore's applications and update logs accordingly
+    // Here, we'll use a MobX `reaction`
+
+    reaction(
+      () => this.rootStore.applications.slice(),
+      (applications) => {
         this._logs = this.createLogsFromApplications(applications);
-        this.updateDateFiltered(); // Initial date filtering
-        this.error = null;
-      });
-    } catch (error) {
-      runInAction(() => {
-        this.error = 'Failed to load activity logs.';
-        console.error('Error loading applications:', error);
-      });
-    } finally {
-      runInAction(() => {
-        this.isLoading = false;
-      });
-    }
+        this.updateDateFiltered();
+      }
+    );
   }
 
   /**
@@ -227,8 +228,7 @@ export class ActivityHistoryViewModel {
   async getApplicationDetails(applicationId: string): Promise<Application | undefined> {
     this.isLoading = true;
     try {
-      const applications: Application[] = await this.applicationService.getApplications();
-      const application = applications.find((app: Application) => app.id === applicationId);
+      const application = this.rootStore.getApplicationById(applicationId);
       runInAction(() => {
         this.error = null;
       });

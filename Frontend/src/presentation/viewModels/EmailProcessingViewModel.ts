@@ -4,9 +4,10 @@ import { inject, injectable } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { Email } from '@/core/interfaces/services/IEmailService';
 import type { Application } from '@/core/domain/models/Application';
-import type { IApplicationService, IWorkflowService } from '@/core/interfaces/services';
+import type { IWorkflowService } from '@/core/interfaces/services';
 import { IGmailEmail } from '@/core/interfaces/services/IGmailService';
 import { JobTrackerViewModel } from './JobTrackerViewModel';
+import { RootStore } from './RootStore';
 
 interface SearchInput {
   company: string;
@@ -21,22 +22,20 @@ export class EmailProcessingViewModel {
     position: '',
   };
   isBodyExpanded: boolean = false;
-  private _applications: Application[] = [];
   isLoading: boolean = false;
   error: string | null = null;
 
   constructor(
-    @inject(SERVICE_IDENTIFIERS.ApplicationService) private applicationService: IApplicationService,
     @inject(SERVICE_IDENTIFIERS.WorkflowService) private workflowService: IWorkflowService,
     @inject(SERVICE_IDENTIFIERS.JobTrackerViewModel) private jobTrackerViewModel: JobTrackerViewModel,
+    @inject(SERVICE_IDENTIFIERS.RootStore) private rootStore: RootStore,
   ) {
     makeAutoObservable(this);
-    this.loadApplications();
   }
 
   // Computed Properties
   get applications(): Application[] {
-    return this._applications;
+    return this.rootStore.applications;
   }
 
   get matchedApplications(): Application[] {
@@ -44,7 +43,7 @@ export class EmailProcessingViewModel {
       return [];
     }
 
-    return this._applications.filter((app: Application) => {
+    return this.applications.filter((app: Application) => {
       const companyMatch = app.company.toLowerCase().includes(this.searchInput.company.toLowerCase());
       const positionMatch = app.position.toLowerCase().includes(this.searchInput.position.toLowerCase());
 
@@ -54,40 +53,10 @@ export class EmailProcessingViewModel {
 
   // Actions
 
-  /**
-   * Loads applications from the ApplicationService.
-   */
-  async loadApplications(): Promise<void> {
-    this.isLoading = true;
-    try {
-      const applications = await this.applicationService.getApplications();
-      runInAction(() => {
-        this._applications = applications;
-        this.error = null;
-      });
-    } catch (error) {
-      runInAction(() => {
-        this.error = 'Failed to load applications.';
-        console.error('Error loading applications:', error);
-      });
-    } finally {
-      runInAction(() => {
-        this.isLoading = false;
-      });
-    }
-  }
-
-  /**
-   * Sets the search input with partial updates.
-   * @param input Partial search input containing company and/or position.
-   */
   setSearchInput(input: Partial<SearchInput>): void {
     this.searchInput = { ...this.searchInput, ...input };
   }
 
-  /**
-   * Toggles the expansion state of the email body.
-   */
   toggleBodyExpanded(): void {
     this.isBodyExpanded = !this.isBodyExpanded;
   }
@@ -128,9 +97,8 @@ export class EmailProcessingViewModel {
 
     this.isLoading = true;
     try {
-      await this.applicationService.addApplication(newApplication);
+      await this.rootStore.addApplication(newApplication);
       await this.jobTrackerViewModel.processEmail(email.id);
-      await this.loadApplications(); // Refresh applications after adding
       runInAction(() => {
         this.error = null;
       });
@@ -212,9 +180,8 @@ export class EmailProcessingViewModel {
 
     this.isLoading = true;
     try {
-      await this.applicationService.updateApplication(existingApp.id, updatedApplication);
+      await this.rootStore.updateApplication(updatedApplication);
       await this.jobTrackerViewModel.processEmail(email.id);
-      await this.loadApplications(); // Refresh applications after updating
       runInAction(() => {
         this.error = null;
       });
