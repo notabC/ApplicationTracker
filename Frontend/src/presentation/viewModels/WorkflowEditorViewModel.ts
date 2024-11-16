@@ -5,7 +5,6 @@ import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { WorkflowStage, Workflow } from '@/core/domain/models/Workflow';
 import { UnsavedChangesViewModel } from './UnsavedChangesViewModel';
 import type { IWorkflowService } from '@/core/interfaces/services';
-import { s } from 'node_modules/vite/dist/node/types.d-aGj9QkWt';
 
 @injectable()
 export class WorkflowEditorViewModel {
