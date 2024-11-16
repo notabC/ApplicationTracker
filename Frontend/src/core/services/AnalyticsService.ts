@@ -41,7 +41,8 @@ export class AnalyticsService implements IAnalyticsService {
     const monthlyData: Record<string, TimeMetric> = {};
 
     applications.forEach(app => {
-      const month = new Date(app.dateApplied).toLocaleString('default', { month: 'short', year: 'numeric' });
+      const date = new Date(app.dateApplied);
+      const month = date.toLocaleString('default', { month: 'short', year: 'numeric' });
       if (!monthlyData[month]) {
         monthlyData[month] = { month, applications: 0, interviews: 0, offers: 0 };
       }

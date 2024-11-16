@@ -1,5 +1,5 @@
 // src/presentation/views/Analytics/AnalyticsDashboard.tsx
-import React, { useState } from 'react';
+import React from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -14,12 +14,10 @@ interface AnalyticsDashboardProps {
 
 const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = observer(({ viewModel }) => {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
-  const [isCustom, setIsCustom] = useState(false);
 
   const handleDateRangeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value as any;
     viewModel.setSelectedDateRangeOption(value);
-    setIsCustom(value === 'custom');
   };
 
   const handleCustomFromDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,7 +51,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = observer(({ viewMo
       </div>
 
       {/* Custom Date Range */}
-      {isCustom && (
+      {viewModel.canUseCustomRange && (
         <div className="flex space-x-4">
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-1">From</label>
