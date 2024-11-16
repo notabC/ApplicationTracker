@@ -13,7 +13,7 @@ export class WorkflowService implements IWorkflowService {
       { id: 'online-assessment', name: 'Online Assessment', color: 'yellow', editable: true },
       { id: 'interview-process', name: 'Interview Process', color: 'purple', editable: true },
       { id: 'offer', name: 'Offer', color: 'green', editable: true },
-      { id: 'rejected', name: 'Rejected', color: 'red', editable: false }
+      { id: 'rejected', name: 'Rejected', color: 'red', editable: true }
     ],
     stageOrder: [
       'unassigned',
@@ -39,7 +39,12 @@ export class WorkflowService implements IWorkflowService {
   }
 
   getStages(): WorkflowStage[] {
-    return this.workflow.stages;
+    // return this.workflow.stages; return it according to the order
+    return this.workflow.stageOrder.map((stageId) => {
+      const stage = this.workflow.stages.find(s => s.id === stageId);
+      if (!stage) throw new Error(`Stage with id ${stageId} not found`);
+      return stage;
+    });
   }
 
   getColorForStage(stageId: string): string {

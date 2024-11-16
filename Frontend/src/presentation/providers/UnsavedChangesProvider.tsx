@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { container } from '@/di/container';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import { UnsavedChangesViewModel } from '@/presentation/viewModels/UnsavedChangesViewModel';
-import { UnsavedChangesNotification } from '@/presentation/components/UnsavedChangesNotification/UnsavedChangesNotification';
+import { UnsavedChangesNotification } from '@/presentation/components/UnsavedChangesNotification';
 import { IViewModelUpdateField } from '@/core/interfaces/services';
 
 interface UnsavedChangesContextProps {

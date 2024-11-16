@@ -13,6 +13,7 @@ import { EmailProcessingViewModel } from '@/presentation/viewModels/EmailProcess
 import { ApplicationModalViewModel } from '@/presentation/viewModels/ApplicationModalViewModel';
 import { DragDropViewModel } from '@/presentation/viewModels/DragDropViewModel';
 import { UnsavedChangesViewModel } from '@/presentation/viewModels/UnsavedChangesViewModel';
+import { WorkflowEditorViewModel } from '@/presentation/viewModels/WorkflowEditorViewModel';
 
 export const container = new Container();
 
@@ -59,6 +60,10 @@ container.bind<DragDropViewModel>(SERVICE_IDENTIFIERS.DragDropViewModel)
 
 container.bind<UnsavedChangesViewModel>(SERVICE_IDENTIFIERS.UnsavedChangesViewModel)
   .to(UnsavedChangesViewModel)
+  .inSingletonScope();
+
+container.bind<WorkflowEditorViewModel>(SERVICE_IDENTIFIERS.WorkflowEditorViewModel)
+  .to(WorkflowEditorViewModel)
   .inSingletonScope();
 
 export { SERVICE_IDENTIFIERS };

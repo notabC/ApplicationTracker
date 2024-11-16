@@ -12,4 +12,5 @@ export const SERVICE_IDENTIFIERS = {
   DragDropViewModel: Symbol.for('DragDropViewModel'),
   UnsavedChangesService: Symbol.for('UnsavedChangesService'),
   UnsavedChangesViewModel: Symbol.for('UnsavedChangesViewModel'),
+  WorkflowEditorViewModel: Symbol.for('WorkflowEditorViewModel'),
 };
