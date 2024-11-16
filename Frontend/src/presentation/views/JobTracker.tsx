@@ -11,7 +11,7 @@ import { EmailProcessingModal } from '../components/modals/EmailProcessingModal'
 import { ApplicationModal } from '../components/modals/ApplicationModal';
 import { StageColumn } from '../components/StageColumn'; // Updated import path
 import { WorkflowEditorModal } from '../components/modals/WorkflowEditorModal';
-import { ActivityHistory } from '../components/ActivityHistory/ActivityHistory';
+import { ActivityHistoryModal } from '../components/modals/ActivityHistoryModal';
 
 export const JobTracker: React.FC = observer(() => {
   const viewModel = container.get<JobTrackerViewModel>(SERVICE_IDENTIFIERS.JobTrackerViewModel);
@@ -154,7 +154,7 @@ export const JobTracker: React.FC = observer(() => {
         {viewModel.showHistory && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div className="bg-gray-900 rounded-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden">
-              <ActivityHistory onClose={() => viewModel.setShowHistory(false)} />
+              <ActivityHistoryModal onClose={() => viewModel.setShowHistory(false)} />
             </div>
           </div>
         )}

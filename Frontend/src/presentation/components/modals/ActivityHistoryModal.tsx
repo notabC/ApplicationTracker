@@ -1,11 +1,11 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import { Search, Calendar, Filter, ChevronDown, ChevronRight, X } from 'lucide-react';
+import { Search, ChevronDown, ChevronRight, X } from 'lucide-react';
 import { container } from '@/di/container';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import { ActivityHistoryViewModel } from '@/presentation/viewModels/ActivityHistoryViewModel';
 
-export const ActivityHistory: React.FC<{ onClose?: () => void }> = observer(({ onClose }) => {
+export const ActivityHistoryModal: React.FC<{ onClose?: () => void }> = observer(({ onClose }) => {
   const viewModel = container.get<ActivityHistoryViewModel>(SERVICE_IDENTIFIERS.ActivityHistoryViewModel);
 
   return (
