@@ -1,10 +1,12 @@
 // src/presentation/viewModels/EmailProcessingViewModel.ts
-import { makeAutoObservable, runInAction, computed } from 'mobx';
+import { makeAutoObservable, computed, action } from 'mobx';
 import { inject, injectable } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { Email } from '@/core/interfaces/services/IEmailService';
 import type { Application } from '@/core/domain/models/Application';
 import type { IApplicationService, IWorkflowService } from '@/core/interfaces/services';
+import { IGmailEmail } from '@/core/interfaces/services/IGmailService';
+import { JobTrackerViewModel } from './JobTrackerViewModel';
 
 interface SearchInput {
   company: string;
@@ -21,7 +23,8 @@ export class EmailProcessingViewModel {
   
   constructor(
     @inject(SERVICE_IDENTIFIERS.ApplicationService) private applicationService: IApplicationService,
-    @inject(SERVICE_IDENTIFIERS.WorkflowService) private workflowService: IWorkflowService
+    @inject(SERVICE_IDENTIFIERS.WorkflowService) private workflowService: IWorkflowService,
+    @inject(SERVICE_IDENTIFIERS.JobTrackerViewModel) private jobTrackerViewModel: JobTrackerViewModel,
   ) {
     makeAutoObservable(this);
   }
@@ -80,27 +83,6 @@ export class EmailProcessingViewModel {
     };
   }
 
-  async updateExistingApplication(application: Application, newStage: string): Promise<void> {
-    const updatedApp = {
-      ...application,
-      stage: newStage,
-      lastUpdated: new Date().toISOString(),
-      logs: [
-        ...application.logs,
-        {
-          id: crypto.randomUUID(),
-          date: new Date().toISOString(),
-          fromStage: application.stage,
-          toStage: newStage,
-          message: `Status updated from ${application.stage} to ${newStage}`,
-          source: 'manual'
-        }
-      ]
-    };
-
-    this.applicationService.updateApplication(application.id, updatedApp);
-  }
-
   getAvailableStages(currentStage: string): string[] {
     const workflow = this.workflowService.getWorkflow();
     const { stages, stageOrder } = workflow;
@@ -123,5 +105,30 @@ export class EmailProcessingViewModel {
     };
     this.isBodyExpanded = false;
   }
-}
 
+  @action
+  handleEmailUpdateApplication = (existingApp: Application, newStage: string, email: IGmailEmail) => {
+    const newLog = {
+      id: crypto.randomUUID(),
+      date: new Date().toISOString().split('T')[0],
+      fromStage: existingApp.stage,
+      toStage: newStage,
+      message: `Status updated from ${existingApp.stage} to ${newStage}`,
+      source: 'email',
+      emailId: email.id,
+      emailTitle: email.title,
+      emailBody: email.body,
+    };
+
+    this.applicationService.updateApplication(existingApp.id, {
+      ...existingApp,
+      stage: newStage,
+      lastUpdated: new Date().toISOString().split('T')[0],
+      logs: [...existingApp.logs, newLog],
+    });
+    
+    this.jobTrackerViewModel.processEmail(email.id);
+
+    console.log('from stage:', existingApp.stage, 'to stage:', newStage);
+  }
+}

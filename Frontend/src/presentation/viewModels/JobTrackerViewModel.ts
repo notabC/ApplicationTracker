@@ -6,6 +6,7 @@ import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { Application } from '@/core/domain/models/Application';
 import { mockApplications } from '@/core/services/mockData';
 import type { Email, IEmailService } from '@/core/interfaces/services/IEmailService';
+import { DragDropViewModel } from './DragDropViewModel';
 
 @injectable()
 export class JobTrackerViewModel {
@@ -20,16 +21,15 @@ export class JobTrackerViewModel {
   @observable emails: Email[] = [];
   @observable selectedEmail: Email | null = null;
   @observable showEmailProcessingModal: boolean = false;
-  @observable private _applications: Application[] = [];
 
   constructor(
     @inject(SERVICE_IDENTIFIERS.ApplicationService) private applicationService: IApplicationService,
     @inject(SERVICE_IDENTIFIERS.WorkflowService) private workflowService: IWorkflowService,
     @inject(SERVICE_IDENTIFIERS.EmailService) private emailService: IEmailService,
+    @inject(SERVICE_IDENTIFIERS.DragDropViewModel) private dragDropViewModel: DragDropViewModel // Added
   ) {
     makeObservable(this);
     this.applicationService.setApplications(mockApplications);
-    this.loadApplications();
     this.loadEmails();
   }
 
@@ -71,17 +71,22 @@ export class JobTrackerViewModel {
   }
 
   @action
-  handleStageChange = (applicationId: string, newStage: string) => {
-    const application = this.applicationService.getApplications()
-      .find(app => app.id === applicationId);
-    
-    if (application) {
-      this.applicationService.updateApplication(applicationId, {
-        ...application,
-        stage: newStage,
-        lastUpdated: new Date().toISOString().split('T')[0]
-      });
-    }
+  handleStageChange = (application: Application, newStage: string) => {
+    const newLog = {
+      id: crypto.randomUUID(),
+      date: new Date().toISOString().split('T')[0],
+      fromStage: application.stage,
+      toStage: newStage,
+      message: `Status updated from ${application.stage} to ${newStage}`,
+      source: 'manual',
+    };
+
+    this.applicationService.updateApplication(application.id, {
+      ...application,
+      stage: newStage,
+      lastUpdated: new Date().toISOString().split('T')[0],
+      logs: [...application.logs, newLog],
+    });
   };
 
   @action
@@ -167,31 +172,21 @@ export class JobTrackerViewModel {
   }
 
   @action
-  async processEmail(application: Application | null, emailId: string): Promise<void> {
-    if (application) {
-      // Update existing application
-      this.applicationService.updateApplication(application.id, application);
-    }
+  async processEmail(emailId: string): Promise<void> {
 
     // Mark email as processed
-    await this.emailService.markAsProcessed([emailId]);
+    this.emailService.markAsProcessed([emailId]);
     
     // Refresh data
     this.loadEmails();
-    this.loadApplications();
     
     // Close modal
     this.closeEmailProcessingModal();
   }
 
-  @action
-  private loadApplications(): void {
-    this._applications = this.applicationService.getApplications();
-  }
-
   @computed
   get applications(): Application[] {
-    return this._applications;
+    return this.applicationService.getApplications();
   }
 
   @action
@@ -220,5 +215,10 @@ export class JobTrackerViewModel {
   get totalApplicationsInCurrentStage(): number {
     if (!this.selectedApplication) return 0;
     return this.getApplicationsByStage(this.selectedApplication.stage).length;
+  }
+
+  // Expose DragDropViewModel for components
+  get dragDropVM(): DragDropViewModel {
+    return this.dragDropViewModel;
   }
 }

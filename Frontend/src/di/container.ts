@@ -11,6 +11,7 @@ import { GmailService } from '@/core/services/GmailService';
 import { EmailService } from '@/core/services/EmailService';
 import { EmailProcessingViewModel } from '@/presentation/viewModels/EmailProcessingViewModel';
 import { ApplicationModalViewModel } from '@/presentation/viewModels/ApplicationModalViewModel';
+import { DragDropViewModel } from '@/presentation/viewModels/DragDropViewModel';
 
 export const container = new Container();
 
@@ -49,4 +50,8 @@ container.bind<EmailProcessingViewModel>(SERVICE_IDENTIFIERS.EmailProcessingView
 
 container.bind<ApplicationModalViewModel>(SERVICE_IDENTIFIERS.ApplicationModalViewModel)
   .to(ApplicationModalViewModel)
+  .inSingletonScope();
+
+container.bind<DragDropViewModel>(SERVICE_IDENTIFIERS.DragDropViewModel)
+  .to(DragDropViewModel)
   .inSingletonScope();

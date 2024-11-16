@@ -10,3 +10,4 @@
     stages: WorkflowStage[];
     stageOrder: string[];
   }
+  

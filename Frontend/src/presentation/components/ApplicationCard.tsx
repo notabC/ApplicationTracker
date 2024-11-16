@@ -3,17 +3,16 @@ import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { GripVertical, ChevronDown, Clock } from 'lucide-react';
 import { Application } from '@/core/domain/models/Application';
+import type { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
 
 interface Props {
   application: Application;
-  onStageChange: (applicationId: string, newStage: string) => void;
-  onClick: () => void;
+  viewModel: JobTrackerViewModel; // Changed from onClick to viewModel
 }
 
 export const ApplicationCard: React.FC<Props> = observer(({ 
   application, 
-  onStageChange, 
-  onClick 
+  viewModel 
 }) => {
   const getTypeColor = (type: string) => {
     const colors: Record<string, string> = {
@@ -24,12 +23,25 @@ export const ApplicationCard: React.FC<Props> = observer(({
     return colors[type] || 'bg-gray-800 text-gray-200';
   };
 
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    e.dataTransfer.effectAllowed = 'move';
+    viewModel.dragDropVM.setDraggedApplication(application);
+  };
+
+  const handleDragEnd = () => {
+    viewModel.dragDropVM.setDraggedApplication(null);
+  };
+
   return (
     <div
-      className="bg-gray-750 p-4 rounded-lg border border-gray-700 hover:bg-gray-700 
-                 transition-colors duration-200 cursor-pointer"
-      onClick={onClick}
       draggable
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onClick={() => viewModel.selectApplication(application)}
+      className={`bg-gray-750 p-4 rounded-lg border border-gray-700 
+                 hover:bg-gray-700 transition-colors duration-200 cursor-grab 
+                 active:cursor-grabbing group
+                 ${viewModel.dragDropVM.draggedApplication?.id === application.id ? 'opacity-50' : ''}`}
     >
       <div className="flex justify-between items-start mb-3">
         <div className="flex gap-3 items-center text-left">
@@ -39,7 +51,7 @@ export const ApplicationCard: React.FC<Props> = observer(({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <GripVertical className="h-4 w-4 text-gray-500 cursor-grab hidden sm:flex" />
+          <GripVertical className="h-4 w-4 text-gray-500 hidden group-hover:flex cursor-grab active:cursor-grabbing" />
           <button
             className="p-2 hover:bg-gray-600 rounded-lg transition-colors"
             onClick={(e) => {

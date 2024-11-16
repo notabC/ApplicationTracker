@@ -7,5 +7,6 @@ export const SERVICE_IDENTIFIERS = {
     GmailImportViewModel: Symbol.for('GmailImportViewModel'),
     EmailService: Symbol.for('EmailService'),
     EmailProcessingViewModel: Symbol.for('EmailProcessingViewModel'),
-    ApplicationModalViewModel: Symbol.for('ApplicationModalViewModel')
+    ApplicationModalViewModel: Symbol.for('ApplicationModalViewModel'),
+    DragDropViewModel: Symbol.for('DragDropViewModel'),
   };

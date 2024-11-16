@@ -1,4 +1,4 @@
-// src/presentation/components/modals/EmailProcessingModal/EmailProcessingModal.tsx
+// src/presentation/components/modals/EmailProcessingModal.tsx
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { container } from '@/di/container';
@@ -8,11 +8,11 @@ import type { Email } from '@/core/interfaces/services/IEmailService';
 import { Application } from '@/core/domain/models/Application';
 import { X } from 'lucide-react';
 import { WorkflowStage } from '@/core/domain/models/Workflow';
+import { IGmailEmail } from '@/core/interfaces/services/IGmailService';
 
 interface Props {
   email: Email;
   onClose: () => void;
-  onProcess: (application: Application | null, emailId: string) => Promise<void>;
   applications: Application[];
   workflow: WorkflowStage[];
 }
@@ -20,7 +20,6 @@ interface Props {
 export const EmailProcessingModal: React.FC<Props> = observer(({
   email,
   onClose,
-  onProcess,
   applications,
   workflow
 }) => {
@@ -35,13 +34,11 @@ export const EmailProcessingModal: React.FC<Props> = observer(({
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-gray-900 rounded-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex-none p-6 border-b border-gray-800">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold text-white">Process Email</h2>
-            <button onClick={handleClose} className="p-2 hover:bg-gray-800 rounded-lg">
-              <X className="h-5 w-5 text-gray-400" />
-            </button>
-          </div>
+        <div className="flex justify-between items-center p-6 border-b border-gray-800">
+          <h2 className="text-xl font-semibold text-white">Process Email</h2>
+          <button onClick={handleClose} className="p-2 hover:bg-gray-800 rounded-lg">
+            <X className="h-5 w-5 text-gray-400" />
+          </button>
         </div>
 
         {/* Email Content Display */}
@@ -99,7 +96,10 @@ export const EmailProcessingModal: React.FC<Props> = observer(({
           {(viewModel.searchInput.company || viewModel.searchInput.position) && (
             <div className="mt-6 space-y-4">
               {viewModel.matchedApplications.map(app => (
-                <div key={app.id} className="bg-gray-800 rounded-lg overflow-hidden">
+                <div 
+                  key={app.id} 
+                  className="bg-gray-800 rounded-lg overflow-hidden"
+                >
                   <div className="p-4">
                     <h3 className="text-lg font-medium text-white mb-1">{app.company}</h3>
                     <p className="text-sm text-gray-400 mb-2">{app.position}</p>
@@ -110,8 +110,12 @@ export const EmailProcessingModal: React.FC<Props> = observer(({
                         <button
                           key={stage}
                           onClick={async () => {
-                            await viewModel.updateExistingApplication(app, stage);
-                            onProcess(app, email.id);
+                            try {
+                              viewModel.handleEmailUpdateApplication(app, stage, email);
+                            } catch (error) {
+                              console.error('Error processing email:', error);
+                              // Optionally, set an error state here to display to the user
+                            }
                           }}
                           className="p-2 text-sm text-gray-200 hover:bg-gray-700 rounded-lg"
                         >
@@ -128,8 +132,7 @@ export const EmailProcessingModal: React.FC<Props> = observer(({
                   <p className="text-gray-400 mb-4">No matching applications found</p>
                   <button
                     onClick={() => {
-                      const newApp = viewModel.createNewApplication(email);
-                      onProcess(newApp, email.id);
+                      viewModel.createNewApplication(email);
                     }}
                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                   >
