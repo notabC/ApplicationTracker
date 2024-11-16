@@ -1,7 +1,7 @@
 // src/presentation/views/JobTracker.tsx
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import { Search, SlidersHorizontal, PlusCircle, Mail, Settings2, Clock } from 'lucide-react';
+import { Search, SlidersHorizontal, PlusCircle, Mail, Settings2, Clock, LineChart } from 'lucide-react';
 import { container } from '@/di/container';
 import { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
@@ -46,11 +46,17 @@ export const JobTracker: React.FC = observer(() => {
             </button>
             <button
               onClick={() => viewModel.setShowHistory(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg"
+              className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
             >
               <Clock className="h-4 w-4" />
               <span className="hidden lg:inline">Activity History</span>
-              {/* one size bigger than md is lg */}
+            </button>
+            <button 
+              onClick={() => window.location.href = '/analytics'}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+            >
+              <LineChart className="h-4 w-4" />
+              <span className="hidden lg:inline">View Analytics</span>
             </button>
           </div>
         </div>

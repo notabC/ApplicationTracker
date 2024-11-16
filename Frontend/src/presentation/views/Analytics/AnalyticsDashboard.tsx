@@ -36,7 +36,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = observer(({ viewMo
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white">Analytics Dashboard</h1>
+        <h1 className="text-2xl font-bold text-white"><a href='/'>Job Application Tracker</a></h1>
         <div className="flex items-center gap-2">
           <div className="relative">
             <select
