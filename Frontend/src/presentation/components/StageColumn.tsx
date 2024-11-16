@@ -42,7 +42,7 @@ export const StageColumn = observer(({ stage, applications, viewModel }: Props) 
         {/* Stage Header */}
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-semibold text-white">{stage.name}</h3>
-          <span className={`px-2 py-1 bg-${stage.color}-700 text-${stage.color}-300 text-sm rounded-full`}>
+          <span className={`px-2 py-1 text-gray-300 text-sm rounded-full`}>
             {stage.name === 'Unassigned'
               ? viewModel.unprocessedEmails.length
               : viewModel.getApplicationsByStage(stage.name).length}
