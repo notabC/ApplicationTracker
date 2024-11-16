@@ -5,27 +5,26 @@ import { IApplicationRepository, Application } from './ApplicationRepository';
 @injectable()
 export class MockApplicationRepository implements IApplicationRepository {
   private applications: Application[] = [
-    // Populate with mock data or fetch from an API
     {
       id: '1',
       stage: 'Resume Submitted',
       type: 'Full-Time',
-      dateApplied: '2024-01-15',
-      lastUpdated: '2024-02-20',
+      dateApplied: '2024-11-15',
+      lastUpdated: '2024-11-16',
     },
     {
       id: '2',
       stage: 'Interview Process',
       type: 'Internship',
-      dateApplied: '2024-02-10',
-      lastUpdated: '2024-03-15',
+      dateApplied: '2024-11-10',
+      lastUpdated: '2024-11-14',
     },
     {
       id: '3',
       stage: 'Offer',
       type: 'Full-Time',
-      dateApplied: '2024-03-05',
-      lastUpdated: '2024-04-10',
+      dateApplied: '2024-10-05',
+      lastUpdated: '2024-10-20',
     },
     // Add more applications as needed
   ];

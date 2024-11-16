@@ -1,5 +1,5 @@
 // src/presentation/views/Analytics/AnalyticsDashboard.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -14,6 +14,23 @@ interface AnalyticsDashboardProps {
 
 const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = observer(({ viewModel }) => {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+  const [isCustom, setIsCustom] = useState(false);
+
+  const handleDateRangeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value as any;
+    viewModel.setSelectedDateRangeOption(value);
+    setIsCustom(value === 'custom');
+  };
+
+  const handleCustomFromDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const date = new Date(e.target.value);
+    viewModel.setCustomFromDate(date);
+  };
+
+  const handleCustomToDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const date = new Date(e.target.value);
+    viewModel.setCustomToDate(date);
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -21,14 +38,43 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = observer(({ viewMo
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-white">Analytics Dashboard</h1>
         <div className="flex items-center gap-2">
-          <button
-            className="px-4 py-2 bg-gray-800 rounded-lg text-gray-200 flex items-center gap-2"
-            onClick={() => viewModel.setSelectedTimeRange('3m')}
+          <select
+            value={viewModel.selectedDateRangeOption}
+            onChange={handleDateRangeChange}
+            className="px-4 py-2 bg-gray-800 rounded-lg text-gray-200"
           >
-            Last 3 months <ChevronDown className="h-4 w-4" />
-          </button>
+            <option value="1d">Last 1 Day</option>
+            <option value="7d">Last 7 Days</option>
+            <option value="1m">Last Month</option>
+            <option value="3m">Last 3 Months</option>
+            <option value="custom">Custom</option>
+          </select>
         </div>
       </div>
+
+      {/* Custom Date Range */}
+      {isCustom && (
+        <div className="flex space-x-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">From</label>
+            <input
+              type="date"
+              value={viewModel.customFromDate.toISOString().split('T')[0]}
+              onChange={handleCustomFromDateChange}
+              className="px-4 py-2 bg-gray-700 rounded-lg text-gray-200"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">To</label>
+            <input
+              type="date"
+              value={viewModel.customToDate.toISOString().split('T')[0]}
+              onChange={handleCustomToDateChange}
+              className="px-4 py-2 bg-gray-700 rounded-lg text-gray-200"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

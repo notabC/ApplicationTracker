@@ -1,8 +1,15 @@
 // src/core/services/AnalyticsService.ts
 import { injectable, inject } from 'inversify';
-import { IAnalyticsService, StageMetric, TimeMetric, ResponseRate, TypeDistribution } from '../interfaces/services/IAnalyticsService';
+import {
+  IAnalyticsService,
+  StageMetric,
+  TimeMetric,
+  ResponseRate,
+  TypeDistribution,
+  DateRange
+} from '../interfaces/services/IAnalyticsService';
 import { SERVICE_IDENTIFIERS } from '../constants/identifiers';
-import type { IApplicationRepository } from '@/domain/repositories/ApplicationRepository';
+import type { IApplicationRepository, Application } from '@/domain/repositories/ApplicationRepository';
 
 @injectable()
 export class AnalyticsService implements IAnalyticsService {
@@ -11,8 +18,15 @@ export class AnalyticsService implements IAnalyticsService {
     private applicationRepository: IApplicationRepository
   ) {}
 
-  getStageMetrics(): StageMetric[] {
-    const applications = this.applicationRepository.getApplications();
+  private filterApplicationsByDateRange(applications: Application[], dateRange: DateRange): Application[] {
+    return applications.filter(app => {
+      const appliedDate = new Date(app.dateApplied);
+      return appliedDate >= dateRange.from && appliedDate <= dateRange.to;
+    });
+  }
+
+  getStageMetrics(dateRange: DateRange): StageMetric[] {
+    const applications = this.filterApplicationsByDateRange(this.applicationRepository.getApplications(), dateRange);
     const metrics: Record<string, number> = {};
 
     applications.forEach(app => {
@@ -22,12 +36,12 @@ export class AnalyticsService implements IAnalyticsService {
     return Object.entries(metrics).map(([name, value]) => ({ name, value }));
   }
 
-  getTimeMetrics(): TimeMetric[] {
-    const applications = this.applicationRepository.getApplications();
+  getTimeMetrics(dateRange: DateRange): TimeMetric[] {
+    const applications = this.filterApplicationsByDateRange(this.applicationRepository.getApplications(), dateRange);
     const monthlyData: Record<string, TimeMetric> = {};
 
     applications.forEach(app => {
-      const month = new Date(app.dateApplied).toLocaleString('default', { month: 'short' });
+      const month = new Date(app.dateApplied).toLocaleString('default', { month: 'short', year: 'numeric' });
       if (!monthlyData[month]) {
         monthlyData[month] = { month, applications: 0, interviews: 0, offers: 0 };
       }
@@ -40,9 +54,17 @@ export class AnalyticsService implements IAnalyticsService {
     return Object.values(monthlyData);
   }
 
-  getResponseRates(): ResponseRate[] {
-    const applications = this.applicationRepository.getApplications();
+  getResponseRates(dateRange: DateRange): ResponseRate[] {
+    const applications = this.filterApplicationsByDateRange(this.applicationRepository.getApplications(), dateRange);
     const total = applications.length;
+
+    if (total === 0) {
+      return [
+        { name: 'Response Rate', value: 0 },
+        { name: 'Interview Rate', value: 0 },
+        { name: 'Offer Rate', value: 0 }
+      ];
+    }
 
     const responded = applications.filter(app => app.stage !== 'Resume Submitted').length;
     const interviewed = applications.filter(app => app.stage === 'Interview Process').length;
@@ -55,8 +77,8 @@ export class AnalyticsService implements IAnalyticsService {
     ];
   }
 
-  getTypeDistribution(): TypeDistribution[] {
-    const applications = this.applicationRepository.getApplications();
+  getTypeDistribution(dateRange: DateRange): TypeDistribution[] {
+    const applications = this.filterApplicationsByDateRange(this.applicationRepository.getApplications(), dateRange);
     const distribution: Record<string, number> = {};
 
     applications.forEach(app => {
@@ -66,8 +88,8 @@ export class AnalyticsService implements IAnalyticsService {
     return Object.entries(distribution).map(([name, value]) => ({ name, value }));
   }
 
-  getTimeToOffer(): number {
-    const applications = this.applicationRepository.getApplications();
+  getTimeToOffer(dateRange: DateRange): number {
+    const applications = this.filterApplicationsByDateRange(this.applicationRepository.getApplications(), dateRange);
     const offeredApps = applications.filter(app => app.stage === 'Offer');
 
     if (offeredApps.length === 0) return 0;

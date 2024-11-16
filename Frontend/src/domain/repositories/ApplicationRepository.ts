@@ -3,7 +3,6 @@ export interface IApplicationRepository {
     getApplications(): Application[];
   }
   
-  // Example Application Interface
   export interface Application {
     id: string;
     stage: string;

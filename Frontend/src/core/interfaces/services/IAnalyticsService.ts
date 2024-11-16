@@ -1,10 +1,15 @@
 // src/core/interfaces/services/IAnalyticsService.ts
-export interface IAnalyticsService {
-    getStageMetrics(): StageMetric[];
-    getTimeMetrics(): TimeMetric[];
-    getResponseRates(): ResponseRate[];
-    getTypeDistribution(): TypeDistribution[];
-    getTimeToOffer(): number;
+export interface DateRange {
+    from: Date;
+    to: Date;
+  }
+  
+  export interface IAnalyticsService {
+    getStageMetrics(dateRange: DateRange): StageMetric[];
+    getTimeMetrics(dateRange: DateRange): TimeMetric[];
+    getResponseRates(dateRange: DateRange): ResponseRate[];
+    getTypeDistribution(dateRange: DateRange): TypeDistribution[];
+    getTimeToOffer(dateRange: DateRange): number;
   }
   
   export interface StageMetric {
