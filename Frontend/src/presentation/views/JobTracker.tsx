@@ -7,7 +7,6 @@ import { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewMod
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import { AddApplicationModal } from '@/presentation/components/modals/AddApplicationModal';
 import { GmailImportModal } from '@/presentation/components/modals/GmailImportModal';
-import { EmailCard } from '../components/EmailCard';
 import { EmailProcessingModal } from '../components/modals/EmailProcessingModal';
 import { ApplicationModal } from '../components/modals/ApplicationModal';
 import { StageColumn } from '../components/StageColumn'; // Added
@@ -27,21 +26,21 @@ export const JobTracker: React.FC = observer(() => {
               className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
               >
               <PlusCircle className="h-4 w-4" />
-              Add Application
+              <span className="hidden sm:inline">Add Application</span>
             </button>
             <button 
               onClick={() => viewModel.setIsGmailModalOpen(true)}
               className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
               <Mail className="h-4 w-4" />
-              Import from Gmail
+              <span className="hidden sm:inline">Import from Gmail</span>
             </button>
             <button 
               onClick={() => viewModel.showEditWorkflowModal()}
               className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
               >
               <Settings2 className="h-4 w-4" />
-              Edit Workflow
+              <span className="hidden sm:inline">Edit Workflow</span>
             </button>
           </div>
         </div>

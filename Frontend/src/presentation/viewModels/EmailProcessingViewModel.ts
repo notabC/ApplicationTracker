@@ -56,7 +56,7 @@ export class EmailProcessingViewModel {
   }
 
   createNewApplication(email: Email): Application {
-    return {
+    const newApplication: Application = {
       id: crypto.randomUUID(),
       company: this.searchInput.company,
       position: this.searchInput.position,
@@ -81,6 +81,11 @@ export class EmailProcessingViewModel {
         emailBody: email.body,
       }]
     };
+
+    this.applicationService.addApplication(newApplication);
+    this.jobTrackerViewModel.processEmail(email.id);
+    return newApplication;
+
   }
 
   getAvailableStages(currentStage: string): string[] {
