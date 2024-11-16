@@ -9,11 +9,11 @@ import { AddApplicationModal } from '@/presentation/components/modals/AddApplica
 import { GmailImportModal } from '@/presentation/components/modals/GmailImportModal';
 import { EmailProcessingModal } from '../components/modals/EmailProcessingModal';
 import { ApplicationModal } from '../components/modals/ApplicationModal';
-import { StageColumn } from '../components/StageColumn'; // Added
+import { StageColumn } from '../components/StageColumn'; // Updated import path
 
 export const JobTracker: React.FC = observer(() => {
   const viewModel = container.get<JobTrackerViewModel>(SERVICE_IDENTIFIERS.JobTrackerViewModel);
-  
+
   return (
     <div className="p-6 max-w-full bg-[#1a1d21] min-h-screen">
       <div className="mx-auto">

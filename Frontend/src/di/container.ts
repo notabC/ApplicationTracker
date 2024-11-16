@@ -1,4 +1,4 @@
-// File: src/di/container.ts
+// src/di/container.ts
 import { Container } from 'inversify';
 import { ApplicationService } from '@/core/services/ApplicationService';
 import { WorkflowService } from '@/core/services/WorkflowService';
@@ -12,6 +12,7 @@ import { EmailService } from '@/core/services/EmailService';
 import { EmailProcessingViewModel } from '@/presentation/viewModels/EmailProcessingViewModel';
 import { ApplicationModalViewModel } from '@/presentation/viewModels/ApplicationModalViewModel';
 import { DragDropViewModel } from '@/presentation/viewModels/DragDropViewModel';
+import { UnsavedChangesViewModel } from '@/presentation/viewModels/UnsavedChangesViewModel';
 
 export const container = new Container();
 
@@ -55,3 +56,9 @@ container.bind<ApplicationModalViewModel>(SERVICE_IDENTIFIERS.ApplicationModalVi
 container.bind<DragDropViewModel>(SERVICE_IDENTIFIERS.DragDropViewModel)
   .to(DragDropViewModel)
   .inSingletonScope();
+
+container.bind<UnsavedChangesViewModel>(SERVICE_IDENTIFIERS.UnsavedChangesViewModel)
+  .to(UnsavedChangesViewModel)
+  .inSingletonScope();
+
+export { SERVICE_IDENTIFIERS };

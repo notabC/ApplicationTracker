@@ -3,10 +3,10 @@ import { makeAutoObservable, runInAction, computed, action, observable } from 'm
 import { inject, injectable } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { Application, ApplicationLog } from '@/core/domain/models/Application';
-import type { IApplicationService, IWorkflowService } from '@/core/interfaces/services';
+import type { IApplicationService, IViewModelUpdateField, IWorkflowService } from '@/core/interfaces/services';
 
 @injectable()
-export class ApplicationModalViewModel {
+export class ApplicationModalViewModel implements IViewModelUpdateField {
   @observable showStageSelect = false;
   @observable expandedLogs = new Set<string>();
   @observable unsavedChanges: Partial<Application> = {};
@@ -38,6 +38,7 @@ export class ApplicationModalViewModel {
     field: K,
     value: Application[K]
   ): void {
+    console.log(`Updating field ${field} for application ${applicationId} to ${value}`);
     this.unsavedChanges = {
       ...this.unsavedChanges,
       [field]: value
@@ -84,6 +85,7 @@ export class ApplicationModalViewModel {
 
     this.applicationService.updateApplication(updatedApplication.id, updatedApplication);
     this.setShowStageSelect(false);
+    
   }
 
   @action

@@ -1,12 +1,15 @@
+// src/core/constants/identifiers.ts
 export const SERVICE_IDENTIFIERS = {
-    ApplicationService: Symbol.for('ApplicationService'),
-    WorkflowService: Symbol.for('WorkflowService'),
-    JobTrackerViewModel: Symbol.for('JobTrackerViewModel'),
-    AddApplicationViewModel: Symbol.for('AddApplicationViewModel'),
-    GmailService: Symbol.for('GmailService'),
-    GmailImportViewModel: Symbol.for('GmailImportViewModel'),
-    EmailService: Symbol.for('EmailService'),
-    EmailProcessingViewModel: Symbol.for('EmailProcessingViewModel'),
-    ApplicationModalViewModel: Symbol.for('ApplicationModalViewModel'),
-    DragDropViewModel: Symbol.for('DragDropViewModel'),
-  };
+  ApplicationService: Symbol.for('ApplicationService'),
+  WorkflowService: Symbol.for('WorkflowService'),
+  JobTrackerViewModel: Symbol.for('JobTrackerViewModel'),
+  AddApplicationViewModel: Symbol.for('AddApplicationViewModel'),
+  GmailService: Symbol.for('GmailService'),
+  GmailImportViewModel: Symbol.for('GmailImportViewModel'),
+  EmailService: Symbol.for('EmailService'),
+  EmailProcessingViewModel: Symbol.for('EmailProcessingViewModel'),
+  ApplicationModalViewModel: Symbol.for('ApplicationModalViewModel'),
+  DragDropViewModel: Symbol.for('DragDropViewModel'),
+  UnsavedChangesService: Symbol.for('UnsavedChangesService'),
+  UnsavedChangesViewModel: Symbol.for('UnsavedChangesViewModel'),
+};

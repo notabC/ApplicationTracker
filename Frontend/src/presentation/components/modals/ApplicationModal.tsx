@@ -12,6 +12,8 @@ import type { Application } from '@/core/domain/models/Application';
 import { EditableField } from '../EditableField';
 import { TagManager } from '../TagManager';
 import { StageSelector } from '../StageSelector';
+import { useUnsavedChanges } from '@/presentation/providers/UnsavedChangesProvider';
+import { ApplicationService } from '@/core/services/ApplicationService';
 
 interface Props {
   application: Application;
@@ -28,19 +30,21 @@ export const ApplicationModal: React.FC<Props> = observer(({
   totalApplications,
   currentIndex
 }) => {
+  const { trackChange } = useUnsavedChanges();
+  const applicationService = container.get<ApplicationService>(SERVICE_IDENTIFIERS.ApplicationService);
   const viewModel = container.get<ApplicationModalViewModel>(SERVICE_IDENTIFIERS.ApplicationModalViewModel);
+  const updatedApplication = applicationService.getApplicationById(application.id) || application;
 
-  const handleClose = () => {
-    if (viewModel.hasUnsavedChanges) {
-      const shouldSave = window.confirm('You have unsaved changes. Would you like to save them before closing?');
-      if (shouldSave) {
-        viewModel.saveChanges(application);
-      } else {
-        viewModel.discardChanges();
-      }
+  const handleFieldChange = (field: keyof Application, value: any, track=false) => {
+    // Track the change with original value
+    const originalValue = application[field];
+
+    if (track) {
+      trackChange(application.id.toString(), field, value, originalValue, viewModel);
     }
-    viewModel.reset();
-    onClose();
+    
+    // Update the application state via ViewModel or directly
+    viewModel.updateField(application.id, field, value);
   };
 
   return (
@@ -48,28 +52,28 @@ export const ApplicationModal: React.FC<Props> = observer(({
       <div className="bg-gray-900 rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="p-6 border-b border-gray-800">
-          <div className="flex justify-between items-start">
+          <div className="flex justify-between items-center">
             <div className="flex gap-4 items-center">
               <div className="relative group">
                 <div className="flex flex-col gap-1">
+                <input
+                  type="text"
+                  value={viewModel.unsavedChanges.company !== undefined ? viewModel.unsavedChanges.company : application.company}
+                  onChange={(e) => handleFieldChange('company', e.target.value, true)}
+                  className="text-xl font-semibold text-white bg-transparent hover:bg-gray-800 
+                          px-2 py-1 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
                   <input
                     type="text"
-                    value={application.company}
-                    onChange={(e) => viewModel.updateField(application.id, 'company', e.target.value)}
-                    className="text-xl font-semibold text-white bg-transparent hover:bg-gray-800 
-                             px-2 py-1 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                  <input
-                    type="text"
-                    value={application.position}
-                    onChange={(e) => viewModel.updateField(application.id, 'position', e.target.value)}
+                    value={viewModel.unsavedChanges.position !== undefined ? viewModel.unsavedChanges.position : application.position}
+                    onChange={(e) => handleFieldChange('position', e.target.value, true)}
                     className="text-sm text-gray-400 bg-transparent hover:bg-gray-800 
                              px-2 py-1 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
               </div>
             </div>
-            <button onClick={handleClose} className="p-2 hover:bg-gray-800 rounded-lg">
+            <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-lg">
               <X className="h-5 w-5 text-gray-400" />
             </button>
           </div>
@@ -81,8 +85,8 @@ export const ApplicationModal: React.FC<Props> = observer(({
                      bg-gray-800 rounded-lg hover:bg-gray-750 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className={`w-2.5 h-2.5 rounded-full bg-${viewModel.getStageColor(application.stage)}-400`} />
-              <span className="text-white font-medium">{application.stage}</span>
+              {/* <div className={`w-2.5 h-2.5 rounded-full bg-${viewModel.getStageColor(updatedApplication.stage)}-400`} /> */}
+              <span className="text-white font-medium">{updatedApplication.stage}</span>
             </div>
             <ChevronDown className="h-5 w-5 text-gray-400" />
           </button>
@@ -94,31 +98,43 @@ export const ApplicationModal: React.FC<Props> = observer(({
             <EditableField
               label="Description"
               value={application.description}
-              onChange={(value) => viewModel.updateField(application.id, 'description', value)}
+              onChange={(value) => handleFieldChange('description', value)}
+              updateField={viewModel.updateField}
+              application={application}
+              field="description"
             />
 
             <div className="grid grid-cols-2 gap-6">
               <EditableField
                 label="Salary Range"
                 value={application.salary}
-                onChange={(value) => viewModel.updateField(application.id, 'salary', value)}
+                onChange={(value) => handleFieldChange('salary', value)}
+                updateField={viewModel.updateField}
+                application={application}
+                field="salary"
               />
               <EditableField
                 label="Location"
                 value={application.location}
-                onChange={(value) => viewModel.updateField(application.id, 'location', value)}
-              />
+                onChange={(value) => handleFieldChange('location', value)}
+                updateField={viewModel.updateField}
+                application={application}
+                field="location"
+                />
             </div>
 
             <EditableField
               label="Notes"
               value={application.notes}
-              onChange={(value) => viewModel.updateField(application.id, 'notes', value)}
+              onChange={(value) => handleFieldChange('notes', value)}
+              updateField={viewModel.updateField}
+              application={application}
+              field="notes"
             />
 
             <TagManager
               tags={application.tags}
-              onTagsUpdate={(tags) => viewModel.updateField(application.id, 'tags', tags)}
+              onTagsUpdate={(tags) => handleFieldChange('tags', tags)}
             />
 
             {/* Logs Section */}

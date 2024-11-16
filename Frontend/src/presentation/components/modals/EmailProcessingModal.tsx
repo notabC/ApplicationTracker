@@ -7,7 +7,6 @@ import type { Email } from '@/core/interfaces/services/IEmailService';
 import { Application } from '@/core/domain/models/Application';
 import { X } from 'lucide-react';
 import { WorkflowStage } from '@/core/domain/models/Workflow';
-import { IGmailEmail } from '@/core/interfaces/services/IGmailService';
 
 interface Props {
   email: Email;

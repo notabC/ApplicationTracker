@@ -2,20 +2,30 @@
 import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Pencil, Save, X } from 'lucide-react';
+import { Application } from '@/core/domain/models/Application';
+import { IApplicationService } from '@/core/interfaces/services';
+import { container, SERVICE_IDENTIFIERS } from '@/di/container';
 
 interface Props {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  updateField(applicationId: string, field: keyof Application, value: any): void;
+  application: Application;
+  field: keyof Application;
 }
 
 export const EditableField: React.FC<Props> = observer(({
   label,
   value,
-  onChange
+  onChange,
+  updateField,
+  application,
+  field
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedValue, setEditedValue] = useState(value);
+  const applicationService = container.get<IApplicationService>(SERVICE_IDENTIFIERS.ApplicationService);
 
   useEffect(() => {
     setEditedValue(value);
@@ -24,6 +34,9 @@ export const EditableField: React.FC<Props> = observer(({
   const handleSave = () => {
     onChange(editedValue);
     setIsEditing(false);
+    (application[field] as unknown as string) = editedValue;
+    applicationService.updateApplication(application.id, application);
+    // updateField(applicationId, field, editedValue);
   };
 
   const handleCancel = () => {

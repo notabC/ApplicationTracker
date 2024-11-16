@@ -52,7 +52,7 @@ export const StageSelector: React.FC<Props> = observer(({
               }}
               className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-700/50"
             >
-              <div className={`w-2.5 h-2.5 rounded-full bg-${workflowService.getColorForStage(stage.toLowerCase())}-400`} />
+              {/* <div className={`w-2.5 h-2.5 rounded-full bg-${workflowService.getColorForStage(stage.toLowerCase())}-400`} /> */}
               <span className="flex-1 text-left text-gray-300">{stage}</span>
             </button>
           ))}

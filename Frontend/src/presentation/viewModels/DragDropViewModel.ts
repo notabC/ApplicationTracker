@@ -32,8 +32,6 @@ export class DragDropViewModel {
       return;
     }
 
-    console.log('from', this.draggedApplication?.stage, 'to', stageName);
-
     const updatedApplication: Partial<Application> = {
       stage: stageName,
       lastUpdated: new Date().toISOString().split('T')[0],

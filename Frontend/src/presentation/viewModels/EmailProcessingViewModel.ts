@@ -133,7 +133,5 @@ export class EmailProcessingViewModel {
     });
     
     this.jobTrackerViewModel.processEmail(email.id);
-
-    console.log('from stage:', existingApp.stage, 'to stage:', newStage);
   }
 }
