@@ -9,22 +9,30 @@ import type {
   TimeMetric,
   ResponseRate,
   TypeDistribution,
-  DateRange
+  DateRange,
+  StageFunnelMetric,
+  StageTransition,
+  StageOutcome
 } from '@/core/interfaces/services/IAnalyticsService';
 
 type DateRangeOption = '1d' | '7d' | '1m' | '3m' | 'all' | 'custom';
 
 @injectable()
 export class AnalyticsViewModel {
-  selectedDateRangeOption: DateRangeOption = '3m';
-  customFromDate: Date = new Date();
-  customToDate: Date = new Date();
+  selectedDateRangeOption: DateRangeOption = 'all';
+  customFromDate: Date = new Date('2024-01-01'); // Set a default from date
+  customToDate: Date = new Date(); // Default to today
 
   stageMetrics: StageMetric[] = [];
   timeMetrics: TimeMetric[] = [];
   responseRates: ResponseRate[] = [];
   typeDistribution: TypeDistribution[] = [];
   timeToOffer: number = 0;
+
+  // New Metrics
+  stageFunnelMetrics: StageFunnelMetric[] = [];
+  stageTransitionTime: StageTransition[] = [];
+  stageOutcomes: StageOutcome[] = [];
 
   constructor(
     @inject(SERVICE_IDENTIFIERS.AnalyticsService)
@@ -104,12 +112,21 @@ export class AnalyticsViewModel {
     const typeDistribution = this.analyticsService.getTypeDistribution(dateRange);
     const timeToOffer = this.analyticsService.getTimeToOffer(dateRange);
 
+    // Fetch new metrics
+    const stageFunnelMetrics = this.analyticsService.getStageFunnelMetrics(dateRange);
+    const stageTransitionTime = this.analyticsService.getStageTransitionTime(dateRange);
+    const stageOutcomes = this.analyticsService.getStageOutcomes(dateRange);
+
     runInAction(() => {
       this.stageMetrics = stageMetrics;
       this.timeMetrics = timeMetrics;
       this.responseRates = responseRates;
       this.typeDistribution = typeDistribution;
       this.timeToOffer = timeToOffer;
+
+      this.stageFunnelMetrics = stageFunnelMetrics;
+      this.stageTransitionTime = stageTransitionTime;
+      this.stageOutcomes = stageOutcomes;
     });
   }
 
