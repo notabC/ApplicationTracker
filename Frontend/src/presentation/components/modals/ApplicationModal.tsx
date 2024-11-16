@@ -3,7 +3,7 @@ import React from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   X, ChevronDown, ChevronLeft,
-  ChevronRight, Clock, Mail
+  ChevronRight
 } from 'lucide-react';
 import { container } from '@/di/container';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
@@ -99,7 +99,6 @@ export const ApplicationModal: React.FC<Props> = observer(({
               label="Description"
               value={application.description}
               onChange={(value) => handleFieldChange('description', value)}
-              updateField={viewModel.updateField}
               application={application}
               field="description"
             />
@@ -109,7 +108,6 @@ export const ApplicationModal: React.FC<Props> = observer(({
                 label="Salary Range"
                 value={application.salary}
                 onChange={(value) => handleFieldChange('salary', value)}
-                updateField={viewModel.updateField}
                 application={application}
                 field="salary"
               />
@@ -117,7 +115,6 @@ export const ApplicationModal: React.FC<Props> = observer(({
                 label="Location"
                 value={application.location}
                 onChange={(value) => handleFieldChange('location', value)}
-                updateField={viewModel.updateField}
                 application={application}
                 field="location"
                 />
@@ -127,7 +124,6 @@ export const ApplicationModal: React.FC<Props> = observer(({
               label="Notes"
               value={application.notes}
               onChange={(value) => handleFieldChange('notes', value)}
-              updateField={viewModel.updateField}
               application={application}
               field="notes"
             />
@@ -225,9 +221,7 @@ export const ApplicationModal: React.FC<Props> = observer(({
         {/* Stage Selector Modal */}
         {viewModel.showStageSelect && (
           <StageSelector
-            application={application}
             onStageChange={(newStage) => viewModel.handleStageChange(application, newStage)}
-            currentStage={application.stage}
             onClose={() => viewModel.setShowStageSelect(false)}
             availableStages={viewModel.getAvailableStages(application.stage)}
           />

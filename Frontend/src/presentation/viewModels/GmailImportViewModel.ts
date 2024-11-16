@@ -4,7 +4,6 @@ import { inject, injectable } from 'inversify';
 import type { IGmailService, IGmailEmail, IGmailImportOptions } from '../../core/interfaces/services/IGmailService';
 import { SERVICE_IDENTIFIERS } from '../../core/constants/identifiers';
 import { JobTrackerViewModel } from './JobTrackerViewModel';
-import type { IApplicationService } from '@/core/interfaces/services';
 
 export type ImportStep = 'auth' | 'filters' | 'processing' | 'selection';
 
@@ -25,7 +24,6 @@ export class GmailImportViewModel {
 
   constructor(
     @inject(SERVICE_IDENTIFIERS.GmailService) private gmailService: IGmailService,
-    @inject(SERVICE_IDENTIFIERS.ApplicationService) private applicationService: IApplicationService,
     @inject(SERVICE_IDENTIFIERS.JobTrackerViewModel) private jobTrackerViewModel: JobTrackerViewModel
   ) {
     makeAutoObservable(this);

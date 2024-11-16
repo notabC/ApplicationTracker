@@ -113,12 +113,10 @@ export const ApplicationCard: React.FC<Props> = observer(({
       {/* Stage Selector Modal */}
       {showStageSelect && (
         <StageSelector
-          application={application}
           onStageChange={(newStage) => {
             viewModel.handleStageChange(application, newStage);
             setShowStageSelect(false);
           }}
-          currentStage={application.stage}
           onClose={() => setShowStageSelect(false)}
           availableStages={getAvailableStages(application.stage)}
         />

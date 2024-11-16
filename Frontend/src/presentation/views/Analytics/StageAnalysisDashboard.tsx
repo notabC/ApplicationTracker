@@ -3,8 +3,8 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line, Legend
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  LineChart, Line
 } from 'recharts';
 import { AnalyticsViewModel } from '@/presentation/viewModels/AnalyticsViewModel';
 import { container, SERVICE_IDENTIFIERS } from '@/di/container';
@@ -24,10 +24,6 @@ export const CardTitle: React.FC<{ children: React.ReactNode }> = ({ children })
 export const CardContent: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div>{children}</div>
 );
-
-interface StageAnalysisDashboardProps {
-  viewModel: AnalyticsViewModel;
-}
 
 const StageFunnelMetrics: React.FC<{ viewModel: AnalyticsViewModel }> = observer(({ viewModel }) => {
   return (

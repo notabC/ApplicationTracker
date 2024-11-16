@@ -78,15 +78,15 @@ export class ApplicationService implements IApplicationService {
     }
   }
 
-  // Private helper method to load applications from localStorage
-  private loadPersistedApplications() {
-    try {
-      const persisted = localStorage.getItem('applications');
-      if (persisted) {
-        this.applications = JSON.parse(persisted);
-      }
-    } catch (error) {
-      console.error('Failed to load persisted applications:', error);
-    }
-  }
+  // // Private helper method to load applications from localStorage
+  // private loadPersistedApplications() {
+  //   try {
+  //     const persisted = localStorage.getItem('applications');
+  //     if (persisted) {
+  //       this.applications = JSON.parse(persisted);
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to load persisted applications:', error);
+  //   }
+  // }
 }

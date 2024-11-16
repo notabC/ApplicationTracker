@@ -121,8 +121,6 @@ export const JobTracker: React.FC = observer(() => {
           <EmailProcessingModal
             email={viewModel.selectedEmail}
             onClose={() => viewModel.closeEmailProcessingModal()}
-            applications={viewModel.applications}
-            workflow={viewModel.workflowStages}
           />
         )}
 

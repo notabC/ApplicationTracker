@@ -187,7 +187,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = observer(({ viewMo
                   labelStyle={{ color: '#9ca3af' }}
                 />
                 <Bar dataKey="value" fill="#0088FE">
-                  {viewModel.stageMetrics.map((entry, index) => (
+                  {viewModel.stageMetrics.map((_entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Bar>
@@ -213,7 +213,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = observer(({ viewMo
                   outerRadius={100}
                   label
                 >
-                  {viewModel.typeDistribution.map((entry, index) => (
+                  {viewModel.typeDistribution.map((_entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={COLORS[index % COLORS.length]}
@@ -246,7 +246,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = observer(({ viewMo
                   labelStyle={{ color: '#9ca3af' }}
                 />
                 <Bar dataKey="value" fill="#0088FE">
-                  {viewModel.responseRates.map((entry, index) => (
+                  {viewModel.responseRates.map((_entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Bar>

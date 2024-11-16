@@ -10,7 +10,6 @@ interface Props {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  updateField(applicationId: string, field: keyof Application, value: any): void;
   application: Application;
   field: keyof Application;
 }
@@ -19,7 +18,6 @@ export const EditableField: React.FC<Props> = observer(({
   label,
   value,
   onChange,
-  updateField,
   application,
   field
 }) => {
@@ -36,7 +34,6 @@ export const EditableField: React.FC<Props> = observer(({
     setIsEditing(false);
     (application[field] as unknown as string) = editedValue;
     applicationService.updateApplication(application.id, application);
-    // updateField(applicationId, field, editedValue);
   };
 
   const handleCancel = () => {

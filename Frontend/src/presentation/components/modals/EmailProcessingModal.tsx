@@ -4,22 +4,16 @@ import { container } from '@/di/container';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import { EmailProcessingViewModel } from '@/presentation/viewModels/EmailProcessingViewModel';
 import type { Email } from '@/core/interfaces/services/IEmailService';
-import { Application } from '@/core/domain/models/Application';
 import { X } from 'lucide-react';
-import { WorkflowStage } from '@/core/domain/models/Workflow';
 
 interface Props {
   email: Email;
   onClose: () => void;
-  applications: Application[];
-  workflow: WorkflowStage[];
 }
 
 export const EmailProcessingModal: React.FC<Props> = observer(({
   email,
-  onClose,
-  applications,
-  workflow
+  onClose
 }) => {
   const viewModel = container.get<EmailProcessingViewModel>(SERVICE_IDENTIFIERS.EmailProcessingViewModel);
 

@@ -2,27 +2,18 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { X } from 'lucide-react';
-import type { Application } from '@/core/domain/models/Application';
-import { IWorkflowService } from '@/core/interfaces/services';
-import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
-import { container } from '@/di/container';
 
 interface Props {
-  application: Application;
-  currentStage: string;
   availableStages: string[];
   onStageChange: (newStage: string) => void;
   onClose: () => void;
 }
 
 export const StageSelector: React.FC<Props> = observer(({
-  application,
-  currentStage,
   availableStages,
   onStageChange,
   onClose
 }) => {
-  const workflowService = container.get<IWorkflowService>(SERVICE_IDENTIFIERS.WorkflowService);
 
   return (
     <div
