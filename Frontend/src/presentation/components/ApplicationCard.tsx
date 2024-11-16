@@ -114,7 +114,7 @@ export const ApplicationCard: React.FC<Props> = observer(({
       {showStageSelect && (
         <StageSelector
           onStageChange={(newStage) => {
-            viewModel.handleStageChange(application, newStage);
+            viewModel.handleStageChange(application.id, newStage);
             setShowStageSelect(false);
           }}
           onClose={() => setShowStageSelect(false)}

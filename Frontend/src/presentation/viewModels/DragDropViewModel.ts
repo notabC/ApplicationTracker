@@ -31,23 +31,24 @@ export class DragDropViewModel {
     if (!this.draggedApplication || this.draggedApplication.stage === stageName) {
       return;
     }
-
+  
     const updatedApplication: Partial<Application> = {
+      ...this.draggedApplication, // Spread all existing properties to ensure required fields are present
       stage: stageName,
       lastUpdated: new Date().toISOString().split('T')[0],
       logs: [
         ...this.draggedApplication.logs,
         {
           id: crypto.randomUUID(),
-          date: new Date().toISOString().split('T')[0],
+          date: new Date().toISOString(),
           fromStage: this.draggedApplication.stage,
           toStage: stageName,
           message: `Moved from ${this.draggedApplication.stage} to ${stageName} via drag and drop`,
-          source: 'drag-drop'
-        }
-      ]
+          source: 'drag-drop',
+        },
+      ],
     };
-
+    
     await this.applicationService.updateApplication(this.draggedApplication.id, updatedApplication);
     this.draggedApplication = null;
     this.dragOverStageName = null;

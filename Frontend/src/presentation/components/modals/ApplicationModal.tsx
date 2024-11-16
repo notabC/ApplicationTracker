@@ -33,7 +33,15 @@ export const ApplicationModal: React.FC<Props> = observer(({
   const { trackChange } = useUnsavedChanges();
   const applicationService = container.get<ApplicationService>(SERVICE_IDENTIFIERS.ApplicationService);
   const viewModel = container.get<ApplicationModalViewModel>(SERVICE_IDENTIFIERS.ApplicationModalViewModel);
-  const updatedApplication = applicationService.getApplicationById(application.id) || application;
+  const [updatedApplication, setUpdatedApplication] = React.useState<Application>(application);
+
+  React.useEffect(() => {
+    const fetchApplication = async () => {
+      const fetchedApplication = await applicationService.getApplicationById(application.id);
+      setUpdatedApplication(fetchedApplication || application);
+    };
+    fetchApplication();
+  }, [application.id, applicationService, application]);
 
   const handleFieldChange = (field: keyof Application, value: any, track=false) => {
     // Track the change with original value

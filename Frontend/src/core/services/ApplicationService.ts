@@ -2,6 +2,8 @@ import { injectable } from 'inversify';
 import { makeObservable, observable, action } from 'mobx';
 import type { Application } from '../domain/models/Application';
 import { IApplicationService } from '../interfaces/services';
+import { ApiClient } from '../api/apiClient';
+import { API_ENDPOINTS } from '../api/endpoints';
 
 @injectable()
 export class ApplicationService implements IApplicationService {
@@ -16,67 +18,79 @@ export class ApplicationService implements IApplicationService {
     this.applications = applications;
   }
 
-  getApplications() {
-    return this.applications;
-  }
-
-  getApplicationById(id: string): Application | undefined {
-    return this.applications.find(app => app.id === id);
-  }
+  // getApplications() {
+  //   return this.applications;
+  // }
 
   @action
-  addApplication(application: Application) {
-    // Ensure unique ID
-    // const maxId = Math.max(0, ...this.applications.map(app => app.id));
-    const newApplication = {
-      ...application,
-      id: application.id,
-      lastUpdated: new Date().toISOString().split('T')[0]
-    };
-
-    this.applications.push(newApplication);
-
-    // Log to console for debugging
-    console.log('Added new application:', newApplication);
-    console.log('Current applications:', this.applications);
-
-    // Here you would typically also sync with backend/storage
-    this.persistApplications();
-
-    return newApplication;
-  }
-
-  @action
-  updateApplication(id: string, updates: Partial<Application>) {
-    const index = this.applications.findIndex(app => app.id === id);
-    if (index !== -1) {
-      this.applications[index] = {
-        ...this.applications[index],
-        ...updates,
-        lastUpdated: new Date().toISOString().split('T')[0]
-      };
-
-      // Here you would typically also sync with backend/storage
-      this.persistApplications();
+  async getApplications(): Promise<Application[]> {
+    try {
+      return await ApiClient.get<Application[]>(API_ENDPOINTS.APPLICATIONS.BASE);
+    } catch (error) {
+      console.error('Failed to fetch applications:', error);
+      throw error;
     }
   }
 
   @action
-  deleteApplication(id: string) {
-    this.applications = this.applications.filter(app => app.id !== id);
-    
-    // Here you would typically also sync with backend/storage
-    this.persistApplications();
+  async getApplicationById(id: string): Promise<Application> {
+    try {
+      return await ApiClient.get<Application>(API_ENDPOINTS.APPLICATIONS.BY_ID(id));
+    } catch (error) {
+      console.error(`Failed to fetch application ${id}:`, error);
+      throw error;
+    }
+  }
+
+  @action
+  async addApplication(application: Application): Promise<Application> {
+    try {
+      return await ApiClient.post<Application>(
+        API_ENDPOINTS.APPLICATIONS.BASE, 
+        application
+      );
+    } catch (error) {
+      console.error('Failed to create application:', error);
+      throw error;
+    }
+  }
+
+  @action
+  async updateApplication(id: string, updates: Partial<Application>): Promise<Application> {
+    try {
+      console.log('updates', updates);
+      return await ApiClient.put<Application>(
+        API_ENDPOINTS.APPLICATIONS.BY_ID(id),
+        updates
+      );
+    } catch (error) {
+      if (error instanceof Error && 'response' in error) {
+        console.error(`Failed to update application ${id}:`, error, (error as any).response.data);
+      } else {
+        console.error(`Failed to update application ${id}:`, error);
+      }
+      throw error;
+    }
+  }
+
+  @action
+  async deleteApplication(id: string): Promise<void> {
+    try {
+      await ApiClient.delete(API_ENDPOINTS.APPLICATIONS.BY_ID(id));
+    } catch (error) {
+      console.error(`Failed to delete application ${id}:`, error);
+      throw error;
+    }
   }
 
   // Private helper method to persist applications to localStorage
-  private persistApplications() {
-    try {
-      localStorage.setItem('applications', JSON.stringify(this.applications));
-    } catch (error) {
-      console.error('Failed to persist applications:', error);
-    }
-  }
+  // private persistApplications() {
+  //   try {
+  //     localStorage.setItem('applications', JSON.stringify(this.applications));
+  //   } catch (error) {
+  //     console.error('Failed to persist applications:', error);
+  //   }
+  // }
 
   // // Private helper method to load applications from localStorage
   // private loadPersistedApplications() {

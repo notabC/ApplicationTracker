@@ -2,12 +2,12 @@ import { Application } from '@/core/domain/models/Application';
 import { Workflow, WorkflowStage } from '@/core/domain/models/Workflow';
 
 export interface IApplicationService {
-  getApplications(): Application[];
+  getApplications(): Promise<Application[]>;
   setApplications(applications: Application[]): void;
-  updateApplication(id: string, updates: Partial<Application>): void;
-  addApplication(application: Application): void;
+  updateApplication(id: string, updates: Partial<Application>): Promise<Application>;
+  addApplication(application: Application): Promise<Application>;
   deleteApplication(id: string): void;
-  getApplicationById(id: string): Application | undefined;
+  getApplicationById(id: string): Promise<Application | undefined>;
 }
 
 export interface IWorkflowService {
