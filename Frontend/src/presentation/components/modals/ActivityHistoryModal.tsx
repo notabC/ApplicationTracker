@@ -5,20 +5,18 @@ import { container } from '@/di/container';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import { ActivityHistoryViewModel } from '@/presentation/viewModels/ActivityHistoryViewModel';
 
-export const ActivityHistoryModal: React.FC<{ onClose?: () => void }> = observer(({ onClose }) => {
+export const ActivityHistoryModal: React.FC<{ onClose: () => void }> = observer(({ onClose }) => {
   const viewModel = container.get<ActivityHistoryViewModel>(SERVICE_IDENTIFIERS.ActivityHistoryViewModel);
 
   return (
     <div className="bg-gray-900 rounded-2xl overflow-hidden relative">
       {/* Close Button */}
-      {onClose && (
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 hover:bg-gray-800 rounded-lg transition-colors"
-        >
-          <X className="h-5 w-5 text-gray-400" />
-        </button>
-      )}
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 p-2 hover:bg-gray-800 rounded-lg transition-colors"
+      >
+        <X className="h-5 w-5 text-gray-400" />
+      </button>
 
       {/* Header with Filters */}
       <div className="p-6 border-b border-gray-800">
@@ -84,13 +82,6 @@ export const ActivityHistoryModal: React.FC<{ onClose?: () => void }> = observer
                         </p>
                       </div>
                     </div>
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      log.type === 'stage_change' ? 'bg-blue-900 text-blue-200' :
-                      log.type === 'application_created' ? 'bg-green-900 text-green-200' :
-                      'bg-gray-700 text-gray-200'
-                    }`}>
-                      {log.type.replace('_', ' ')}
-                    </span>
                   </div>
                 </div>
                 {viewModel.isLogExpanded(log.id) && (
