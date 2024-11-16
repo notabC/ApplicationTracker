@@ -21,6 +21,7 @@ export class JobTrackerViewModel {
   @observable emails: Email[] = [];
   @observable selectedEmail: Email | null = null;
   @observable showEmailProcessingModal: boolean = false;
+  @observable showHistory: boolean = false;
 
   constructor(
     @inject(SERVICE_IDENTIFIERS.ApplicationService) private applicationService: IApplicationService,
@@ -220,5 +221,10 @@ export class JobTrackerViewModel {
   // Expose DragDropViewModel for components
   get dragDropVM(): DragDropViewModel {
     return this.dragDropViewModel;
+  }
+
+  @action
+  setShowHistory(show: boolean): void {
+    this.showHistory = show;
   }
 }

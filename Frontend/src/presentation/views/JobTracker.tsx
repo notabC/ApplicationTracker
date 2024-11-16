@@ -1,7 +1,7 @@
 // src/presentation/views/JobTracker.tsx
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import { Search, SlidersHorizontal, PlusCircle, Mail, Settings2 } from 'lucide-react';
+import { Search, SlidersHorizontal, PlusCircle, Mail, Settings2, Clock } from 'lucide-react';
 import { container } from '@/di/container';
 import { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
@@ -11,6 +11,7 @@ import { EmailProcessingModal } from '../components/modals/EmailProcessingModal'
 import { ApplicationModal } from '../components/modals/ApplicationModal';
 import { StageColumn } from '../components/StageColumn'; // Updated import path
 import { WorkflowEditorModal } from '../components/modals/WorkflowEditorModal';
+import { ActivityHistory } from '../components/ActivityHistory/ActivityHistory';
 
 export const JobTracker: React.FC = observer(() => {
   const viewModel = container.get<JobTrackerViewModel>(SERVICE_IDENTIFIERS.JobTrackerViewModel);
@@ -27,21 +28,29 @@ export const JobTracker: React.FC = observer(() => {
               className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
               >
               <PlusCircle className="h-4 w-4" />
-              <span className="hidden sm:inline">Add Application</span>
+              <span className="hidden lg:inline">Add Application</span>
             </button>
             <button 
               onClick={() => viewModel.setIsGmailModalOpen(true)}
               className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
               <Mail className="h-4 w-4" />
-              <span className="hidden sm:inline">Import from Gmail</span>
+              <span className="hidden lg:inline">Import from Gmail</span>
             </button>
             <button 
               onClick={() => viewModel.showEditWorkflowModal()}
               className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
               >
               <Settings2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Edit Workflow</span>
+              <span className="hidden lg:inline">Edit Workflow</span>
+            </button>
+            <button
+              onClick={() => viewModel.setShowHistory(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg"
+            >
+              <Clock className="h-4 w-4" />
+              <span className="hidden lg:inline">Activity History</span>
+              {/* one size bigger than md is lg */}
             </button>
           </div>
         </div>
@@ -134,11 +143,21 @@ export const JobTracker: React.FC = observer(() => {
             currentIndex={viewModel.currentApplicationIndex}
           />
         )}
-
-      <WorkflowEditorModal
-        isOpen={viewModel.showWorkflowModal}
-        onClose={() => viewModel.setShowWorkflowModal(false)}
-      />
+          
+        {/* Workflow Editor Modal */}
+        <WorkflowEditorModal
+          isOpen={viewModel.showWorkflowModal}
+          onClose={() => viewModel.setShowWorkflowModal(false)}
+        />
+  
+        {/* Activity History Modal */}
+        {viewModel.showHistory && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-gray-900 rounded-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden">
+              <ActivityHistory onClose={() => viewModel.setShowHistory(false)} />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

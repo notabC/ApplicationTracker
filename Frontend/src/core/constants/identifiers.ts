@@ -16,4 +16,5 @@ export const SERVICE_IDENTIFIERS = {
   AnalyticsService: Symbol.for('AnalyticsService'),
   AnalyticsViewModel: Symbol.for('AnalyticsViewModel'),
   ApplicationRepository: Symbol.for('ApplicationRepository'),
+  ActivityHistoryViewModel: Symbol('ActivityHistoryViewModel'),
 };

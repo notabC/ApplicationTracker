@@ -19,6 +19,7 @@ import { MockApplicationRepository } from '@/domain/repositories/MockApplication
 import { IAnalyticsService } from '@/core/interfaces/services/IAnalyticsService';
 import { AnalyticsService } from '@/core/services/AnalyticsService';
 import { AnalyticsViewModel } from '@/presentation/viewModels/AnalyticsViewModel';
+import { ActivityHistoryViewModel } from '@/presentation/viewModels/ActivityHistoryViewModel';
 
 export const container = new Container();
 
@@ -72,15 +73,19 @@ container.bind<WorkflowEditorViewModel>(SERVICE_IDENTIFIERS.WorkflowEditorViewMo
   .inSingletonScope();
 
 container.bind<IApplicationRepository>(SERVICE_IDENTIFIERS.ApplicationRepository)
-.to(MockApplicationRepository)
-.inSingletonScope();
+  .to(MockApplicationRepository)
+  .inSingletonScope();
 
 container.bind<IAnalyticsService>(SERVICE_IDENTIFIERS.AnalyticsService)
-.to(AnalyticsService)
-.inSingletonScope();
+  .to(AnalyticsService)
+  .inSingletonScope();
 
 container.bind<AnalyticsViewModel>(SERVICE_IDENTIFIERS.AnalyticsViewModel)
-.to(AnalyticsViewModel)
-.inSingletonScope();
+  .to(AnalyticsViewModel)
+  .inSingletonScope();
+
+container.bind<ActivityHistoryViewModel>(SERVICE_IDENTIFIERS.ActivityHistoryViewModel)
+  .to(ActivityHistoryViewModel)
+  .inSingletonScope();
 
 export { SERVICE_IDENTIFIERS };
