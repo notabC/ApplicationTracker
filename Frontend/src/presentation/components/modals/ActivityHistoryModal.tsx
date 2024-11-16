@@ -57,7 +57,7 @@ export const ActivityHistoryModal: React.FC<{ onClose: () => void }> = observer(
             
             return (
               <div
-                key={log.id}
+                key={crypto.randomUUID()}
                 className="bg-gray-800 rounded-lg overflow-hidden"
               >
                 <div 
