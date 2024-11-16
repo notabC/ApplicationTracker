@@ -14,6 +14,11 @@ import { ApplicationModalViewModel } from '@/presentation/viewModels/Application
 import { DragDropViewModel } from '@/presentation/viewModels/DragDropViewModel';
 import { UnsavedChangesViewModel } from '@/presentation/viewModels/UnsavedChangesViewModel';
 import { WorkflowEditorViewModel } from '@/presentation/viewModels/WorkflowEditorViewModel';
+import { IApplicationRepository } from '@/domain/repositories/ApplicationRepository';
+import { MockApplicationRepository } from '@/domain/repositories/MockApplicationRepository';
+import { IAnalyticsService } from '@/core/interfaces/services/IAnalyticsService';
+import { AnalyticsService } from '@/core/services/AnalyticsService';
+import { AnalyticsViewModel } from '@/presentation/viewModels/AnalyticsViewModel';
 
 export const container = new Container();
 
@@ -65,5 +70,17 @@ container.bind<UnsavedChangesViewModel>(SERVICE_IDENTIFIERS.UnsavedChangesViewMo
 container.bind<WorkflowEditorViewModel>(SERVICE_IDENTIFIERS.WorkflowEditorViewModel)
   .to(WorkflowEditorViewModel)
   .inSingletonScope();
+
+container.bind<IApplicationRepository>(SERVICE_IDENTIFIERS.ApplicationRepository)
+.to(MockApplicationRepository)
+.inSingletonScope();
+
+container.bind<IAnalyticsService>(SERVICE_IDENTIFIERS.AnalyticsService)
+.to(AnalyticsService)
+.inSingletonScope();
+
+container.bind<AnalyticsViewModel>(SERVICE_IDENTIFIERS.AnalyticsViewModel)
+.to(AnalyticsViewModel)
+.inSingletonScope();
 
 export { SERVICE_IDENTIFIERS };

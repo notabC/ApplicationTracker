@@ -13,4 +13,7 @@ export const SERVICE_IDENTIFIERS = {
   UnsavedChangesService: Symbol.for('UnsavedChangesService'),
   UnsavedChangesViewModel: Symbol.for('UnsavedChangesViewModel'),
   WorkflowEditorViewModel: Symbol.for('WorkflowEditorViewModel'),
+  AnalyticsService: Symbol.for('AnalyticsService'),
+  AnalyticsViewModel: Symbol.for('AnalyticsViewModel'),
+  ApplicationRepository: Symbol.for('ApplicationRepository'),
 };
