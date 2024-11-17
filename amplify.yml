@@ -3,19 +3,19 @@ backend:
   phases:
     preBuild:
       commands:
-        - cd Backend
         - pip install --upgrade pip
         - pip install -r requirements.txt
     build:
       commands:
         - echo "Building FastAPI backend"
   artifacts:
-    baseDirectory: Backend
+    baseDirectory: /
     files:
       - '**/*'
   cache:
     paths:
       - /root/.cache/pip
+
 frontend:
   phases:
     preBuild:
