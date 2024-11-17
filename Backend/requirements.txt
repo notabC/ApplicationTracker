@@ -4,3 +4,4 @@ pydantic-settings>=2.0.0
 uvicorn[standard]
 motor
 python-dotenv
+mangum
