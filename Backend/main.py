@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .app.routers import applications, workflow, email
-from .app.database import init_db
+from app.routers import applications, workflow, email
+from app.database import init_db
 
 app = FastAPI(title="Job Tracker API",
              root_path="/api")
@@ -27,3 +27,5 @@ async def startup():
 @app.get("/", tags=["Root"])
 async def read_root():
     return {"message": "Welcome to Job Tracker API"}
+
+# uvicorn main:app --reload
