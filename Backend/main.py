@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from mangum import Mangum
 from app.routers import applications, workflow, email
 from app.database import init_db, get_database
 import logging
-import asyncio
 
 # Setup logging
 logging.basicConfig(
@@ -17,16 +17,16 @@ app = FastAPI(title="Job Tracker API")
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Update this with your frontend URL in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Include routers
-app.include_router(applications.router, prefix="/applications", tags=["applications"])
-app.include_router(workflow.router, prefix="/workflow", tags=["workflow"])
-app.include_router(email.router, prefix="/email", tags=["email"])
+app.include_router(applications.router, prefix="/api/applications", tags=["applications"])
+app.include_router(workflow.router, prefix="/api/workflow", tags=["workflow"])
+app.include_router(email.router, prefix="/api/email", tags=["email"])
 
 @app.on_event("startup")
 async def startup():
@@ -37,19 +37,14 @@ async def startup():
     except Exception as e:
         logger.error(f"Failed to initialize database: {e}")
 
-@app.get("/")
+@app.get("/api")
 async def read_root():
     logger.info("Root endpoint accessed")
     try:
-        # Create a new event loop for this request
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        
         # Test database connection
         db = await get_database()
         collections = await db.list_collection_names()
         logger.info(f"Database connection test successful. Collections: {collections}")
-        
         return {
             "message": "Welcome to Job Tracker API",
             "status": "healthy",
@@ -64,4 +59,5 @@ async def read_root():
             "error": str(e)
         }
 
-# uvicorn main:app --reload
+# Create handler for AWS Lambda
+handler = Mangum(app)

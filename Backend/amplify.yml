@@ -1,0 +1,15 @@
+version: 1
+applications:
+  - backend:
+      phases:
+        build:
+          commands:
+            - pip install -r requirements.txt
+            - pip install mangum
+      artifacts:
+        baseDirectory: /
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - /root/.cache/pip
