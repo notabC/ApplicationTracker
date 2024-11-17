@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from mangum import Mangum
 from .app.routers import applications, workflow, email
 from .app.database import init_db
 
@@ -28,6 +27,3 @@ async def startup():
 @app.get("/", tags=["Root"])
 async def read_root():
     return {"message": "Welcome to Job Tracker API"}
-
-# Handler for AWS Lambda/Vercel
-handler = Mangum(app)
