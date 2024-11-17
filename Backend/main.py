@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-# from mangum import Mangum
 from app.routers import applications, workflow, email
-from app.database import init_db
+from app.database import init_db, get_database
 import logging
+import asyncio
 
 # Setup logging
 logging.basicConfig(
@@ -36,36 +36,32 @@ async def startup():
         logger.info("Database initialization completed")
     except Exception as e:
         logger.error(f"Failed to initialize database: {e}")
-        raise
-
-@app.on_event("shutdown")
-async def shutdown():
-    logger.info("Shutting down FastAPI application")
 
 @app.get("/")
 async def read_root():
     logger.info("Root endpoint accessed")
     try:
+        # Create a new event loop for this request
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
         # Test database connection
-        from app.database import get_database
         db = await get_database()
         collections = await db.list_collection_names()
         logger.info(f"Database connection test successful. Collections: {collections}")
+        
         return {
             "message": "Welcome to Job Tracker API",
             "status": "healthy",
             "database_connected": True,
-            "collections": collections
+            "collections": list(collections)
         }
     except Exception as e:
-        logger.error(f"Database connection test failed: {e}")
+        logger.error(f"Database connection test failed: {str(e)}")
         return {
             "message": "Welcome to Job Tracker API",
             "status": "database error",
             "error": str(e)
         }
-
-# Create handler for Vercel
-# handler = Mangum(app, lifespan="off")
 
 # uvicorn main:app --reload
