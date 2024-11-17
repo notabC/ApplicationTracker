@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from mangum import Mangum
+# from mangum import Mangum
 from app.routers import applications, workflow, email
 from app.database import init_db
 import logging
@@ -66,6 +66,6 @@ async def read_root():
         }
 
 # Create handler for Vercel
-handler = Mangum(app, lifespan="off")
+# handler = Mangum(app, lifespan="off")
 
 # uvicorn main:app --reload
