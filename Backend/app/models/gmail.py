@@ -15,4 +15,9 @@ class GmailFetchParams(BaseModel):
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
     search_query: Optional[str] = None
-    limit: Optional[int] = 20
+    limit: int = 20
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat() if v else None
+        }

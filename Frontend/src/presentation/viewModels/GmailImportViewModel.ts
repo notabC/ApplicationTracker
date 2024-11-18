@@ -27,6 +27,17 @@ export class GmailImportViewModel {
     @inject(SERVICE_IDENTIFIERS.JobTrackerViewModel) private jobTrackerViewModel: JobTrackerViewModel
   ) {
     makeAutoObservable(this);
+    this.initializeAuthentication();
+  }
+
+  private async initializeAuthentication() {
+    await this.gmailService.checkAuthentication();
+
+    runInAction(() => {
+      if (this.gmailService.isAuthenticated) {
+        this.step = 'filters';
+      }
+    });
   }
 
   // Actions

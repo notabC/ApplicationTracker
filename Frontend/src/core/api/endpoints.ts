@@ -17,5 +17,6 @@ export const API_ENDPOINTS = {
       AUTH_URL: '/api/gmail/auth/url',
       AUTH_CALLBACK: '/api/gmail/auth/callback',
       EMAILS: '/api/gmail/emails',
+      CHECK_AUTH: '/api/gmail/check-auth',
     }
   } as const;

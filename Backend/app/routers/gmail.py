@@ -40,16 +40,16 @@ async def auth_callback(
 async def fetch_emails(
     user_id: str,
     tags: Optional[List[str]] = Query(None),
-    start_date: Optional[datetime] = None,
-    end_date: Optional[datetime] = None,
+    start_date: Optional[str] = None,  # Changed to str
+    end_date: Optional[str] = None,    # Changed to str
     search_query: Optional[str] = None,
     limit: Optional[int] = 20
 ):
     try:
         params = GmailFetchParams(
             tags=tags,
-            start_date=start_date,
-            end_date=end_date,
+            start_date=datetime.fromisoformat(start_date) if start_date else None,
+            end_date=datetime.fromisoformat(end_date) if end_date else None,
             search_query=search_query,
             limit=limit
         )
@@ -67,3 +67,12 @@ async def logout(user_id: str):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="User not found")
     return {"message": "Logged out successfully"}
+
+@router.get("/check-auth")
+async def check_auth(user_id: str):
+    db = await get_database()
+    creds = await db["gmail_credentials"].find_one({"user_id": user_id})
+    return {
+        "isAuthenticated": bool(creds),
+        "email": creds["email"] if creds else None
+    }

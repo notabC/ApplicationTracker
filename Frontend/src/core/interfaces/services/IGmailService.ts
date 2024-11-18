@@ -14,15 +14,11 @@ export interface IGmailImportOptions {
     sender: string;
     processed: boolean;
   }
-  
+
   export interface IGmailService {
+    isAuthenticated: boolean;
     authenticate(): Promise<boolean>;
     fetchEmails(options: IGmailImportOptions): Promise<IGmailEmail[]>;
     markAsProcessed(emailIds: string[]): Promise<void>;
+    checkAuthentication(): Promise<void>;
   }
-  
-
-  
-  
-  
-  

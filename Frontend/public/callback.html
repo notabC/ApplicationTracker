@@ -1,0 +1,32 @@
+// public/callback.html
+<!DOCTYPE html>
+<head><title>Gmail Auth</title></head>
+<body>
+  <script>
+    window.onload = async function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const state = urlParams.get('state');
+      
+      if (code && state) {
+        try {
+          const response = await fetch(`/api/gmail/auth/callback?code=${code}&state=${state}`);
+          const data = await response.json();
+          
+          if (data.message === "Authentication successful") {
+            window.opener.postMessage({ 
+              type: 'GMAIL_AUTH_SUCCESS',
+              email: data.email 
+            }, '*');
+            window.close(); // Explicitly close the window
+          }
+        } catch (error) {
+          console.error('Auth error:', error);
+          window.opener.postMessage({ type: 'GMAIL_AUTH_ERROR' }, '*');
+          window.close();
+        }
+      }
+    };
+  </script>
+</body>
+</html>

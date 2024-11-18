@@ -1,71 +1,98 @@
+// src/services/GmailService.ts
 import { injectable } from 'inversify';
 import type { IGmailService, IGmailImportOptions, IGmailEmail } from '../interfaces/services/IGmailService';
-import { makeObservable } from 'mobx';
+import { makeObservable, observable, action } from 'mobx';
 import { ApiClient } from '../api/apiClient';
 import { API_ENDPOINTS } from '../api/endpoints';
-import { Email } from '../interfaces/services/IEmailService';
+
+const USER_ID_KEY = 'gmail_user_id';
 
 @injectable()
 export class GmailService implements IGmailService {
-  // Mock data for development
-  private mockEmails: IGmailEmail[] = [
-    {
-      id: '2',
-      subject: 'Thank you for applying to Software Engineer position at Meta',
-      body: 'Dear Candidate,\n\nThank you for applying...',
-      date: '2024-03-15',
-      sender: 'recruiting@meta.com',
-      processed: false
-    },
-    // ... more mock emails
-  ];
+  @observable isAuthenticated = false;
+  @observable userEmail: string | null = null;
 
   constructor() {
     makeObservable(this);
-    this.loadMockEmails();
+    this.checkAuthentication();
   }
 
-  async loadMockEmails() {
-    const params = {
-      tags: ['important'],
-      start_date: new Date('2024-01-01'),
-      search_query: 'job application',
-      limit: 50
-    };
-    this.mockEmails = await ApiClient.get<Email[]>(API_ENDPOINTS.GMAIL.EMAILS, { user_id: 'abc', params });
-    console.log('Loaded mock emails:', this.mockEmails);
+  @action
+  async checkAuthentication() {
+    const userId = localStorage.getItem(USER_ID_KEY);
+    if (!userId) {
+      this.isAuthenticated = false;
+      return;
+    }
+
+    try {
+      const response = await ApiClient.get<{isAuthenticated: boolean, email: string}>(
+        API_ENDPOINTS.GMAIL.CHECK_AUTH,
+        { user_id: userId }
+      );
+      
+      this.isAuthenticated = response.isAuthenticated;
+      this.userEmail = response.email;
+      
+      if (!response.isAuthenticated) {
+        localStorage.removeItem(USER_ID_KEY);
+      }
+    } catch {
+      this.isAuthenticated = false;
+      localStorage.removeItem(USER_ID_KEY);
+    }
   }
 
+  @action
   async authenticate(): Promise<boolean> {
-    // Real implementation would use Google OAuth
-    console.log('Authenticating with Gmail...');
-    return new Promise(resolve => setTimeout(() => resolve(true), 1000));
+    try {
+      const userId = crypto.randomUUID();
+      localStorage.setItem(USER_ID_KEY, userId);
+      
+      const response = await ApiClient.get<{ url: string }>(
+        API_ENDPOINTS.GMAIL.AUTH_URL,
+        { user_id: userId }
+      );
+
+      const authWindow = window.open(response.url, '_blank', 'width=600,height=600');
+      
+      return new Promise((resolve) => {
+        const handleMessage = async (event: MessageEvent) => {
+          if (event.data.type === 'GMAIL_AUTH_SUCCESS') {
+            authWindow?.close();
+            window.removeEventListener('message', handleMessage);
+            await this.checkAuthentication();
+            resolve(this.isAuthenticated);
+          }
+        };
+        window.addEventListener('message', handleMessage);
+      });
+    } catch (error) {
+      console.error('Gmail auth error:', error);
+      return false;
+    }
   }
 
   async fetchEmails(options: IGmailImportOptions): Promise<IGmailEmail[]> {
-    console.log('Fetching emails with options:', options);
-    // Real implementation would call Gmail API
-    return new Promise(resolve => {
-      setTimeout(() => {
-        const filtered = this.mockEmails.filter(email => {
-          const matchesKeywords = options.keywords ? 
-            email.subject.toLowerCase().includes(options.keywords.toLowerCase()) : 
-            true;
-          const matchesDate = (!options.startDate || email.date >= options.startDate) &&
-                            (!options.endDate || email.date <= options.endDate);
-          return matchesKeywords && matchesDate;
-        });
-        resolve(filtered);
-      }, 1500);
-    });
+    const userId = localStorage.getItem(USER_ID_KEY);
+    if (!userId) throw new Error('Not authenticated');
+
+    try {
+      return await ApiClient.get<IGmailEmail[]>(API_ENDPOINTS.GMAIL.EMAILS, {
+        user_id: userId,
+        tags: options.labels,
+        start_date: options.startDate,
+        end_date: options.endDate,
+        search_query: options.keywords,
+        limit: 50
+      });
+    } catch (error) {
+      console.error('Error fetching emails:', error);
+      throw error;
+    }
   }
 
   async markAsProcessed(emailIds: string[]): Promise<void> {
     console.log('Marking emails as processed:', emailIds);
-    // Real implementation would update Gmail labels/flags
-    this.mockEmails = this.mockEmails.map(email => ({
-      ...email,
-      processed: emailIds.includes(email.id)
-    }));
   }
 }
