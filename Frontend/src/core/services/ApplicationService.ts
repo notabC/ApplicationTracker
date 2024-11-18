@@ -11,6 +11,7 @@ export class ApplicationService implements IApplicationService {
 
   constructor() {
     makeObservable(this);
+    console.log(this.applications.length);
   }
 
   @action

@@ -6,9 +6,10 @@ import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import { UnsavedChangesViewModel } from '@/presentation/viewModels/UnsavedChangesViewModel';
 import { UnsavedChangesNotification } from '@/presentation/components/UnsavedChangesNotification';
 import { IViewModelUpdateField } from '@/core/interfaces/services';
+import { Application } from '@/core/domain/models/Application';
 
 interface UnsavedChangesContextProps {
-  trackChange: (id: string, field: keyof any, value: any, originalValue: any, viewModel: IViewModelUpdateField) => void;
+  trackChange: (id: string, field: keyof Application, value: any, originalValue: any, viewModel: IViewModelUpdateField) => void;
 }
 
 const UnsavedChangesContext = createContext<UnsavedChangesContextProps | null>(null);
