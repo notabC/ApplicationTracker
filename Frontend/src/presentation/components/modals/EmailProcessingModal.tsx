@@ -37,7 +37,7 @@ export const EmailProcessingModal: React.FC<Props> = observer(({
         <div className="flex-1 overflow-y-auto">
           {/* Email Content Display */}
           <div className="p-6 border-b border-gray-800 bg-gray-800/50">
-            <h3 className="text-lg font-medium text-white mb-3">{email.title}</h3>
+            <h3 className="text-lg font-medium text-white mb-3">{email.subject}</h3>
             <div className="relative">
               <p className={`text-gray-300 text-sm leading-relaxed ${
                 !viewModel.isBodyExpanded ? 'line-clamp-3' : ''

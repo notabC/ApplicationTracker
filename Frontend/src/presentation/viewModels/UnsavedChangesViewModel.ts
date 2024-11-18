@@ -18,7 +18,7 @@ export class UnsavedChangesViewModel {
   showNotification: boolean = false;
 
   constructor(
-    @inject(SERVICE_IDENTIFIERS.ApplicationService) private applicationService: IApplicationService
+    @inject(SERVICE_IDENTIFIERS.ApplicationService) private applicationService: IApplicationService,
   ) {
     makeAutoObservable(this);
   }

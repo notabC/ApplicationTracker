@@ -1,29 +1,23 @@
-# backend/app/routers/email.py
+# app/routers/email.py
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 from typing import List
+from ..models.email import Email, EmailProcessRequest
+from ..services.email_service import EmailService
 
 router = APIRouter()
+email_service = EmailService()
 
-class EmailBase(BaseModel):
-    subject: str
-    body: str
-    recipient: str
+@router.get("/", response_model=List[Email])
+async def get_emails():
+    return await email_service.get_all()
 
-class EmailResponse(BaseModel):
-    message: str
-    email_id: str
+@router.post("/", response_model=Email)
+async def create_email(email: Email):
+    return await email_service.create(email)
 
-@router.post("/", response_model=EmailResponse)
-async def send_email(email: EmailBase):
-    # Implement your email sending logic here
-    # This is just a placeholder response
-    return EmailResponse(
-        message="Email sent successfully",
-        email_id="temp_id"
-    )
-
-@router.get("/templates", response_model=List[str])
-async def get_email_templates():
-    # Implement your template fetching logic here
-    return ["template1", "template2"]
+@router.post("/process")
+async def process_emails(request: EmailProcessRequest):
+    processed = await email_service.mark_as_processed(request.email_ids)
+    if not processed:
+        raise HTTPException(status_code=404, detail="No emails were processed")
+    return {"message": "Emails marked as processed"}

@@ -8,10 +8,10 @@ export interface IGmailImportOptions {
   
   export interface IGmailEmail {
     id: string;
-    title: string;
+    subject: string;
     body: string;
     date: string;
-    from: string;
+    sender: string;
     processed: boolean;
   }
   

@@ -11,7 +11,6 @@ export class ApplicationService implements IApplicationService {
 
   constructor() {
     makeObservable(this);
-    console.log(this.applications.length);
   }
 
   @action
@@ -59,7 +58,6 @@ export class ApplicationService implements IApplicationService {
   @action
   async updateApplication(id: string, updates: Partial<Application>): Promise<Application> {
     try {
-      console.log('updates', updates);
       return await ApiClient.put<Application>(
         API_ENDPOINTS.APPLICATIONS.BY_ID(id),
         updates

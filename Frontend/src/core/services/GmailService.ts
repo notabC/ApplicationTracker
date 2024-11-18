@@ -7,10 +7,10 @@ export class GmailService implements IGmailService {
   private mockEmails: IGmailEmail[] = [
     {
       id: '2',
-      title: 'Thank you for applying to Software Engineer position at Meta',
+      subject: 'Thank you for applying to Software Engineer position at Meta',
       body: 'Dear Candidate,\n\nThank you for applying...',
       date: '2024-03-15',
-      from: 'recruiting@meta.com',
+      sender: 'recruiting@meta.com',
       processed: false
     },
     // ... more mock emails
@@ -29,7 +29,7 @@ export class GmailService implements IGmailService {
       setTimeout(() => {
         const filtered = this.mockEmails.filter(email => {
           const matchesKeywords = options.keywords ? 
-            email.title.toLowerCase().includes(options.keywords.toLowerCase()) : 
+            email.subject.toLowerCase().includes(options.keywords.toLowerCase()) : 
             true;
           const matchesDate = (!options.startDate || email.date >= options.startDate) &&
                             (!options.endDate || email.date <= options.endDate);

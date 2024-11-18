@@ -10,7 +10,7 @@ export const API_ENDPOINTS = {
       STAGES: '/api/workflow/stages',
     },
     EMAIL: {
-      IMPORT: '/api/email/import',
-      PROCESS: '/api/email/process',
+      BASE: '/api/emails',
+      PROCESS: '/api/emails/process',
     }
   } as const;

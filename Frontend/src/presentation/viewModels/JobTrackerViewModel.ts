@@ -136,11 +136,10 @@ export class JobTrackerViewModel {
     this.isGmailModalOpen = show;
   }
 
-  private loadEmails(): void {
+  private async loadEmails(): Promise<void> {
     try {
-      const fetchedEmails = this.emailService.getEmails();
+      const fetchedEmails = await this.emailService.getEmails();
       this.emails = fetchedEmails;
-      console.log('Loaded Emails:', this.emails); // Debugging
     } catch (error) {
       this.error = 'Failed to load emails';
       console.error('Failed to load emails:', error);

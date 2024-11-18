@@ -215,7 +215,7 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-center mt-1">
-                            <h4 className="text-sm font-medium text-white truncate">{email.title}</h4>
+                            <h4 className="text-sm font-medium text-white truncate">{email.subject}</h4>
                             <button
                               onClick={() => viewModel.toggleEmailExpansion(email.id)}
                               className="p-1 hover:bg-gray-700 rounded-lg flex-shrink-0"
@@ -227,7 +227,7 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
                             </button>
                           </div>
                           <div className="flex justify-between items-center mt-1">
-                            <span className="text-xs text-gray-400">{email.from}</span>
+                            <span className="text-xs text-gray-400">{email.sender}</span>
                             <span className="text-xs text-gray-500">{email.date}</span>
                           </div>
                           <div className={`mt-2 text-xs text-gray-300 ${

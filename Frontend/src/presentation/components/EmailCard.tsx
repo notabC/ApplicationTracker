@@ -19,7 +19,7 @@ export const EmailCard: React.FC<Props> = observer(({ email, onClick }) => {
         <div className="flex items-start gap-3 mb-2">
           <Mail className="h-5 w-5 text-gray-400 flex-shrink-0 mt-1" />
           <div className="min-w-0">
-            <h4 className="text-white font-medium text-sm truncate">{email.title}</h4>
+            <h4 className="text-white font-medium text-sm truncate">{email.subject}</h4>
             <p className="text-gray-400 text-sm mt-1 truncate">{email.body}</p>
           </div>
         </div>

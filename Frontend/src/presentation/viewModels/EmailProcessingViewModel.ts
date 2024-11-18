@@ -79,7 +79,7 @@ export class EmailProcessingViewModel {
       description: email.body,
       salary: 'Not specified',
       location: 'Not specified',
-      notes: `Created from email: ${email.title}\nFrom: ${email.from}`,
+      notes: `Created from email: ${email.subject}\nFrom: ${email.sender}`,
       logs: [
         {
           id: crypto.randomUUID(),
@@ -89,7 +89,7 @@ export class EmailProcessingViewModel {
           message: 'Application created from Gmail import',
           source: 'gmail',
           emailId: email.id,
-          emailTitle: email.title,
+          emailTitle: email.subject,
           emailBody: email.body,
         },
       ],
@@ -167,7 +167,7 @@ export class EmailProcessingViewModel {
       message: `Status updated from ${existingApp.stage} to ${newStage}`,
       source: 'email',
       emailId: email.id,
-      emailTitle: email.title,
+      emailTitle: email.subject,
       emailBody: email.body,
     };
 

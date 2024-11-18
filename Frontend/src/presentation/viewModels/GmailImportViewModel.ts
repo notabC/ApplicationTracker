@@ -85,10 +85,10 @@ export class GmailImportViewModel {
       // Convert Gmail emails to your application's email format
       const emailsToAdd = selectedEmailData.map(email => ({
         id: email.id,
-        title: email.title,
+        subject: email.subject,
         body: email.body,
         date: email.date,
-        from: email.from,
+        sender: email.sender,
         processed: false
       }));
 

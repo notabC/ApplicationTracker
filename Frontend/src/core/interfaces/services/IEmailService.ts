@@ -1,15 +1,15 @@
 // src/core/interfaces/services/IEmailService.ts
 export interface IEmailService {
-    getEmails(): Email[];
-    addEmails(emails: Email[]): void;
-    markAsProcessed(emailIds: string[]): void;
-  }
+  getEmails(): Promise<Email[]>;
+  addEmails(emails: Email[]): Promise<void>;
+  markAsProcessed(emailIds: string[]): Promise<void>;
+}
   
   export interface Email {
     id: string;
-    title: string;
+    subject: string;
     body: string;
     date: string;
-    from: string;
+    sender: string;
     processed: boolean;
   }
