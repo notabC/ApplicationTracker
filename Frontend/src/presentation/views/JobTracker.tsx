@@ -1,7 +1,7 @@
 // src/presentation/views/JobTracker.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Search, SlidersHorizontal, PlusCircle, Mail, Settings2, Clock, LineChart } from 'lucide-react';
+import { Search, SlidersHorizontal, PlusCircle, Mail, Settings2, Clock, LineChart, MoreVertical } from 'lucide-react';
 import { container } from '@/di/container';
 import { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
@@ -15,49 +15,129 @@ import { ActivityHistoryModal } from '../components/modals/ActivityHistoryModal'
 
 export const JobTracker: React.FC = observer(() => {
   const viewModel = container.get<JobTrackerViewModel>(SERVICE_IDENTIFIERS.JobTrackerViewModel);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="p-6 max-w-full bg-[#1a1d21] min-h-screen">
       <div className="mx-auto">
-        {/* Header with action buttons */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Job Application Tracker</h1>
-          <div className="flex gap-4">
+        {/* Header with consistent button styling */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">Job Application Tracker</h1>
+          
+          {/* Mobile: All buttons visible with updated colors */}
+          <div className="flex flex-wrap items-center gap-2 w-full sm:hidden">
+            {/* Add Button */}
             <button 
               onClick={() => viewModel.setShowAddModal(true)}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              >
-              <PlusCircle className="h-4 w-4" />
-              <span className="hidden lg:inline">Add Application</span>
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gray-800 text-green-400 rounded-lg transition-colors hover:bg-green-900 hover:text-gray-200 text-sm"
+            >
+              <PlusCircle className="h-4 w-4 text-green-400" />
+              <span className="font-medium">Add</span>
             </button>
+
+            {/* Import Button */}
             <button 
               onClick={() => viewModel.setIsGmailModalOpen(true)}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-              <Mail className="h-4 w-4" />
-              <span className="hidden lg:inline">Import from Gmail</span>
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gray-800 text-blue-400 rounded-lg transition-colors hover:bg-blue-900 hover:text-gray-200 text-sm"
+            >
+              <Mail className="h-4 w-4 text-blue-400" />
+              <span className="font-medium">Import</span>
             </button>
+
+            {/* Edit Button */}
             <button 
               onClick={() => viewModel.showEditWorkflowModal()}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
-              >
-              <Settings2 className="h-4 w-4" />
-              <span className="hidden lg:inline">Edit Workflow</span>
-            </button>
-            <button
-              onClick={() => viewModel.setShowHistory(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gray-800 text-rose-400 rounded-lg transition-colors hover:bg-rose-900 hover:text-gray-200 text-sm"
             >
-              <Clock className="h-4 w-4" />
-              <span className="hidden lg:inline">Activity History</span>
+              <Settings2 className="h-4 w-4 text-rose-400" />
+              <span className="font-medium">Edit</span>
             </button>
+
+            {/* History Button */}
+            <button 
+              onClick={() => viewModel.setShowHistory(true)}
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gray-800 text-amber-400 rounded-lg transition-colors hover:bg-amber-900 hover:text-gray-200 text-sm"
+            >
+              <Clock className="h-4 w-4 text-amber-400" />
+              <span className="font-medium">History</span>
+            </button>
+
+            {/* Stats Button */}
             <button 
               onClick={() => window.location.href = '/analytics'}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gray-800 text-purple-400 rounded-lg transition-colors hover:bg-purple-900 hover:text-gray-200 text-sm"
             >
-              <LineChart className="h-4 w-4" />
-              <span className="hidden lg:inline">View Analytics</span>
+              <LineChart className="h-4 w-4 text-purple-400" />
+              <span className="font-medium">Stats</span>
             </button>
+          </div>
+
+          {/* Desktop: Add button + dropdown */}
+          <div className="hidden sm:flex items-center gap-3 z-50">
+            <button 
+              onClick={() => viewModel.setShowAddModal(true)}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-green-900 text-green-400 transition-all"
+            >
+              <PlusCircle className="h-4 w-4 text-green-400" />
+              <span className="text-sm font-medium">Add Application</span>
+            </button>
+
+            <div className="relative">
+              <button 
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center justify-center w-9 h-9 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-all"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </button>
+
+              {isOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 py-1">
+                  <button 
+                    onClick={() => {
+                      viewModel.setIsGmailModalOpen(true);
+                      setIsOpen(false);
+                    }}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 hover:text-blue-400"
+                  >
+                    <Mail className="h-4 w-4 text-blue-400" />
+                    Import from Gmail
+                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      viewModel.showEditWorkflowModal();
+                      setIsOpen(false);
+                    }}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 hover:text-rose-400"
+                  >
+                    <Settings2 className="h-4 w-4 text-rose-400" />
+                    Edit Workflow
+                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      viewModel.setShowHistory(true);
+                      setIsOpen(false);
+                    }}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 hover:text-amber-400"
+                  >
+                    <Clock className="h-4 w-4 text-amber-400" />
+                    Activity History
+                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      window.location.href = '/analytics';
+                      setIsOpen(false);
+                    }}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 hover:text-purple-400"
+                  >
+                    <LineChart className="h-4 w-4 text-purple-400" />
+                    View Analytics
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
