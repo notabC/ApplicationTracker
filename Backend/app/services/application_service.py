@@ -31,7 +31,8 @@ class ApplicationService:
     async def create(self, application: Application) -> Application:
         collection = await self.get_collection()
         application_dict = application.model_dump()
-        application_dict["_id"] = ObjectId(application_dict.pop("id"))
+        application_dict["_id"] = ObjectId()
+        del application_dict["id"]
         await collection.insert_one(application_dict)
         return application
 

@@ -4,6 +4,7 @@ import { inject, injectable } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { Application, ApplicationLog } from '@/core/domain/models/Application';
 import type { IApplicationService, IViewModelUpdateField, IWorkflowService } from '@/core/interfaces/services';
+import { RootStore } from './RootStore';
 
 @injectable()
 export class ApplicationModalViewModel implements IViewModelUpdateField {
@@ -13,7 +14,8 @@ export class ApplicationModalViewModel implements IViewModelUpdateField {
 
   constructor(
     @inject(SERVICE_IDENTIFIERS.ApplicationService) private applicationService: IApplicationService,
-    @inject(SERVICE_IDENTIFIERS.WorkflowService) private workflowService: IWorkflowService
+    @inject(SERVICE_IDENTIFIERS.WorkflowService) private workflowService: IWorkflowService,
+    @inject(SERVICE_IDENTIFIERS.RootStore) private rootStore: RootStore
   ) {
     makeAutoObservable(this);
   }
@@ -38,7 +40,6 @@ export class ApplicationModalViewModel implements IViewModelUpdateField {
     field: K,
     value: Application[K]
   ): void {
-    console.log(`Updating field ${field} for application ${applicationId} to ${value}`);
     this.unsavedChanges = {
       ...this.unsavedChanges,
       [field]: value
@@ -83,7 +84,7 @@ export class ApplicationModalViewModel implements IViewModelUpdateField {
       logs: [...application.logs, newLog]
     };
 
-    this.applicationService.updateApplication(updatedApplication.id, updatedApplication);
+    this.rootStore.updateApplication(updatedApplication);
     this.setShowStageSelect(false);
     
   }

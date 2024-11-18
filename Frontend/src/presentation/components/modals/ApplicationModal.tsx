@@ -14,6 +14,7 @@ import { TagManager } from '../TagManager';
 import { StageSelector } from '../StageSelector';
 import { useUnsavedChanges } from '@/presentation/providers/UnsavedChangesProvider';
 import { ApplicationService } from '@/core/services/ApplicationService';
+import { RootStore } from '@/presentation/viewModels/RootStore';
 
 interface Props {
   application: Application;
@@ -31,17 +32,9 @@ export const ApplicationModal: React.FC<Props> = observer(({
   currentIndex
 }) => {
   const { trackChange } = useUnsavedChanges();
-  const applicationService = container.get<ApplicationService>(SERVICE_IDENTIFIERS.ApplicationService);
   const viewModel = container.get<ApplicationModalViewModel>(SERVICE_IDENTIFIERS.ApplicationModalViewModel);
-  const [updatedApplication, setUpdatedApplication] = React.useState<Application>(application);
-
-  React.useEffect(() => {
-    const fetchApplication = async () => {
-      const fetchedApplication = await applicationService.getApplicationById(application.id);
-      setUpdatedApplication(fetchedApplication || application);
-    };
-    fetchApplication();
-  }, [application.id, applicationService, application]);
+  const rootStore = container.get<RootStore>(SERVICE_IDENTIFIERS.RootStore);
+  const updatedApplication = rootStore.getApplicationById(application.id) || application;
 
   const handleFieldChange = (field: keyof Application, value: any, track=false) => {
     // Track the change with original value
