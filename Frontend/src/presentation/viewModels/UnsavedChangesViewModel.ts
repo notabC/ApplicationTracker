@@ -2,14 +2,16 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import { injectable, inject } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
-import type { IApplicationService, IViewModelUpdateField } from '@/core/interfaces/services';
+import type { IViewModelUpdateField } from '@/core/interfaces/services';
+import { RootStore } from './RootStore';
+import { Application } from '@/core/domain/models/Application';
 
 interface Change {
-  id: string; // Application ID
-  field: any; // Field name
-  value: any; // New value
-  originalValue: any; // Original value
-  viewModel: IViewModelUpdateField; // Reference to the view model that made the change
+  id: string;
+  field: keyof Application;
+  value: any;
+  originalValue: any;
+  viewModel: IViewModelUpdateField;
 }
 
 @injectable()
@@ -18,67 +20,74 @@ export class UnsavedChangesViewModel {
   showNotification: boolean = false;
 
   constructor(
-    @inject(SERVICE_IDENTIFIERS.ApplicationService) private applicationService: IApplicationService,
+    @inject(SERVICE_IDENTIFIERS.RootStore) private rootStore: RootStore,
   ) {
     makeAutoObservable(this);
   }
 
-  // Track a change
-  trackChange(id: string, field: keyof any, value: any, originalValue: any, viewModel: IViewModelUpdateField) {
-      const change = { id, field, value, originalValue, viewModel };
-      this.unsavedChanges.set(id, change);
-      this.showNotification = true;
+  trackChange(id: string, field: keyof Application, value: any, originalValue: any, viewModel: IViewModelUpdateField) {
+    const change = { id, field, value, originalValue, viewModel };
+    this.unsavedChanges.set(`${id}-${field}`, change); // Use compound key to track multiple fields per application
+    this.showNotification = true;
   }
 
-  // Save all changes
   async saveChanges() {
-      console.log('Starting saveChanges...');
-      const changesArray = Array.from(this.unsavedChanges.values());
-      console.log('Changes Array:', changesArray);
-  
-      // Group changes by application ID
-      const changesById: { [key: string]: Partial<any> } = {};
-      changesArray.forEach(change => {
-        if (!changesById[change.id]) {
-          changesById[change.id] = {};
+    console.log('Starting saveChanges...');
+    const changesArray = Array.from(this.unsavedChanges.values());
+    
+    // Group changes by application ID
+    const changesById = changesArray.reduce<Record<string, any>>((acc, change) => {
+      if (!acc[change.id]) {
+        // Get current application data
+        const currentApp = this.rootStore.getApplicationById(change.id);
+        if (!currentApp) {
+          console.error(`Application with id ${change.id} not found`);
+          return acc;
         }
-        changesById[change.id][change.field] = change.value;
-      });
-  
-      console.log('Grouped Changes by ID:', changesById);
-  
-      // Iterate over each application and save changes
-      for (const [id, fields] of Object.entries(changesById)) {
-        try {
-          console.log(`Saving changes for application ${id}:`, fields);
-          await this.applicationService.updateApplication(id, fields);
-          console.log(`Successfully saved changes for application ${id}`);
-        } catch (error) {
-          console.error(`Failed to save changes for application ${id}:`, error);
-          // Handle error (e.g., show notification)
-        }
+        // Start with current application data
+        acc[change.id] = { ...currentApp };
       }
-  
-      runInAction(() => {
-        this.unsavedChanges.clear();
-        this.showNotification = false;
-      });
-  
-      console.log('Finished saveChanges.');
-  }
+      
+      // Update the specific field
+      acc[change.id][change.field] = change.value;
+      
+      // Ensure datetime fields are in the correct format
+      if (change.field === 'dateApplied' || change.field === 'lastUpdated') {
+        acc[change.id][change.field] = new Date(change.value).toISOString();
+      }
+      
+      return acc;
+    }, {});
 
-  // Discard all changes
-  discardChanges() {
-    const viewModel = this.unsavedChanges.values().next().value?.viewModel;
-    if (viewModel) {
-      const { id, field, originalValue } = this.unsavedChanges.values().next().value!;
-      viewModel.updateField(id, field, originalValue);
+    // Save each application's changes
+    for (const [id, updatedApp] of Object.entries(changesById)) {
+      try {
+        console.log(`Saving changes for application ${id}:`, updatedApp);
+        await this.rootStore.updateApplication(updatedApp);
+        console.log(`Successfully saved changes for application ${id}`);
+      } catch (error) {
+        console.error(`Failed to save changes for application ${id}:`, error);
+      }
     }
-    this.unsavedChanges.clear();
-    this.showNotification = false;
+
+    runInAction(() => {
+      this.unsavedChanges.clear();
+      this.showNotification = false;
+    });
   }
 
-  // Computed property to check if there are unsaved changes
+  discardChanges() {
+    // Revert all changes
+    this.unsavedChanges.forEach(change => {
+      change.viewModel.updateField(change.id, change.field, change.originalValue);
+    });
+    
+    runInAction(() => {
+      this.unsavedChanges.clear();
+      this.showNotification = false;
+    });
+  }
+
   get hasUnsavedChanges() {
     return this.unsavedChanges.size > 0;
   }

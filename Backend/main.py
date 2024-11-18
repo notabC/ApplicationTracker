@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import applications, workflow, email
+from app.routers import applications, workflow, email, gmail
 from app.database import init_db, get_database
 import logging
 
@@ -26,6 +26,7 @@ app.add_middleware(
 app.include_router(applications.router, prefix="/api/applications", tags=["applications"])
 app.include_router(workflow.router, prefix="/api/workflow", tags=["workflow"])
 app.include_router(email.router, prefix="/api/emails", tags=["email"])
+app.include_router(gmail.router, prefix="/api/gmail", tags=["gmail"])
 
 @app.on_event("startup")
 async def startup():
