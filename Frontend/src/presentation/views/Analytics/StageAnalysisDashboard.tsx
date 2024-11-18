@@ -47,7 +47,7 @@ const ChartContainer: React.FC<ChartContainerProps> = ({
 }) => (
   <div className="w-full overflow-x-auto">
     <div 
-      className="h-96 min-w-[500px]" // Fixed height and minimum width
+      className="h-52 md:h-96 min-w-[500px]" // Fixed height and minimum width
     >
       {children}
     </div>
@@ -80,11 +80,9 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label })
 // Stage Funnel Metrics Component
 const StageFunnelMetrics: React.FC<{ viewModel: AnalyticsViewModel }> = observer(
   ({ viewModel }) => {
-    // Debugging: Ensure data is present
-    console.log('Stage Funnel Metrics:', viewModel.stageFunnelMetrics);
 
     return (
-      <Card className="col-span-full xl:col-span-2">
+      <Card className="col-span-1">
         <CardHeader>
           <CardTitle>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
@@ -128,7 +126,7 @@ const StageTransitionTime: React.FC<{ viewModel: AnalyticsViewModel }> = observe
     console.log('Stage Transition Time:', viewModel.stageTransitionTime);
 
     return (
-      <Card className="col-span-full md:col-span-1">
+      <Card className="col-span-1">
         <CardHeader>
           <CardTitle>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
@@ -183,7 +181,7 @@ const StageOutcomes: React.FC<{ viewModel: AnalyticsViewModel }> = observer(
     console.log('Stage Outcomes:', viewModel.stageOutcomes);
 
     return (
-      <Card className="col-span-full md:col-span-1">
+      <Card className="col-span-1">
         <CardHeader>
           <CardTitle>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
@@ -241,7 +239,7 @@ const StageAnalysisDashboard: React.FC = observer(() => {
   console.log('ViewModel:', viewModel);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <StageFunnelMetrics viewModel={viewModel} />
       <StageTransitionTime viewModel={viewModel} />
       <StageOutcomes viewModel={viewModel} />

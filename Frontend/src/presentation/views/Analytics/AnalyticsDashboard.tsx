@@ -52,7 +52,7 @@ const ChartContainer: React.FC<ChartContainerProps> = ({
 }) => (
   <div className="w-full overflow-x-auto">
     <div 
-      className="h-96 min-w-[500px]" // Fixed height and minimum width
+      className="h-52 md:h-96 min-w-[500px]" // Fixed height and minimum width
     >
       {children}
     </div>
