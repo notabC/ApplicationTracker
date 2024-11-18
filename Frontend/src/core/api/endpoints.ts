@@ -12,5 +12,10 @@ export const API_ENDPOINTS = {
     EMAIL: {
       BASE: '/api/emails',
       PROCESS: '/api/emails/process',
+    },
+    GMAIL: {
+      AUTH_URL: '/api/gmail/auth/url',
+      AUTH_CALLBACK: '/api/gmail/auth/callback',
+      EMAILS: '/api/gmail/emails',
     }
   } as const;

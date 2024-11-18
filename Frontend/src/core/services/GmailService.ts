@@ -1,5 +1,9 @@
 import { injectable } from 'inversify';
 import type { IGmailService, IGmailImportOptions, IGmailEmail } from '../interfaces/services/IGmailService';
+import { makeObservable } from 'mobx';
+import { ApiClient } from '../api/apiClient';
+import { API_ENDPOINTS } from '../api/endpoints';
+import { Email } from '../interfaces/services/IEmailService';
 
 @injectable()
 export class GmailService implements IGmailService {
@@ -15,6 +19,22 @@ export class GmailService implements IGmailService {
     },
     // ... more mock emails
   ];
+
+  constructor() {
+    makeObservable(this);
+    this.loadMockEmails();
+  }
+
+  async loadMockEmails() {
+    const params = {
+      tags: ['important'],
+      start_date: new Date('2024-01-01'),
+      search_query: 'job application',
+      limit: 50
+    };
+    this.mockEmails = await ApiClient.get<Email[]>(API_ENDPOINTS.GMAIL.EMAILS, { user_id: 'abc', params });
+    console.log('Loaded mock emails:', this.mockEmails);
+  }
 
   async authenticate(): Promise<boolean> {
     // Real implementation would use Google OAuth
