@@ -1,6 +1,7 @@
 
 # app/routers/gmail.py
 from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi.responses import HTMLResponse
 from app.database import get_database
 from google_auth_oauthlib.flow import Flow
 from typing import Optional, List
@@ -16,10 +17,7 @@ async def get_auth_url(user_id: str):
     return {"url": gmail_service.create_auth_url(user_id)}
 
 @router.get("/auth/callback")
-async def auth_callback(
-    code: str,
-    state: str  # Get user_id from state parameter
-):
+async def auth_callback(code: str, state: str):
     try:
         flow = Flow.from_client_config(
             gmail_service.client_config,
@@ -31,8 +29,22 @@ async def auth_callback(
             ],
             redirect_uri=gmail_service.client_config["web"]["redirect_uris"][0]
         )
-        credentials = await gmail_service.store_credentials(state, flow, code)  # state is user_id
-        return {"message": "Authentication successful", "email": credentials.email}
+        
+        await gmail_service.store_credentials(state, flow, code)
+        
+        # Return HTML that automatically closes the window
+        html_content = """
+            <html>
+                <script>
+                    window.opener.postMessage({ type: 'GMAIL_AUTH_SUCCESS' }, '*');
+                    window.close();
+                </script>
+                <body>Authentication successful! This window will close automatically.</body>
+            </html>
+        """
+        
+        return HTMLResponse(content=html_content)
+        
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

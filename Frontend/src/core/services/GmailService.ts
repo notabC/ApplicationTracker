@@ -1,7 +1,6 @@
-// src/services/GmailService.ts
 import { injectable } from 'inversify';
 import type { IGmailService, IGmailImportOptions, IGmailEmail } from '../interfaces/services/IGmailService';
-import { makeObservable, observable, action } from 'mobx';
+import { makeObservable, observable, action, runInAction } from 'mobx';
 import { ApiClient } from '../api/apiClient';
 import { API_ENDPOINTS } from '../api/endpoints';
 
@@ -11,6 +10,7 @@ const USER_ID_KEY = 'gmail_user_id';
 export class GmailService implements IGmailService {
   @observable isAuthenticated = false;
   @observable userEmail: string | null = null;
+  private authWindow: Window | null = null;
 
   constructor() {
     makeObservable(this);
@@ -31,14 +31,18 @@ export class GmailService implements IGmailService {
         { user_id: userId }
       );
       
-      this.isAuthenticated = response.isAuthenticated;
-      this.userEmail = response.email;
+      runInAction(() => {
+        this.isAuthenticated = response.isAuthenticated;
+        this.userEmail = response.email;
+      });
       
       if (!response.isAuthenticated) {
         localStorage.removeItem(USER_ID_KEY);
       }
     } catch {
-      this.isAuthenticated = false;
+      runInAction(() => {
+        this.isAuthenticated = false;
+      });
       localStorage.removeItem(USER_ID_KEY);
     }
   }
@@ -54,17 +58,19 @@ export class GmailService implements IGmailService {
         { user_id: userId }
       );
 
-      const authWindow = window.open(response.url, '_blank', 'width=600,height=600');
+      this.authWindow = window.open(response.url, '_blank', 'width=600,height=600');
       
       return new Promise((resolve) => {
         const handleMessage = async (event: MessageEvent) => {
           if (event.data.type === 'GMAIL_AUTH_SUCCESS') {
-            authWindow?.close();
             window.removeEventListener('message', handleMessage);
+            this.authWindow?.close();
+            this.authWindow = null;
             await this.checkAuthentication();
-            resolve(this.isAuthenticated);
+            resolve(true);
           }
         };
+
         window.addEventListener('message', handleMessage);
       });
     } catch (error) {
