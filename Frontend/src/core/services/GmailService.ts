@@ -5,12 +5,13 @@ import { ApiClient } from '../api/apiClient';
 import { API_ENDPOINTS } from '../api/endpoints';
 
 const USER_ID_KEY = 'gmail_user_id';
+const AUTH_STATE_KEY = 'gmail_auth_state';
 
 @injectable()
 export class GmailService implements IGmailService {
   @observable isAuthenticated = false;
   @observable userEmail: string | null = null;
-  private authWindow: Window | null = null;
+  @observable isAuthenticating = false;
 
   constructor() {
     makeObservable(this);
@@ -50,32 +51,31 @@ export class GmailService implements IGmailService {
   @action
   async authenticate(): Promise<boolean> {
     try {
+      runInAction(() => {
+        this.isAuthenticating = true;
+      });
+
       const userId = crypto.randomUUID();
+      const state = crypto.randomUUID();
+      
       localStorage.setItem(USER_ID_KEY, userId);
+      localStorage.setItem(AUTH_STATE_KEY, state);
       
       const response = await ApiClient.get<{ url: string }>(
         API_ENDPOINTS.GMAIL.AUTH_URL,
-        { user_id: userId }
+        { user_id: userId, state }
       );
 
-      this.authWindow = window.open(response.url, '_blank', 'width=600,height=600');
-      
-      return new Promise((resolve) => {
-        const handleMessage = async (event: MessageEvent) => {
-          if (event.data.type === 'GMAIL_AUTH_SUCCESS') {
-            window.removeEventListener('message', handleMessage);
-            this.authWindow?.close();
-            this.authWindow = null;
-            await this.checkAuthentication();
-            resolve(true);
-          }
-        };
-
-        window.addEventListener('message', handleMessage);
-      });
+      // Redirect to auth URL instead of opening popup
+      window.location.href = response.url;
+      return true;
     } catch (error) {
       console.error('Gmail auth error:', error);
       return false;
+    } finally {
+      runInAction(() => {
+        this.isAuthenticating = false;
+      });
     }
   }
 

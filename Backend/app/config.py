@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     GMAIL_CLIENT_ID: str
     GMAIL_CLIENT_SECRET: str 
     GMAIL_REDIRECT_URI: str
+    FRONTEND_URL: str
 
     class Config:
         env_file = ".env"
