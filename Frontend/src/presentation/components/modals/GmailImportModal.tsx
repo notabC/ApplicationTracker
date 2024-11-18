@@ -230,11 +230,7 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
                             <span className="text-xs text-gray-400">{email.sender}</span>
                             <span className="text-xs text-gray-500">{email.date}</span>
                           </div>
-                          <div className={`mt-2 text-xs text-gray-300 ${
-                            viewModel.expandedEmails.has(email.id) 
-                              ? '' 
-                              : 'line-clamp-2'
-                          }`}>
+                          <div className={`mt-2 text-xs text-gray-300 line-clamp-2`}>
                             {email.body}
                           </div>
                         </div>
@@ -244,8 +240,8 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
                     {/* Expandable email content */}
                     {viewModel.expandedEmails.has(email.id) && (
                       <div className="px-4 pb-4 pt-2 border-t border-gray-700 mt-2">
-                        <div className="bg-gray-900 rounded-lg p-3">
-                          <p className="text-sm text-gray-300 whitespace-pre-line">
+                        <div className="bg-gray-900 rounded-lg p-3 max-w-full">
+                          <p className="text-sm text-gray-300 whitespace-pre-line break-words overflow-hidden">
                             {email.body}
                           </p>
                         </div>
