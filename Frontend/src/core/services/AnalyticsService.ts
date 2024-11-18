@@ -15,14 +15,122 @@ import {
 import { SERVICE_IDENTIFIERS } from '../constants/identifiers';
 import type { IApplicationRepository } from '@/domain/repositories/ApplicationRepository';
 import { Application } from '../domain/models/Application';
+import type { IWorkflowService } from '../interfaces/services';
 
 @injectable()
 export class AnalyticsService implements IAnalyticsService {
   constructor(
     @inject(SERVICE_IDENTIFIERS.ApplicationRepository)
-    private applicationRepository: IApplicationRepository
+    private applicationRepository: IApplicationRepository,
+    
+    @inject(SERVICE_IDENTIFIERS.WorkflowService)
+    private workflowService: IWorkflowService
   ) {}
 
+  getStageFunnelMetrics(dateRange: DateRange): StageFunnelMetric[] {
+    const applications = this.applicationRepository.getApplications().filter(app => 
+      this.isWithinDateRange(app.dateApplied, dateRange)
+    );
+
+    const stages = this.workflowService.getStages().map(stage => stage.name);
+    const metrics: StageFunnelMetric[] = [];
+    
+    let total = applications.length;
+    stages.forEach((stage, index) => {
+      let count;
+      if (index === 0) { // First stage
+        count = total;
+      } else {
+        const previousStages = stages.slice(0, index + 1);
+        count = applications.filter(app => previousStages.includes(app.stage)).length;
+      }
+
+      metrics.push({
+        stage,
+        count,
+        rate: total > 0 ? ((count / total) * 100).toFixed(1) + '%' : '0%'
+      });
+    });
+
+    return metrics;
+  }
+
+  getStageTransitionTime(dateRange: DateRange): StageTransition[] {
+    const applications = this.applicationRepository.getApplications().filter(app => 
+      this.isWithinDateRange(app.dateApplied, dateRange) &&
+      app.logs && app.logs.length > 1
+    );
+
+    const workflowStages = this.workflowService.getStages();
+    const stageOrder = workflowStages.map(stage => stage.name).filter(stageName => stageName !== 'Unassigned');
+
+    // Define valid transitions based on workflow's stageOrder
+    const validTransitions: string[] = [];
+    for (let i = 0; i < stageOrder.length - 1; i++) {
+      validTransitions.push(`${stageOrder[i]} → ${stageOrder[i + 1]}`);
+    }
+
+    const transitions: { [key: string]: number[] } = {};
+
+    // Initialize transitions with empty arrays
+    validTransitions.forEach(transition => {
+      transitions[transition] = [];
+    });
+
+    applications.forEach(app => {
+      // Sort logs by date to ensure chronological order
+      const sortedLogs = [...app.logs].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+      for (let i = 1; i < sortedLogs.length; i++) {
+        const fromStage = sortedLogs[i - 1].toStage;
+        const toStage = sortedLogs[i].toStage;
+        const transitionKey = `${fromStage} → ${toStage}`;
+
+        if (validTransitions.includes(transitionKey)) {
+          const fromDate = new Date(sortedLogs[i - 1].date);
+          const toDate = new Date(sortedLogs[i].date);
+          const days = (toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24);
+          
+          transitions[transitionKey].push(days);
+        }
+      }
+    });
+
+    // Calculate average days for each valid transition
+    return validTransitions.map(transition => ({
+      stage: transition,
+      avgDays: transitions[transition].length > 0 
+        ? parseFloat((transitions[transition].reduce((a, b) => a + b, 0) / transitions[transition].length).toFixed(2))
+        : 0
+    }));
+  }
+
+  getStageOutcomes(dateRange: DateRange): StageOutcome[] {
+    const applications = this.applicationRepository.getApplications().filter(app => 
+      this.isWithinDateRange(app.dateApplied, dateRange)
+    );
+
+    const stages = this.workflowService.getStages().map(stage => stage.name);
+    return stages.map(stage => {
+      const stageApps = applications.filter(app => app.stage === stage || app.logs.some(log => log.toStage === stage));
+      
+      return {
+        stage,
+        passed: stageApps.filter(app => 
+          app.stage === 'Offer' || 
+          app.stage === 'Interview Process' || 
+          (stage === 'Resume Submitted' && app.stage === 'Resume Submitted')
+        ).length,
+        failed: stageApps.filter(app => app.stage === 'Rejected').length,
+      };
+    });
+  }
+
+  private isWithinDateRange(date: string, range: DateRange): boolean {
+    const applicationDate = new Date(date);
+    return applicationDate >= range.from && applicationDate <= range.to;
+  }
+  
   private filterApplicationsByDateRange(applications: Application[], dateRange: DateRange): Application[] {
     return applications.filter(app => {
       const appliedDate = new Date(app.dateApplied);
@@ -84,9 +192,9 @@ export class AnalyticsService implements IAnalyticsService {
     const offered = applications.filter(app => app.stage === 'Offer').length;
 
     return [
-      { name: 'Response Rate', value: (responded / total) * 100 },
-      { name: 'Interview Rate', value: (interviewed / total) * 100 },
-      { name: 'Offer Rate', value: (offered / total) * 100 }
+      { name: 'Response Rate', value: parseFloat(((responded / total) * 100).toFixed(2)) },
+      { name: 'Interview Rate', value: parseFloat(((interviewed / total) * 100).toFixed(2)) },
+      { name: 'Offer Rate', value: parseFloat(((offered / total) * 100).toFixed(2)) }
     ];
   }
 
@@ -116,112 +224,4 @@ export class AnalyticsService implements IAnalyticsService {
     return Math.round(avgDays);
   }
 
-  // New Method: Stage Funnel Metrics
-  getStageFunnelMetrics(dateRange: DateRange): StageFunnelMetric[] {
-    const applications = this.filterApplicationsByDateRange(this.applicationRepository.getApplications(), dateRange);
-    const stagesOrder = [
-      'Applied',
-      'Resume Screened',
-      'Phone Screen',
-      'Technical Interview',
-      'Onsite',
-      'Offer'
-    ];
-
-    const funnelData: StageFunnelMetric[] = stagesOrder.map(stage => {
-      const count = applications.filter(app => app.stage === stage).length;
-      return { stage, count, rate: '0%' };
-    });
-
-    // Calculate conversion rates
-    for (let i = 1; i < funnelData.length; i++) {
-      const prevCount = funnelData[i - 1].count;
-      const currentCount = funnelData[i].count;
-      const rate = prevCount > 0 ? `${((currentCount / prevCount) * 100).toFixed(1)}%` : '0%';
-      funnelData[i].rate = rate;
-    }
-
-    return funnelData;
-  }
-
-  // New Method: Stage Transition Time
-  getStageTransitionTime(dateRange: DateRange): StageTransition[] {
-    const applications = this.filterApplicationsByDateRange(this.applicationRepository.getApplications(), dateRange);
-    const transitionsMap: Record<string, { totalDays: number; count: number }> = {};
-
-    applications.forEach(app => {
-      const sortedLogs = app.logs
-        .map(log => ({ ...log, date: new Date(log.date) }))
-        .sort((a, b) => a.date.getTime() - b.date.getTime());
-
-      for (let i = 1; i < sortedLogs.length; i++) {
-        const fromStage = sortedLogs[i - 1].toStage;
-        const toStage = sortedLogs[i].toStage;
-        const transition = `${fromStage} → ${toStage}`;
-        const days = (sortedLogs[i].date.getTime() - sortedLogs[i - 1].date.getTime()) / (1000 * 60 * 60 * 24);
-
-        if (!transitionsMap[transition]) {
-          transitionsMap[transition] = { totalDays: 0, count: 0 };
-        }
-        transitionsMap[transition].totalDays += days;
-        transitionsMap[transition].count += 1;
-      }
-    });
-
-    const stageTransitions: StageTransition[] = Object.entries(transitionsMap).map(([stage, data]) => ({
-      stage,
-      avgDays: Math.round(data.totalDays / data.count)
-    }));
-
-    return stageTransitions;
-  }
-
-  // New Method: Stage Outcomes
-  getStageOutcomes(dateRange: DateRange): StageOutcome[] {
-    const applications = this.filterApplicationsByDateRange(this.applicationRepository.getApplications(), dateRange);
-    const stages = ['Phone Screen', 'Technical Interview', 'Onsite']; // Define stages where outcomes are recorded
-
-    const outcomesMap: Record<string, StageOutcome> = {};
-
-    applications.forEach(app => {
-      stages.forEach(stage => {
-        // Find the log where the application was in this stage
-        const log = app.logs.find(log => log.toStage === stage);
-        if (log) {
-          // Determine the outcome based on the next stage
-          const currentLogIndex = app.logs.findIndex(l => l.id === log.id);
-          const nextLog = app.logs[currentLogIndex + 1];
-          let outcome = 'withdrawn'; // Default outcome
-
-          if (nextLog) {
-            if (nextLog.toStage === 'Offer') {
-              outcome = 'passed';
-            } else if (nextLog.toStage === 'Rejected') {
-              outcome = 'failed';
-            }
-          } else {
-            // If there's no next log, determine based on the current stage
-            if (app.stage === 'Offer') {
-              outcome = 'passed';
-            } else if (app.stage === 'Rejected') {
-              outcome = 'failed';
-            }
-          }
-
-          if (!outcomesMap[stage]) {
-            outcomesMap[stage] = { stage, passed: 0, failed: 0, withdrawn: 0 };
-          }
-
-          // Initialize the outcome count if it is not a number
-          if (typeof outcomesMap[stage][outcome] !== 'number') {
-            outcomesMap[stage][outcome] = 0;
-          }
-
-          outcomesMap[stage][outcome] = (outcomesMap[stage][outcome] as number) + 1;
-        }
-      });
-    });
-
-    return Object.values(outcomesMap);
-  }
 }

@@ -56,6 +56,5 @@ export interface StageOutcome {
   stage: string;
   passed: number;
   failed: number;
-  withdrawn: number;
   [key: string]: number | string;
 }

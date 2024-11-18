@@ -3,12 +3,61 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line, Legend
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  Legend
 } from 'recharts';
 import { TrendingUp, Timer, Target, ChevronDown } from 'lucide-react';
 import { AnalyticsViewModel } from '@/presentation/viewModels/AnalyticsViewModel';
 import StageAnalysisDashboard from './StageAnalysisDashboard';
+
+// Custom Card Components
+export const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({
+  children,
+  className,
+}) => (
+  <div className={`bg-slate-800 rounded-xl p-4 ${className}`}>{children}</div>
+);
+
+export const CardHeader: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div className="mb-4">{children}</div>
+);
+
+export const CardTitle: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <h3 className="text-xl font-semibold text-white">{children}</h3>
+);
+
+export const CardContent: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div className="w-full">{children}</div>
+);
+
+// Reusable ChartContainer Component with Fixed Height and Mobile Overflow
+interface ChartContainerProps {
+  children: React.ReactNode;
+  minWidth?: number; // Optional minimum width in pixels
+}
+
+const ChartContainer: React.FC<ChartContainerProps> = ({ 
+  children, 
+}) => (
+  <div className="w-full overflow-x-auto">
+    <div 
+      className="h-96 min-w-[500px]" // Fixed height and minimum width
+    >
+      {children}
+    </div>
+  </div>
+);
 
 interface AnalyticsDashboardProps {
   viewModel: AnalyticsViewModel;
@@ -33,10 +82,12 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = observer(({ viewMo
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 bg-slate-900 min-h-screen space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white"><a href='/'>Job Application Tracker</a></h1>
+        <h1 className="text-2xl font-bold text-white">
+          <a href='/'>Job Application Tracker</a>
+        </h1>
         <div className="flex items-center gap-2">
           <div className="relative">
             <select
@@ -60,14 +111,14 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = observer(({ viewMo
 
       {/* Custom Date Range */}
       {viewModel.canUseCustomRange && (
-        <div className="flex space-x-4">
+        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-1">From</label>
             <input
               type="date"
               value={viewModel.customFromDate.toISOString().split('T')[0]}
               onChange={handleCustomFromDateChange}
-              className="px-4 py-2 bg-gray-700 rounded-lg text-gray-200"
+              className="px-4 py-2 bg-gray-700 rounded-lg text-gray-200 w-full"
             />
           </div>
           <div>
@@ -76,7 +127,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = observer(({ viewMo
               type="date"
               value={viewModel.customToDate.toISOString().split('T')[0]}
               onChange={handleCustomToDateChange}
-              className="px-4 py-2 bg-gray-700 rounded-lg text-gray-200"
+              className="px-4 py-2 bg-gray-700 rounded-lg text-gray-200 w-full"
             />
           </div>
         </div>
@@ -85,7 +136,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = observer(({ viewMo
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Response Rate Card */}
-        <div className="bg-gray-800 rounded-xl p-4">
+        <Card>
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-medium text-gray-400">Response Rate</h3>
             <TrendingUp className="h-4 w-4 text-green-400" />
@@ -96,10 +147,10 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = observer(({ viewMo
           <p className="text-xs text-gray-400 mt-1">
             of applications received responses
           </p>
-        </div>
+        </Card>
 
         {/* Interview Rate Card */}
-        <div className="bg-gray-800 rounded-xl p-4">
+        <Card>
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-medium text-gray-400">Interview Rate</h3>
             <Target className="h-4 w-4 text-blue-400" />
@@ -110,10 +161,10 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = observer(({ viewMo
           <p className="text-xs text-gray-400 mt-1">
             of applications reached interviews
           </p>
-        </div>
+        </Card>
 
         {/* Avg. Time to Offer Card */}
-        <div className="bg-gray-800 rounded-xl p-4">
+        <Card>
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-medium text-gray-400">Avg. Time to Offer</h3>
             <Timer className="h-4 w-4 text-purple-400" />
@@ -124,136 +175,144 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = observer(({ viewMo
           <p className="text-xs text-gray-400 mt-1">
             from application to offer
           </p>
-        </div>
+        </Card>
       </div>
 
       {/* Existing Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Application Timeline */}
-        <div className="bg-gray-800 rounded-xl p-4">
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-white">Application Timeline</h3>
-          </div>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={viewModel.timeMetrics}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="month" stroke="#666" />
-                <YAxis stroke="#666" />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#1f2937', border: 'none' }}
-                  labelStyle={{ color: '#9ca3af' }}
-                />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="applications"
-                  stroke="#0088FE"
-                  strokeWidth={2}
-                  connectNulls
-                />
-                <Line
-                  type="monotone"
-                  dataKey="interviews"
-                  stroke="#00C49F"
-                  strokeWidth={2}
-                  connectNulls
-                />
-                <Line
-                  type="monotone"
-                  dataKey="offers"
-                  stroke="#FFBB28"
-                  strokeWidth={2}
-                  connectNulls
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Application Timeline</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer minWidth={600}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={viewModel.timeMetrics}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                  <XAxis dataKey="month" stroke="#666" />
+                  <YAxis stroke="#666" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#1f2937', border: 'none' }}
+                    labelStyle={{ color: '#9ca3af' }}
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="applications"
+                    stroke="#0088FE"
+                    strokeWidth={2}
+                    connectNulls
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="interviews"
+                    stroke="#00C49F"
+                    strokeWidth={2}
+                    connectNulls
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="offers"
+                    stroke="#FFBB28"
+                    strokeWidth={2}
+                    connectNulls
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
 
         {/* Stage Distribution */}
-        <div className="bg-gray-800 rounded-xl p-4">
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-white">Applications by Stage</h3>
-          </div>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={viewModel.stageMetrics}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="name" stroke="#666" />
-                <YAxis stroke="#666" />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#1f2937', border: 'none' }}
-                  labelStyle={{ color: '#9ca3af' }}
-                />
-                <Bar dataKey="value" fill="#0088FE">
-                  {viewModel.stageMetrics.map((_entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Applications by Stage</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer minWidth={600}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={viewModel.stageMetrics}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                  <XAxis dataKey="name" stroke="#666" />
+                  <YAxis stroke="#666" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#1f2937', border: 'none' }}
+                    labelStyle={{ color: '#9ca3af' }}
+                  />
+                  <Bar dataKey="value" fill="#0088FE">
+                    {viewModel.stageMetrics.map((_entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
 
         {/* Type Distribution */}
-        <div className="bg-gray-800 rounded-xl p-4">
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-white">Application Types</h3>
-          </div>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={viewModel.typeDistribution}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label
-                >
-                  {viewModel.typeDistribution.map((_entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#1f2937', border: 'none' }}
-                  labelStyle={{ color: '#9ca3af' }}
-                />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Application Types</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer minWidth={600}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={viewModel.typeDistribution}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label
+                  >
+                    {viewModel.typeDistribution.map((_entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#1f2937', border: 'none' }}
+                    labelStyle={{ color: '#9ca3af' }}
+                  />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
 
         {/* Response Rates */}
-        <div className="bg-gray-800 rounded-xl p-4">
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-white">Success Metrics</h3>
-          </div>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={viewModel.responseRates}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="name" stroke="#666" />
-                <YAxis stroke="#666" />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#1f2937', border: 'none' }}
-                  labelStyle={{ color: '#9ca3af' }}
-                />
-                <Bar dataKey="value" fill="#0088FE">
-                  {viewModel.responseRates.map((_entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Success Metrics</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer minWidth={600}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={viewModel.responseRates}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                  <XAxis dataKey="name" stroke="#666" />
+                  <YAxis stroke="#666" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#1f2937', border: 'none' }}
+                    labelStyle={{ color: '#9ca3af' }}
+                  />
+                  <Bar dataKey="value" fill="#0088FE">
+                    {viewModel.responseRates.map((_entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Additional Visualizations */}
