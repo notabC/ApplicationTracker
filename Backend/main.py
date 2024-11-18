@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from mangum import Mangum
 from app.routers import applications, workflow, email
 from app.database import init_db, get_database
 import logging
@@ -59,5 +58,5 @@ async def read_root():
             "error": str(e)
         }
 
-# Create handler for AWS Lambda
-handler = Mangum(app)
+
+# uvicorn main:app --reload

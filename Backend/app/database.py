@@ -2,6 +2,9 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from app.config import settings
 import logging
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -16,7 +19,7 @@ async def get_database():
         try:
             # Get MongoDB URL from environment
             mongodb_url = os.environ.get('MONGODB_URL', settings.MONGODB_URL)
-            
+
             # Create new client connection
             db.client = AsyncIOMotorClient(
                 mongodb_url,
