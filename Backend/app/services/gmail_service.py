@@ -1,4 +1,6 @@
 # app/services/gmail_service.py
+import base64
+from bs4 import BeautifulSoup
 from app.models.email import Email
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
@@ -71,6 +73,36 @@ class GmailService:
         profile = service.users().getProfile(userId="me").execute()
         return profile["emailAddress"]
 
+    def _clean_html(self, html_content: str) -> str:
+        """Strips HTML tags and returns plain text."""
+        soup = BeautifulSoup(html_content, 'html.parser')
+        return soup.get_text(separator=' ', strip=True)
+
+    def _get_email_body(self, message_part) -> str:
+        """Recursively extracts and decodes email body from message parts."""
+        if message_part.get("body", {}).get("data"):
+            data = base64.urlsafe_b64decode(message_part["body"]["data"].encode("UTF-8"))
+            return self._clean_html(data.decode("UTF-8"))
+        
+        if message_part.get("parts"):
+            text_content = []
+            for part in message_part["parts"]:
+                # Prefer text/plain over text/html
+                if part["mimeType"] == "text/plain":
+                    if part["body"].get("data"):
+                        data = base64.urlsafe_b64decode(part["body"]["data"].encode("UTF-8"))
+                        return data.decode("UTF-8")
+                elif part["mimeType"] == "text/html":
+                    if part["body"].get("data"):
+                        data = base64.urlsafe_b64decode(part["body"]["data"].encode("UTF-8"))
+                        text_content.append(self._clean_html(data.decode("UTF-8")))
+                elif part["mimeType"].startswith("multipart/"):
+                    text_content.append(self._get_email_body(part))
+            
+            return "\n".join(filter(None, text_content))
+        
+        return ""
+
     async def fetch_emails(self, user_id: str, params: GmailFetchParams) -> List[Email]:
         db = await get_database()
         creds_doc = await db[self.collection_name].find_one({"user_id": user_id})
@@ -105,20 +137,19 @@ class GmailService:
             headers = {h["name"]: h["value"] for h in email["payload"]["headers"]}
             date_str = headers.get("Date", "")
             try:
-                # Try parsing with timezone
                 date = datetime.strptime(date_str, "%a, %d %b %Y %H:%M:%S %z")
             except ValueError:
                 try:
-                    # Try parsing without timezone
                     date = datetime.strptime(date_str, "%d %b %Y %H:%M:%S %z")
                 except ValueError:
-                    # Fallback to current date if parsing fails
                     date = datetime.utcnow()
-                    
+            
+            body = self._get_email_body(email["payload"])
+            
             messages.append(Email(
                 id=email["id"],
                 subject=headers.get("Subject", ""),
-                body=email["snippet"],
+                body=body,
                 sender=headers.get("From", ""),
                 date=date
             ))
