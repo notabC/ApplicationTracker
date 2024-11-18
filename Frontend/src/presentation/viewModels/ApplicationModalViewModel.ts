@@ -36,7 +36,7 @@ export class ApplicationModalViewModel implements IViewModelUpdateField {
 
   @action
   updateField<K extends keyof Application>(
-    applicationId: string,
+    _applicationId: string,
     field: K,
     value: Application[K]
   ): void {

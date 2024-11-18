@@ -1,6 +1,5 @@
 import { injectable, inject } from 'inversify';
 import { makeObservable, observable, action, runInAction } from 'mobx';
-import type { IApplicationService } from '@/core/interfaces/services';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import { Application } from '@/core/domain/models/Application';
 import { RootStore } from './RootStore';
@@ -38,7 +37,6 @@ export class AddApplicationViewModel {
   @observable submissionSuccessful: boolean = false;
 
   constructor(
-    @inject(SERVICE_IDENTIFIERS.ApplicationService) private applicationService: IApplicationService,
     @inject(SERVICE_IDENTIFIERS.RootStore) private rootStore: RootStore
   ) {
     makeObservable(this);

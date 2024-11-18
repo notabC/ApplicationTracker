@@ -13,7 +13,6 @@ import { EditableField } from '../EditableField';
 import { TagManager } from '../TagManager';
 import { StageSelector } from '../StageSelector';
 import { useUnsavedChanges } from '@/presentation/providers/UnsavedChangesProvider';
-import { ApplicationService } from '@/core/services/ApplicationService';
 import { RootStore } from '@/presentation/viewModels/RootStore';
 
 interface Props {
