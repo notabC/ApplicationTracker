@@ -1,6 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import { Save, X, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 interface Props {
   show: boolean;
@@ -44,7 +44,6 @@ export const UnsavedChangesNotification: React.FC<Props> = observer(({
                      transition-all duration-200
                      flex items-center gap-2 text-sm"
           >
-            <Save className="h-4 w-4" />
             Save
           </button>
           <button
@@ -55,7 +54,6 @@ export const UnsavedChangesNotification: React.FC<Props> = observer(({
                      transition-all duration-200
                      flex items-center gap-2 text-sm"
           >
-            <X className="h-4 w-4" />
             Discard
           </button>
         </div>

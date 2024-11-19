@@ -101,58 +101,46 @@ export const ApplicationModal: React.FC<Props> = observer(({
             {/* Grid Layout for Fields */}
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
-                <div className="flex items-center gap-2 mb-2">
-                  <ClipboardEdit className="h-4 w-4 text-gray-400" />
-                  <label className="text-sm font-medium text-gray-400">Description</label>
-                </div>
                 <EditableField
                   value={application.description}
                   onChange={(value) => handleFieldChange('description', value)}
                   application={application}
                   field="description"
                   label='Description'
+                  Icon={ClipboardEdit}
                 />
               </div>
 
               <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <DollarSign className="h-4 w-4 text-gray-400" />
-                  <label className="text-sm font-medium text-gray-400">Salary Range</label>
-                </div>
                 <EditableField
                   value={application.salary}
                   onChange={(value) => handleFieldChange('salary', value)}
                   application={application}
                   field="salary"
                   label='Salary Range'
+                  Icon={DollarSign}
                 />
               </div>
 
               <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <MapPin className="h-4 w-4 text-gray-400" />
-                  <label className="text-sm font-medium text-gray-400">Location</label>
-                </div>
                 <EditableField
                   value={application.location}
                   onChange={(value) => handleFieldChange('location', value)}
                   application={application}
                   field="location"
                   label='Location'
+                  Icon={MapPin}
                 />
               </div>
 
               <div className="col-span-2">
-                <div className="flex items-center gap-2 mb-2">
-                  <ClipboardEdit className="h-4 w-4 text-gray-400" />
-                  <label className="text-sm font-medium text-gray-400">Notes</label>
-                </div>
                 <EditableField
                   value={application.notes}
                   onChange={(value) => handleFieldChange('notes', value)}
                   application={application}
                   field="notes"
                   label='Notes'
+                  Icon={ClipboardEdit}
                 />
               </div>
             </div>
