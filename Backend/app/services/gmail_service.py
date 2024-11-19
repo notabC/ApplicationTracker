@@ -2,22 +2,24 @@
 import base64
 from bs4 import BeautifulSoup
 from app.models.email import Email
+from app.models.user import User
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
-from datetime import datetime, timedelta
-from typing import List, Optional
+from datetime import datetime
+from typing import List, Optional, Tuple
 import os
 from ..models.gmail import GmailCredentials, GmailFetchParams
 from ..database import get_database
 
 class GmailService:
     def __init__(self):
-        self.collection_name = "gmail_credentials"
+        self.credentials_collection = "gmail_credentials"
+        self.users_collection = "users"
         self.client_config = self._load_client_config()
         
     def _load_client_config(self):
-        # Load from environment variable or file
+        # Load from environment variables or secure storage
         return {
             "web": {
                 "client_id": os.getenv("GMAIL_CLIENT_ID"),
@@ -28,7 +30,106 @@ class GmailService:
             }
         }
 
+    async def _get_user_info(self, credentials: Credentials) -> Tuple[str, Optional[str]]:
+        """
+        Fetch user's email and name from Google API
+        Returns tuple of (email, name)
+        """
+        service = build("oauth2", "v2", credentials=credentials)
+        user_info = service.userinfo().get().execute()
+        return user_info.get("email"), user_info.get("name")
+
+    async def store_credentials(self, user_id: str, flow: Flow, code: str) -> Tuple[GmailCredentials, User]:
+        """
+        Store Gmail credentials and create/update user account
+        Returns tuple of (credentials, user)
+        """
+        # Exchange authorization code for tokens
+        flow.fetch_token(code=code)
+        creds = flow.credentials
+        
+        # Get user info from Google
+        email, name = await self._get_user_info(creds)
+        
+        db = await get_database()
+        
+        # Create or update Gmail credentials for session management
+        credentials = GmailCredentials(
+            user_id=user_id,
+            access_token=creds.token,
+            refresh_token=creds.refresh_token,
+            token_expiry=creds.expiry,
+            email=email
+        )
+        
+        await db[self.credentials_collection].update_one(
+            {"user_id": user_id},
+            {"$set": credentials.model_dump()},
+            upsert=True
+        )
+        
+        # Create or update user account
+        now = datetime.utcnow()
+        user = User(
+            id=user_id,
+            email=email,
+            name=name,
+            created_at=now,
+            last_login=now,
+            is_active=True
+        )
+        
+        # Use upsert with $setOnInsert to only set created_at on new accounts
+        await db[self.users_collection].update_one(
+            {"id": user_id},
+            {
+                "$set": {
+                    "email": email,
+                    "name": name,
+                    "last_login": now,
+                    "is_active": True
+                },
+                "$setOnInsert": {
+                    "created_at": now
+                }
+            },
+            upsert=True
+        )
+        
+        return credentials, user
+
+    async def logout(self, user_id: str) -> None:
+        """
+        Handle user logout by removing credentials but keeping user account
+        """
+        db = await get_database()
+        # Only remove credentials, keep user account
+        result = await db[self.credentials_collection].delete_one({"user_id": user_id})
+        if result.deleted_count == 0:
+            raise ValueError("User not found")
+
+    async def check_auth(self, user_id: str) -> dict:
+        """
+        Check authentication status and return user info
+        """
+        db = await get_database()
+        creds = await db[self.credentials_collection].find_one({"user_id": user_id})
+        user = await db[self.users_collection].find_one({"id": user_id})
+        
+        return {
+            "isAuthenticated": bool(creds),
+            "email": creds["email"] if creds else None,
+            "user": {
+                "name": user.get("name"),
+                "email": user.get("email"),
+                "created_at": user.get("created_at")
+            } if user else None
+        }
+
     def create_auth_url(self, user_id: str) -> str:
+        """
+        Create the Google OAuth2 authorization URL
+        """
         flow = Flow.from_client_config(
             self.client_config,
             scopes=[
@@ -47,31 +148,6 @@ class GmailService:
             state=user_id
         )
         return auth_url
-
-    async def store_credentials(self, user_id: str, flow: Flow, code: str) -> GmailCredentials:
-        token = flow.fetch_token(code=code)
-        creds = flow.credentials  # Use flow.credentials instead of creating new Credentials
-        
-        credentials = GmailCredentials(
-            user_id=user_id,
-            access_token=creds.token,
-            refresh_token=creds.refresh_token,
-            token_expiry=datetime.fromtimestamp(creds.expiry.timestamp()),
-            email=self._get_user_email(creds)
-        )
-        
-        db = await get_database()
-        await db[self.collection_name].update_one(
-            {"user_id": user_id},
-            {"$set": credentials.model_dump()},
-            upsert=True
-        )
-        return credentials
-
-    def _get_user_email(self, credentials: Credentials) -> str:
-        service = build("gmail", "v1", credentials=credentials)
-        profile = service.users().getProfile(userId="me").execute()
-        return profile["emailAddress"]
 
     def _clean_html(self, html_content: str) -> str:
         """Strips HTML tags and returns plain text."""
@@ -105,7 +181,7 @@ class GmailService:
 
     async def fetch_emails(self, user_id: str, params: GmailFetchParams) -> List[Email]:
         db = await get_database()
-        creds_doc = await db[self.collection_name].find_one({"user_id": user_id})
+        creds_doc = await db[self.credentials_collection].find_one({"user_id": user_id})
         if not creds_doc:
             raise ValueError("User not authenticated")
 

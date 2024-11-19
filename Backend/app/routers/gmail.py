@@ -1,4 +1,3 @@
-
 # app/routers/gmail.py
 from fastapi import APIRouter, HTTPException, Depends, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -15,10 +14,20 @@ gmail_service = GmailService()
 
 @router.get("/auth/url")
 async def get_auth_url(user_id: str):
-    return {"url": gmail_service.create_auth_url(user_id)}
+    """
+    Endpoint to get the Google OAuth2 authorization URL for a user
+    """
+    try:
+        auth_url = gmail_service.create_auth_url(user_id)
+        return {"url": auth_url}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/auth/callback")
 async def auth_callback(code: str, state: str):
+    """
+    OAuth2 callback endpoint to handle the authorization response from Google
+    """
     try:
         flow = Flow.from_client_config(
             gmail_service.client_config,
@@ -31,7 +40,8 @@ async def auth_callback(code: str, state: str):
             redirect_uri=gmail_service.client_config["web"]["redirect_uris"][0]
         )
         
-        await gmail_service.store_credentials(state, flow, code)
+        # Store credentials and create/update user account
+        credentials, user = await gmail_service.store_credentials(state, flow, code)
         
         return RedirectResponse(url=f"{settings.FRONTEND_URL}")
         
@@ -42,11 +52,14 @@ async def auth_callback(code: str, state: str):
 async def fetch_emails(
     user_id: str,
     tags: Optional[List[str]] = Query(None),
-    start_date: Optional[str] = None,  # Changed to str
-    end_date: Optional[str] = None,    # Changed to str
-    search_query: Optional[str] = None,
-    limit: Optional[int] = 20
+    start_date: Optional[str] = Query(None),  # Changed to str
+    end_date: Optional[str] = Query(None),    # Changed to str
+    search_query: Optional[str] = Query(None),
+    limit: Optional[int] = Query(20)
 ):
+    """
+    Endpoint to fetch emails based on provided parameters
+    """
     try:
         params = GmailFetchParams(
             tags=tags,
@@ -64,17 +77,24 @@ async def fetch_emails(
 
 @router.post("/logout/{user_id}")
 async def logout(user_id: str):
-    db = await get_database()
-    result = await db["gmail_credentials"].delete_one({"user_id": user_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="User not found")
-    return {"message": "Logged out successfully"}
+    """
+    Endpoint to logout a user by removing their Gmail credentials
+    """
+    try:
+        await gmail_service.logout(user_id)
+        return {"message": "Logged out successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/check-auth")
 async def check_auth(user_id: str):
-    db = await get_database()
-    creds = await db["gmail_credentials"].find_one({"user_id": user_id})
-    return {
-        "isAuthenticated": bool(creds),
-        "email": creds["email"] if creds else None
-    }
+    """
+    Endpoint to check if a user is authenticated and retrieve user information
+    """
+    try:
+        auth_status = await gmail_service.check_auth(user_id)
+        return auth_status
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
