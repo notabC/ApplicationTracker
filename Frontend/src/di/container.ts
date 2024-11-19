@@ -21,6 +21,9 @@ import { AnalyticsService } from '@/core/services/AnalyticsService';
 import { AnalyticsViewModel } from '@/presentation/viewModels/AnalyticsViewModel';
 import { ActivityHistoryViewModel } from '@/presentation/viewModels/ActivityHistoryViewModel';
 import { RootStore } from '@/presentation/viewModels/RootStore';
+import { AuthViewModel } from '@/presentation/viewModels/AuthViewModel';
+import { AuthService } from '@/core/services/AuthService';
+import { ProtectedFeatureViewModel } from '@/presentation/viewModels/ProtectedFeatureViewModel';
 
 export const container = new Container();
 
@@ -92,4 +95,17 @@ container.bind<ActivityHistoryViewModel>(SERVICE_IDENTIFIERS.ActivityHistoryView
 container.bind<RootStore>(SERVICE_IDENTIFIERS.RootStore)
   .to(RootStore)
   .inSingletonScope();
+
+container.bind<AuthService>(SERVICE_IDENTIFIERS.AuthService)
+  .to(AuthService)
+  .inSingletonScope();
+
+container.bind<AuthViewModel>(SERVICE_IDENTIFIERS.AuthViewModel)
+  .to(AuthViewModel)
+  .inSingletonScope();
+
+container.bind<ProtectedFeatureViewModel>(SERVICE_IDENTIFIERS.ProtectedFeatureViewModel)
+  .to(ProtectedFeatureViewModel)
+  .inTransientScope();
+  
 export { SERVICE_IDENTIFIERS };

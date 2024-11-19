@@ -1,9 +1,9 @@
-// src/presentation/components/modals/ApplicationModal.tsx
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import {
-  X, ChevronDown, ChevronLeft,
-  ChevronRight
+  X, ChevronDown, ChevronLeft, ChevronRight,
+  Building2, MapPin, DollarSign, ClipboardEdit,
+  Calendar
 } from 'lucide-react';
 import { container } from '@/di/container';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
@@ -36,44 +36,46 @@ export const ApplicationModal: React.FC<Props> = observer(({
   const updatedApplication = rootStore.getApplicationById(application.id) || application;
 
   const handleFieldChange = (field: keyof Application, value: any, track=false) => {
-    // Track the change with original value
     const originalValue = application[field];
-
     if (track) {
       trackChange(application.id.toString(), field, value, originalValue, viewModel);
     }
-    
-    // Update the application state via ViewModel or directly
     viewModel.updateField(application.id, field, value);
   };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-900 rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+      <div className="bg-[#1a1d24] rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col border border-gray-800/50">
         {/* Header */}
-        <div className="p-6 border-b border-gray-800">
-          <div className="flex justify-between items-center">
-            <div className="flex gap-4 items-center">
-              <div className="relative group">
-                <div className="flex flex-col gap-1">
+        <div className="p-6 border-b border-gray-800/50">
+          <div className="flex justify-between items-start">
+            <div className="flex gap-4 items-start">
+              <div className="bg-blue-500/10 p-2.5 rounded-xl">
+                <Building2 className="h-5 w-5 text-blue-400" />
+              </div>
+              <div className="flex flex-col gap-2">
                 <input
                   type="text"
                   value={viewModel.unsavedChanges.company !== undefined ? viewModel.unsavedChanges.company : application.company}
                   onChange={(e) => handleFieldChange('company', e.target.value, true)}
-                  className="text-xl font-semibold text-white bg-transparent hover:bg-gray-800 
-                          px-2 py-1 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="text-xl font-medium text-white bg-transparent hover:bg-[#282c34] 
+                           px-3 py-1.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30
+                           transition-all duration-200"
                 />
-                  <input
-                    type="text"
-                    value={viewModel.unsavedChanges.position !== undefined ? viewModel.unsavedChanges.position : application.position}
-                    onChange={(e) => handleFieldChange('position', e.target.value, true)}
-                    className="text-sm text-gray-400 bg-transparent hover:bg-gray-800 
-                             px-2 py-1 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                </div>
+                <input
+                  type="text"
+                  value={viewModel.unsavedChanges.position !== undefined ? viewModel.unsavedChanges.position : application.position}
+                  onChange={(e) => handleFieldChange('position', e.target.value, true)}
+                  className="text-sm text-gray-400 bg-transparent hover:bg-[#282c34]
+                           px-3 py-1.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30
+                           transition-all duration-200"
+                />
               </div>
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-lg">
+            <button 
+              onClick={onClose} 
+              className="p-2 hover:bg-gray-800/50 rounded-xl transition-colors duration-200"
+            >
               <X className="h-5 w-5 text-gray-400" />
             </button>
           </div>
@@ -82,83 +84,100 @@ export const ApplicationModal: React.FC<Props> = observer(({
           <button
             onClick={() => viewModel.setShowStageSelect(true)}
             className="mt-4 w-full flex items-center justify-between px-4 py-3 
-                     bg-gray-800 rounded-lg hover:bg-gray-750 transition-colors"
+                     bg-[#282c34] border border-gray-800/50
+                     rounded-xl hover:bg-gray-800/50 hover:border-gray-700/50
+                     transition-all duration-200 group"
           >
             <div className="flex items-center gap-3">
-              {/* <div className={`w-2.5 h-2.5 rounded-full bg-${viewModel.getStageColor(updatedApplication.stage)}-400`} /> */}
+              <div className={`w-2 h-2 rounded-full bg-blue-400`} />
               <span className="text-white font-medium">{updatedApplication.stage}</span>
             </div>
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-400 group-hover:text-gray-300 transition-colors" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto px-6 py-4">
           <div className="space-y-6">
-            <EditableField
-              label="Description"
-              value={application.description}
-              onChange={(value) => handleFieldChange('description', value)}
-              application={application}
-              field="description"
-            />
-
-            <div className="grid grid-cols-2 gap-6">
-              <EditableField
-                label="Salary Range"
-                value={application.salary}
-                onChange={(value) => handleFieldChange('salary', value)}
-                application={application}
-                field="salary"
-              />
-              <EditableField
-                label="Location"
-                value={application.location}
-                onChange={(value) => handleFieldChange('location', value)}
-                application={application}
-                field="location"
+            {/* Grid Layout for Fields */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <ClipboardEdit className="h-4 w-4 text-gray-400" />
+                  <label className="text-sm font-medium text-gray-400">Description</label>
+                </div>
+                <EditableField
+                  value={application.description}
+                  onChange={(value) => handleFieldChange('description', value)}
+                  application={application}
+                  field="description"
+                  label='Description'
                 />
-            </div>
+              </div>
 
-            <EditableField
-              label="Notes"
-              value={application.notes}
-              onChange={(value) => handleFieldChange('notes', value)}
-              application={application}
-              field="notes"
-            />
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <DollarSign className="h-4 w-4 text-gray-400" />
+                  <label className="text-sm font-medium text-gray-400">Salary Range</label>
+                </div>
+                <EditableField
+                  value={application.salary}
+                  onChange={(value) => handleFieldChange('salary', value)}
+                  application={application}
+                  field="salary"
+                  label='Salary Range'
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <MapPin className="h-4 w-4 text-gray-400" />
+                  <label className="text-sm font-medium text-gray-400">Location</label>
+                </div>
+                <EditableField
+                  value={application.location}
+                  onChange={(value) => handleFieldChange('location', value)}
+                  application={application}
+                  field="location"
+                  label='Location'
+                />
+              </div>
+            </div>
 
             <TagManager
               tags={application.tags}
               onTagsUpdate={(tags) => handleFieldChange('tags', tags)}
             />
 
-            {/* Logs Section */}
+            {/* Status Log */}
             <div>
-              <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
-                Status Log
-              </h3>
-              <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-4">
+                <Calendar className="h-4 w-4 text-gray-400" />
+                <h3 className="text-sm font-medium text-gray-400">Status Log</h3>
+              </div>
+              
+              <div className="space-y-3">
                 {application.logs.slice().reverse().map((log) => (
                   <div 
                     key={log.id}
-                    className={`flex flex-col bg-gray-800/50 rounded-lg transition-all duration-200 
-                              ${log.emailId ? 'cursor-pointer hover:bg-gray-800/70' : ''}`}
+                    className={`bg-[#282c34] rounded-xl border border-gray-800/50
+                              transition-all duration-200 
+                              ${log.emailId ? 'cursor-pointer hover:bg-gray-800/50 hover:border-gray-700/50' : ''}`}
                     onClick={() => log.emailId && viewModel.toggleLogExpansion(log.id)}
                   >
                     <div className="flex items-start gap-4 p-4">
-                      <div className="flex-shrink-0">
-                        <div className="text-sm font-medium text-gray-200">
+                      <div className="flex-shrink-0 text-right">
+                        <div className="text-sm font-medium text-gray-300">
                           {viewModel.formatDate(log.date)}
                         </div>
-                        <div className="text-xs text-gray-400">
+                        <div className="text-xs text-gray-500">
                           {new Date(log.date).getFullYear()}
                         </div>
                       </div>
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
-                          <p className="text-gray-200 text-sm">
+                          <p className="text-gray-300 text-sm leading-relaxed">
                             {log.fromStage ? (
                               <>
                                 Moved from <span className="text-gray-400">{log.fromStage}</span> to{' '}
@@ -170,13 +189,13 @@ export const ApplicationModal: React.FC<Props> = observer(({
                           </p>
                           {log.emailId && (
                             <ChevronRight
-                              className={`h-4 w-4 text-gray-400 transform transition-transform 
-                                        ${viewModel.expandedLogs.has(log.id) ? 'rotate-90' : ''}`}
+                              className={`h-4 w-4 text-gray-400 transform transition-transform duration-200
+                                      ${viewModel.expandedLogs.has(log.id) ? 'rotate-90' : ''}`}
                             />
                           )}
                         </div>
                         {log.emailId && (
-                          <p className="text-xs text-gray-400 mt-1">
+                          <p className="text-xs text-gray-500 mt-1">
                             Source Email: "{log.emailTitle}"
                           </p>
                         )}
@@ -184,9 +203,9 @@ export const ApplicationModal: React.FC<Props> = observer(({
                     </div>
 
                     {log.emailId && viewModel.expandedLogs.has(log.id) && (
-                      <div className="px-4 pb-4 pt-2 border-t border-gray-700 mt-2">
-                        <div className="bg-gray-900 rounded-lg p-3">
-                          <p className="text-sm text-gray-300 whitespace-pre-line">
+                      <div className="px-4 pb-4 border-t border-gray-700/50 mt-2">
+                        <div className="bg-[#1a1d24] rounded-lg p-4 mt-3">
+                          <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-line">
                             {log.emailBody}
                           </p>
                         </div>
@@ -200,10 +219,10 @@ export const ApplicationModal: React.FC<Props> = observer(({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-800 flex justify-between items-center bg-gray-900">
+        <div className="px-6 py-4 border-t border-gray-800/50 flex justify-between items-center bg-[#1a1d24]">
           <button 
             onClick={() => onNavigate('prev')} 
-            className="p-2 hover:bg-gray-800 rounded-lg"
+            className="p-2 hover:bg-gray-800/50 rounded-xl transition-colors duration-200"
           >
             <ChevronLeft className="h-5 w-5 text-gray-400" />
           </button>
@@ -212,7 +231,7 @@ export const ApplicationModal: React.FC<Props> = observer(({
           </div>
           <button 
             onClick={() => onNavigate('next')} 
-            className="p-2 hover:bg-gray-800 rounded-lg"
+            className="p-2 hover:bg-gray-800/50 rounded-xl transition-colors duration-200"
           >
             <ChevronRight className="h-5 w-5 text-gray-400" />
           </button>

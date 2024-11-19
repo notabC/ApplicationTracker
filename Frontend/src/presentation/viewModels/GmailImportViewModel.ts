@@ -5,11 +5,11 @@ import type { IGmailService, IGmailEmail, IGmailImportOptions } from '../../core
 import { SERVICE_IDENTIFIERS } from '../../core/constants/identifiers';
 import { JobTrackerViewModel } from './JobTrackerViewModel';
 
-export type ImportStep = 'auth' | 'filters' | 'processing' | 'selection';
+export type ImportStep = 'filters' | 'processing' | 'selection';
 
 @injectable()
 export class GmailImportViewModel {
-  step: ImportStep = 'auth';
+  step: ImportStep = 'filters';
   emails: IGmailEmail[] = [];
   selectedEmails = new Set<string>();
   expandedEmails = new Set<string>();
@@ -27,43 +27,8 @@ export class GmailImportViewModel {
     @inject(SERVICE_IDENTIFIERS.JobTrackerViewModel) private jobTrackerViewModel: JobTrackerViewModel
   ) {
     makeAutoObservable(this);
-    this.initializeAuthentication();
   }
-
-  private async initializeAuthentication() {
-    await this.gmailService.checkAuthentication();
-
-    runInAction(() => {
-      if (this.gmailService.isAuthenticated) {
-        this.step = 'filters';
-      }
-    });
-  }
-
-  // Actions
-  async authenticate() {
-    this.isLoading = true;
-    try {
-      const success = await this.gmailService.authenticate();
-      runInAction(() => {
-        if (success) {
-          this.step = 'filters';
-          this.error = null;
-        } else {
-          this.error = 'Authentication failed';
-        }
-      });
-    } catch (error) {
-      runInAction(() => {
-        this.error = 'Authentication error';
-      });
-    } finally {
-      runInAction(() => {
-        this.isLoading = false;
-      });
-    }
-  }
-
+  
   async fetchEmails() {
     this.isLoading = true;
     this.step = 'processing';
@@ -112,7 +77,7 @@ export class GmailImportViewModel {
       runInAction(() => {
         this.selectedEmails.clear();
         this.expandedEmails.clear();
-        this.step = 'auth';
+        this.step = 'filters';
       });
     } catch (error) {
       runInAction(() => {
@@ -156,7 +121,7 @@ export class GmailImportViewModel {
 
   // Reset state
   reset() {
-    this.step = 'auth';
+    this.step = 'filters';
     this.emails = [];
     this.selectedEmails.clear();
     this.expandedEmails.clear();

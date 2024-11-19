@@ -1,7 +1,6 @@
-// src/presentation/components/TagManager/TagManager.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Settings2, Check, Plus, X } from 'lucide-react';
+import { Settings2, Check, Plus, X, Tags } from 'lucide-react';
 
 interface Props {
   tags: string[];
@@ -48,26 +47,30 @@ export const TagManager: React.FC<Props> = observer(({
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           {!isCompact && (
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors"
+              className="p-2 bg-gray-800/50 hover:bg-gray-700/50 rounded-xl 
+                       transition-all duration-200 group"
             >
               {isEditing ? (
-                <Check className="w-4 h-4 text-gray-400" />
+                <Check className="w-4 h-4 text-green-400 group-hover:text-green-300" />
               ) : (
-                <Settings2 className="w-4 h-4 text-gray-400" />
+                <Settings2 className="w-4 h-4 text-gray-400 group-hover:text-gray-300" />
               )}
             </button>
           )}
-          <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider">
-            Tags
-          </h3>
+          <div className="flex items-center gap-2">
+            <Tags className="w-4 h-4 text-gray-400" />
+            <h3 className="text-sm font-medium text-gray-400">
+              Tags
+            </h3>
+          </div>
         </div>
         {isAdding ? (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <input
               ref={inputRef}
               type="text"
@@ -75,11 +78,15 @@ export const TagManager: React.FC<Props> = observer(({
               onChange={(e) => setNewTag(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="New tag..."
-              className="px-2 py-1 bg-gray-800 rounded-lg text-sm text-white placeholder-gray-500 w-24"
+              className="px-3 py-2 bg-[#282c34] border border-gray-800/50
+                       rounded-xl text-sm text-white placeholder-gray-500
+                       focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/30
+                       transition-all duration-200 w-32"
             />
             <button
               onClick={() => setIsAdding(false)}
-              className="p-1 hover:bg-gray-700 rounded-lg"
+              className="p-2 bg-gray-800/50 hover:bg-gray-700/50 rounded-xl
+                       transition-all duration-200"
             >
               <X className="w-4 h-4 text-gray-400" />
             </button>
@@ -87,10 +94,16 @@ export const TagManager: React.FC<Props> = observer(({
         ) : (
           <button
             onClick={() => setIsAdding(true)}
-            className="p-1 hover:bg-gray-700 rounded-lg flex items-center gap-1 text-sm text-gray-400"
+            className="flex items-center gap-2 px-3 py-2 
+                     bg-gray-800/50 hover:bg-gray-700/50 rounded-xl
+                     transition-all duration-200 group"
           >
-            <Plus className="w-4 h-4" />
-            {!isCompact && "Add tag"}
+            <Plus className="w-4 h-4 text-gray-400 group-hover:text-gray-300" />
+            {!isCompact && (
+              <span className="text-sm text-gray-400 group-hover:text-gray-300">
+                Add tag
+              </span>
+            )}
           </button>
         )}
       </div>
@@ -101,19 +114,21 @@ export const TagManager: React.FC<Props> = observer(({
             key={tag}
             className="flex items-center"
           >
-            <div
-              className={`px-2 py-1 rounded-full text-sm transition-colors flex items-center gap-1
-                bg-gray-800 text-gray-300 hover:bg-gray-700`}
-            >
-              {tag}
-              {isEditing && (
-                <button
-                  onClick={() => handleDeleteTag(tag)}
-                  className="ml-1 p-0.5 hover:bg-gray-600 rounded"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              )}
+            <div className="px-3 py-1.5 bg-[#282c34] border border-gray-800/50
+                          hover:bg-gray-800/50 hover:border-gray-700/50
+                          rounded-xl transition-all duration-200 group">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-300">{tag}</span>
+                {isEditing && (
+                  <button
+                    onClick={() => handleDeleteTag(tag)}
+                    className="group-hover:bg-gray-700/50 rounded-lg p-1 
+                             transition-colors duration-200"
+                  >
+                    <X className="w-3 h-3 text-gray-400 hover:text-gray-300" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         ))}

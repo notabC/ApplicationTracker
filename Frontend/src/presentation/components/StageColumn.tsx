@@ -1,4 +1,3 @@
-// src/presentation/components/StageColumn/StageColumn.tsx
 import { observer } from 'mobx-react-lite';
 import type { WorkflowStage } from '@/core/domain/models/Workflow';
 import type { Application } from '@/core/domain/models/Application';
@@ -36,27 +35,31 @@ export const StageColumn = observer(({ stage, applications, viewModel }: Props) 
     await viewModel.dragDropVM.handleDrop(stage.name);
   };
 
-  if (!isVisible) {
-    return null;
-  }
+  if (!isVisible) return null;
 
   return (
     <div className="flex-none w-[280px] sm:w-80">
       <div 
-        className={`bg-gray-800 rounded-xl p-4 border border-gray-700 transition-colors duration-200
-                   ${viewModel.dragDropVM.isDraggingOver(stage.id) ? 'bg-gray-750 border-blue-500' : ''}`}
+        className={`bg-[#1a1d24] rounded-xl p-4 
+                   border border-gray-800/50
+                   transition-all duration-200 ease-in-out
+                   ${viewModel.dragDropVM.isDraggingOver(stage.id) 
+                     ? 'bg-[#1e2128] border-blue-500/50 shadow-lg shadow-blue-500/10' 
+                     : 'hover:border-gray-700/50'}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
         {/* Stage Header */}
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-semibold text-white">{stage.name}</h3>
-          <span className={`px-2 py-1 text-gray-300 text-sm rounded-full`}>
-            {stage.name === 'Unassigned'
-              ? viewModel.unprocessedEmails.length
-              : viewModel.getApplicationsByStage(stage.name).length}
-          </span>
+          <div className="flex items-center gap-2">
+            <h3 className="font-medium text-white">{stage.name}</h3>
+            <span className="px-2.5 py-0.5 bg-[#282c34] text-gray-400 text-sm rounded-full">
+              {stage.name === 'Unassigned'
+                ? viewModel.unprocessedEmails.length
+                : viewModel.getApplicationsByStage(stage.name).length}
+            </span>
+          </div>
         </div>
 
         {/* Applications List */}
@@ -79,15 +82,17 @@ export const StageColumn = observer(({ stage, applications, viewModel }: Props) 
             ))
           )}
           
-          {/* Add Application Button (optional for each stage) */}
+          {/* Add Application Button */}
           {stage.name !== 'Unassigned' && (
             <button
               onClick={() => viewModel.setShowAddModal(true)}
-              className="w-full flex items-center justify-center gap-2 py-2 text-gray-400 
-                         hover:text-gray-200 hover:bg-gray-700 rounded-lg transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-2.5
+                       text-gray-400 bg-[#282c34] rounded-lg
+                       hover:text-gray-200 hover:bg-gray-800
+                       transition-all duration-200 group"
             >
-              <PlusCircle className="h-4 w-4" />
-              Add Application
+              <PlusCircle className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
+              <span className="text-sm">Add Application</span>
             </button>
           )}
         </div>

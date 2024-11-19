@@ -18,4 +18,7 @@ export const SERVICE_IDENTIFIERS = {
   ApplicationRepository: Symbol.for('ApplicationRepository'),
   ActivityHistoryViewModel: Symbol('ActivityHistoryViewModel'),
   RootStore: Symbol('RootStore'),
+  AuthService: Symbol('AuthService'),
+  AuthViewModel: Symbol('AuthViewModel'),
+  ProtectedFeatureViewModel: Symbol('ProtectedFeatureViewModel'),
 };
