@@ -1,7 +1,7 @@
 // src/presentation/views/JobTracker.tsx
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Search, SlidersHorizontal, PlusCircle, Mail, Settings2, Clock, LineChart, MoreVertical, Loader2, LogIn, LogOut } from 'lucide-react';
+import { Search, SlidersHorizontal, PlusCircle, Mail, Settings2, Clock, LineChart, MoreVertical, Loader2, LogOut } from 'lucide-react';
 import { container } from '@/di/container';
 import { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
