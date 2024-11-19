@@ -34,4 +34,15 @@ export class AuthViewModel {
   get isAuthenticated() {
     return this.authService.isAuthenticated;
   }
+
+  async signOut() {
+    this.isLoading = true;
+    try {
+      this.authService.signOut();
+    } catch {
+      this.error = 'An error occurred during sign out';
+    } finally {
+      this.isLoading = false;
+    }
+  }
 }

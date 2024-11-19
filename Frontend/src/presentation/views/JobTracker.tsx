@@ -1,7 +1,7 @@
 // src/presentation/views/JobTracker.tsx
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Search, SlidersHorizontal, PlusCircle, Mail, Settings2, Clock, LineChart, MoreVertical } from 'lucide-react';
+import { Search, SlidersHorizontal, PlusCircle, Mail, Settings2, Clock, LineChart, MoreVertical, Loader2, LogIn, LogOut } from 'lucide-react';
 import { container } from '@/di/container';
 import { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
@@ -12,10 +12,56 @@ import { ApplicationModal } from '../components/modals/ApplicationModal';
 import { StageColumn } from '../components/StageColumn'; // Updated import path
 import { WorkflowEditorModal } from '../components/modals/WorkflowEditorModal';
 import { ActivityHistoryModal } from '../components/modals/ActivityHistoryModal';
+import { AuthViewModel } from '../viewModels/AuthViewModel';
 
 export const JobTracker: React.FC = observer(() => {
   const viewModel = container.get<JobTrackerViewModel>(SERVICE_IDENTIFIERS.JobTrackerViewModel);
+  const authViewModel = container.get<AuthViewModel>(SERVICE_IDENTIFIERS.AuthViewModel);
   const [isOpen, setIsOpen] = useState(false);
+
+  if (!authViewModel.isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#1a1d21] flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent mb-3">
+              Job Application Tracker
+            </h1>
+            <p className="text-gray-400">Sign in to manage your job applications</p>
+          </div>
+
+          <div className="space-y-4">
+            <button
+              onClick={() => authViewModel.authenticate()}
+              disabled={authViewModel.isLoading}
+              className="w-full flex items-center justify-center gap-3 px-6 py-4
+                      bg-gradient-to-r from-blue-500/10 to-blue-500/5
+                      hover:from-blue-500/20 hover:to-blue-500/10
+                      border border-blue-500/20 hover:border-blue-500/30
+                      rounded-2xl transition-all duration-200
+                      disabled:opacity-50 disabled:cursor-not-allowed
+                      group"
+            >
+              {authViewModel.isLoading ? (
+                <Loader2 className="h-5 w-5 text-blue-400 animate-spin" />
+              ) : (
+                <LogOut className="h-5 w-5 text-blue-400 group-hover:text-blue-300" />
+              )}
+              <span className="text-blue-400 group-hover:text-blue-300 font-medium">
+                {authViewModel.isLoading ? 'Signing in...' : 'Sign in to continue'}
+              </span>
+            </button>
+
+            {authViewModel.error && (
+              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                <p className="text-red-400 text-sm text-center">{authViewModel.error}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-full bg-[#1a1d21] min-h-screen">
@@ -33,7 +79,8 @@ export const JobTracker: React.FC = observer(() => {
               { icon: Mail, label: "Import", color: "blue", onClick: () => viewModel.setIsGmailModalOpen(true) },
               { icon: Settings2, label: "Edit", color: "rose", onClick: () => viewModel.showEditWorkflowModal() },
               { icon: Clock, label: "History", color: "amber", onClick: () => viewModel.setShowHistory(true) },
-              { icon: LineChart, label: "Stats", color: "purple", onClick: () => window.location.href = '/analytics' }
+              { icon: LineChart, label: "Stats", color: "purple", onClick: () => window.location.href = '/analytics' },
+              { icon: LogOut, label: "Sign Out", color: "red", onClick: () => authViewModel.signOut() }
             ].map(({ icon: Icon, label, color, onClick }) => (
               <button 
                 key={label}
@@ -87,7 +134,8 @@ export const JobTracker: React.FC = observer(() => {
                     { icon: Mail, label: "Import from Gmail", color: "blue", onClick: () => { viewModel.setIsGmailModalOpen(true); setIsOpen(false); } },
                     { icon: Settings2, label: "Edit Workflow", color: "rose", onClick: () => { viewModel.showEditWorkflowModal(); setIsOpen(false); } },
                     { icon: Clock, label: "Activity History", color: "amber", onClick: () => { viewModel.setShowHistory(true); setIsOpen(false); } },
-                    { icon: LineChart, label: "View Analytics", color: "purple", onClick: () => { window.location.href = '/analytics'; setIsOpen(false); } }
+                    { icon: LineChart, label: "View Analytics", color: "purple", onClick: () => { window.location.href = '/analytics'; setIsOpen(false); } },
+                    { icon: LogOut, label: "Sign Out", color: "red", onClick: () => { authViewModel.signOut(); setIsOpen(false); } }
                   ].map(({ icon: Icon, label, color, onClick }) => (
                     <button 
                       key={label}

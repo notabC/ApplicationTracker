@@ -4,4 +4,5 @@ export interface IAuthService {
     isAuthenticating: boolean;
     checkAuthentication(): Promise<void>;
     authenticate(): Promise<boolean>;
+    signOut(): void;
   }
