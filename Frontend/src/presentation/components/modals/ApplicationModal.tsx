@@ -141,6 +141,20 @@ export const ApplicationModal: React.FC<Props> = observer(({
                   label='Location'
                 />
               </div>
+
+              <div className="col-span-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <ClipboardEdit className="h-4 w-4 text-gray-400" />
+                  <label className="text-sm font-medium text-gray-400">Notes</label>
+                </div>
+                <EditableField
+                  value={application.notes}
+                  onChange={(value) => handleFieldChange('notes', value)}
+                  application={application}
+                  field="notes"
+                  label='Notes'
+                />
+              </div>
             </div>
 
             <TagManager
