@@ -12,7 +12,7 @@ import { container } from '@/di/container';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import { ProtectedFeatureViewModel } from '@/presentation/viewModels/ProtectedFeatureViewModel';
 import { AuthModal } from '../AuthModal';
-import InputField from '../inputField';
+import InputField from '../InputField';
 import TextArea from '../TextArea';
 
 interface Props {

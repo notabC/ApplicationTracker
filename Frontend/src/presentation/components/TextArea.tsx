@@ -32,6 +32,7 @@ const TextArea: React.FC<TextAreaProps> = observer(({
         id={id}
         value={value}
         onChange={onChange}
+        placeholder={placeholder}
         className={`w-full px-4 py-3 bg-[#282c34] rounded-xl text-white
                  border ${error 
                    ? 'border-red-500/50 focus:ring-red-500/30 focus:border-red-500/30' 

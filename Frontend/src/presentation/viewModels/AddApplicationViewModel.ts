@@ -114,7 +114,7 @@ export class AddApplicationViewModel {
   }
 
   @action
-  async handleSubmit(e: React.FormEvent): Promise<void> {
+  async handleSubmit(_e: React.FormEvent): Promise<void> {
     this.isSubmitting = true;
     this.error = null;
 
