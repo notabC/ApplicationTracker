@@ -53,9 +53,9 @@ class GmailService:
         
         db = await get_database()
         
-        # Create or update Gmail credentials for session management
+        # Create or update Gmail credentials with session ID
         credentials = GmailCredentials(
-            user_id=user_id,
+            user_id=user_id,  # Still keep session ID for credentials
             access_token=creds.token,
             refresh_token=creds.refresh_token,
             token_expiry=creds.expiry,
@@ -68,23 +68,21 @@ class GmailService:
             upsert=True
         )
         
-        # Create or update user account
+        # Create or update user account based on email
         now = datetime.utcnow()
         user = User(
-            id=user_id,
-            email=email,
+            email=email,  # Email is now the primary identifier
             name=name,
             created_at=now,
             last_login=now,
             is_active=True
         )
         
-        # Use upsert with $setOnInsert to only set created_at on new accounts
+        # Use email as the unique identifier
         await db[self.users_collection].update_one(
-            {"id": user_id},
+            {"email": email},  # Changed from id to email
             {
                 "$set": {
-                    "email": email,
                     "name": name,
                     "last_login": now,
                     "is_active": True
@@ -114,11 +112,20 @@ class GmailService:
         """
         db = await get_database()
         creds = await db[self.credentials_collection].find_one({"user_id": user_id})
-        user = await db[self.users_collection].find_one({"id": user_id})
+        
+        if not creds:
+            return {
+                "isAuthenticated": False,
+                "email": None,
+                "user": None
+            }
+        
+        # Look up user by email instead of id
+        user = await db[self.users_collection].find_one({"email": creds["email"]})
         
         return {
-            "isAuthenticated": bool(creds),
-            "email": creds["email"] if creds else None,
+            "isAuthenticated": True,
+            "email": creds["email"],
             "user": {
                 "name": user.get("name"),
                 "email": user.get("email"),
