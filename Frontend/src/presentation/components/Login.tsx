@@ -5,7 +5,7 @@ import { observer } from "mobx-react-lite";
 import { AuthViewModel } from "../viewModels/AuthViewModel";
 import { Link } from 'react-router-dom';
 
-export const SignInRequired = observer(() => {
+export const Login = observer(() => {
   const authViewModel = container.get<AuthViewModel>(SERVICE_IDENTIFIERS.AuthViewModel);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
 

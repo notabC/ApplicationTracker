@@ -6,6 +6,8 @@ import { ContainerProvider } from '@/di/ContainerProvider';
 import { UnsavedChangesProvider } from './presentation/providers/UnsavedChangesProvider';
 import { JobTracker } from './presentation/views/JobTracker';
 import { PrivacyPolicy } from './presentation/views/Privacy';
+import { Login } from './presentation/components/Login';
+import { PrivateRoute } from './presentation/components/PrivateRoute';
 
 const App: React.FC = () => {
   return (
@@ -13,9 +15,19 @@ const App: React.FC = () => {
       <Router>
         <UnsavedChangesProvider>
           <Routes>
-            <Route path="/" element={<JobTracker />} />
+            {/* <Route path="/" element={<JobTracker />} /> */}
+            {/* Protected routes */}
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <JobTracker />
+                </PrivateRoute>
+              }
+            />
             <Route path="/analytics" element={<AnalyticsView />} />
             <Route path='/privacy' element={<PrivacyPolicy />} />
+            <Route path='/login' element={<Login />} />
             {/* Add other routes as needed */}
           </Routes>
         </UnsavedChangesProvider>

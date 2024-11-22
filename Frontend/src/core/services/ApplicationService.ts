@@ -1,32 +1,38 @@
-import { injectable } from 'inversify';
+// src/core/services/ApplicationService.ts
+import { injectable, inject } from 'inversify';
 import { makeObservable, observable, action } from 'mobx';
-import type { Application } from '../domain/models/Application';
+import type { Application, ApplicationCreate } from '../domain/models/Application';
 import { IApplicationService } from '../interfaces/services';
+import type { IAuthService } from '../interfaces/auth/IAuthService';
 import { ApiClient } from '../api/apiClient';
 import { API_ENDPOINTS } from '../api/endpoints';
+import { SERVICE_IDENTIFIERS } from '../constants/identifiers';
 
 @injectable()
 export class ApplicationService implements IApplicationService {
-  @observable private applications: Application[] = [];
+  @observable private _applications: Application[] = [];
 
-  constructor() {
+  constructor(
+    @inject(SERVICE_IDENTIFIERS.AuthService) private authService: IAuthService
+  ) {
     makeObservable(this);
-    console.log(this.applications.length);
+  }
+
+  get applications() {
+    return this._applications;
   }
 
   @action
   setApplications(applications: Application[]) {
-    this.applications = applications;
+    this._applications = applications;
   }
-
-  // getApplications() {
-  //   return this.applications;
-  // }
 
   @action
   async getApplications(): Promise<Application[]> {
     try {
-      return await ApiClient.get<Application[]>(API_ENDPOINTS.APPLICATIONS.BASE);
+      const applications = await ApiClient.get<Application[]>(API_ENDPOINTS.APPLICATIONS.BASE);
+      this.setApplications(applications);
+      return applications;
     } catch (error) {
       console.error('Failed to fetch applications:', error);
       throw error;
@@ -44,8 +50,29 @@ export class ApplicationService implements IApplicationService {
   }
 
   @action
-  async addApplication(application: Application): Promise<Application> {
+  async addApplication(applicationData: ApplicationCreate): Promise<Application> {
+    if (!this.authService.isAuthenticated) {
+      throw new Error('User not authenticated');
+    }
+
     try {
+      const userId = localStorage.getItem('gmail_user_id');
+      if (!userId || !this.authService.userEmail) {
+        throw new Error('User ID or email not found');
+      }
+
+      const application: Omit<Application, 'id'> = {
+        ...applicationData,
+        user_id: userId,
+        user_email: this.authService.userEmail,
+        lastUpdated: new Date().toISOString(),
+        logs: [],
+        description: applicationData.description ?? '',
+        salary: applicationData.salary ?? '',
+        location: applicationData.location ?? '',
+        notes: applicationData.notes ?? ''
+      };
+
       return await ApiClient.post<Application>(
         API_ENDPOINTS.APPLICATIONS.BASE, 
         application
@@ -57,11 +84,25 @@ export class ApplicationService implements IApplicationService {
   }
 
   @action
-  async updateApplication(id: string, updates: Partial<Application>): Promise<Application> {
+  async updateApplication(id: string, updates: Partial<ApplicationCreate>): Promise<Application> {
+    if (!this.authService.isAuthenticated) {
+      throw new Error('User not authenticated');
+    }
+
     try {
+      const userId = localStorage.getItem('gmail_user_id');
+      if (!userId || !this.authService.userEmail) {
+        throw new Error('User ID or email not found');
+      }
+
+      const updateData = {
+        ...updates,
+        lastUpdated: new Date().toISOString()
+      };
+
       return await ApiClient.put<Application>(
         API_ENDPOINTS.APPLICATIONS.BY_ID(id),
-        updates
+        updateData
       );
     } catch (error) {
       if (error instanceof Error && 'response' in error) {
@@ -75,6 +116,10 @@ export class ApplicationService implements IApplicationService {
 
   @action
   async deleteApplication(id: string): Promise<void> {
+    if (!this.authService.isAuthenticated) {
+      throw new Error('User not authenticated');
+    }
+
     try {
       await ApiClient.delete(API_ENDPOINTS.APPLICATIONS.BY_ID(id));
     } catch (error) {
@@ -82,25 +127,4 @@ export class ApplicationService implements IApplicationService {
       throw error;
     }
   }
-
-  // Private helper method to persist applications to localStorage
-  // private persistApplications() {
-  //   try {
-  //     localStorage.setItem('applications', JSON.stringify(this.applications));
-  //   } catch (error) {
-  //     console.error('Failed to persist applications:', error);
-  //   }
-  // }
-
-  // // Private helper method to load applications from localStorage
-  // private loadPersistedApplications() {
-  //   try {
-  //     const persisted = localStorage.getItem('applications');
-  //     if (persisted) {
-  //       this.applications = JSON.parse(persisted);
-  //     }
-  //   } catch (error) {
-  //     console.error('Failed to load persisted applications:', error);
-  //   }
-  // }
 }

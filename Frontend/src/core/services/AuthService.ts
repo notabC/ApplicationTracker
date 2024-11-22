@@ -8,45 +8,80 @@ import { IAuthService } from '../interfaces/auth/IAuthService';
 const USER_ID_KEY = 'gmail_user_id';
 const AUTH_STATE_KEY = 'gmail_auth_state';
 
+interface AuthResponse {
+  isAuthenticated: boolean;
+  email: string;
+  user: {
+    name: string | null;
+    email: string;
+    created_at: string;
+  } | null;
+}
+
 @injectable()
 export class AuthService implements IAuthService {
   @observable isAuthenticated = false;
   @observable userEmail: string | null = null;
+  @observable userName: string | null = null;
   @observable isAuthenticating = false;
 
   constructor() {
     makeObservable(this);
+    ApiClient.setAuthService(this);
     this.checkAuthentication();
   }
 
   @action
   async checkAuthentication() {
-    const userId = localStorage.getItem(USER_ID_KEY);
+    const userId = localStorage.getItem('gmail_user_id');
     if (!userId) {
       this.isAuthenticated = false;
       return;
     }
 
     try {
-      const response = await ApiClient.get<{isAuthenticated: boolean, email: string}>(
-        API_ENDPOINTS.GMAIL.CHECK_AUTH,
-        { user_id: userId }
+      const response = await ApiClient.get<AuthResponse>(
+        `${API_ENDPOINTS.GMAIL.CHECK_AUTH}?user_id=${userId}`
       );
       
       runInAction(() => {
         this.isAuthenticated = response.isAuthenticated;
-        this.userEmail = response.email;
+        this.userEmail = response.user?.email || null;
+        this.userName = response.user?.name || null;
       });
       
       if (!response.isAuthenticated) {
-        localStorage.removeItem(USER_ID_KEY);
+        localStorage.removeItem('gmail_user_id');
       }
     } catch {
       runInAction(() => {
         this.isAuthenticated = false;
+        this.userEmail = null;
+        this.userName = null;
       });
-      localStorage.removeItem(USER_ID_KEY);
+      localStorage.removeItem('gmail_user_id');
     }
+  }
+
+  @action
+  async signOut() {
+    const userId = localStorage.getItem('gmail_user_id');
+    if (userId) {
+      try {
+        await ApiClient.post(`/api/gmail/logout/${userId}`);
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    }
+    
+    localStorage.removeItem('gmail_user_id');
+    localStorage.removeItem('gmail_auth_state');
+    
+    runInAction(() => {
+      this.isAuthenticated = false;
+      this.userEmail = null;
+      this.userName = null;
+    });
   }
 
   @action
@@ -78,11 +113,5 @@ export class AuthService implements IAuthService {
         this.isAuthenticating = false;
       });
     }
-  }
-
-  @action
-  signOut() {
-    localStorage.removeItem(USER_ID_KEY);
-    this.isAuthenticated = false;
   }
 }

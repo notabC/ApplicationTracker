@@ -1,6 +1,6 @@
 from typing import List, Optional
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 from bson import ObjectId
 
 class ApplicationLog(BaseModel):
@@ -16,6 +16,8 @@ class ApplicationLog(BaseModel):
 
 class Application(BaseModel):
     id: str = Field(default_factory=lambda: str(ObjectId()))
+    user_id: str  # Add user ID field
+    user_email: EmailStr  # Add user email field
     company: str
     position: str
     dateApplied: datetime
@@ -28,7 +30,7 @@ class Application(BaseModel):
     location: Optional[str] = None
     notes: Optional[str] = None
     logs: List[ApplicationLog] = []
-
+    
     model_config = {
         "json_schema_extra": {
             "example": {
@@ -38,7 +40,9 @@ class Application(BaseModel):
                 "stage": "Applied",
                 "type": "Full-time",
                 "tags": ["Remote", "Python"],
-                "lastUpdated": "2024-01-01T00:00:00Z"
+                "lastUpdated": "2024-01-01T00:00:00Z",
+                "user_id": "12345",
+                "user_email": "abc@gmail.com",
             }
         }
     }

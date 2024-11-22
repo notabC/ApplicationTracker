@@ -37,7 +37,15 @@ async def get_database():
     return db.client[os.environ.get('DATABASE_NAME', settings.DATABASE_NAME)]
 
 async def init_db():
-    await get_database()
+    db = await get_database()
+    # Create indexes
+    await db["users"].create_index("email", unique=True)
+    await db["users"].create_index("id", unique=True)
+    await db["applications"].create_index([
+        ("user_email", 1),
+        ("_id", 1)
+    ])
+    await db["applications"].create_index("user_id")
 
 async def close_db():
     if db.client is not None:

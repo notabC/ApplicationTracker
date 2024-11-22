@@ -12,17 +12,12 @@ import { ApplicationModal } from '../components/modals/ApplicationModal';
 import { StageColumn } from '../components/StageColumn'; // Updated import path
 import { WorkflowEditorModal } from '../components/modals/WorkflowEditorModal';
 import { ActivityHistoryModal } from '../components/modals/ActivityHistoryModal';
-import { SignInRequired } from '../components/SignInRequired';
 import { AuthViewModel } from '../viewModels/AuthViewModel';
 
 export const JobTracker: React.FC = observer(() => {
   const viewModel = container.get<JobTrackerViewModel>(SERVICE_IDENTIFIERS.JobTrackerViewModel);
   const authViewModel = container.get<AuthViewModel>(SERVICE_IDENTIFIERS.AuthViewModel);
   const [isOpen, setIsOpen] = useState(false);
-
-  if (!authViewModel.isAuthenticated) {
-    return <SignInRequired />;
-  }
 
   return (
     <div className="p-6 max-w-full bg-[#1a1d21] min-h-screen">

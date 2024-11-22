@@ -1,11 +1,13 @@
 # app/models/user.py
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
 from typing import Optional
+import uuid
 
 class User(BaseModel):
     """User model for account management"""
-    email: EmailStr  # Primary identifier
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))  # Generate unique ID
+    email: EmailStr  # Still unique identifier
     name: Optional[str] = None
     created_at: datetime
     last_login: datetime

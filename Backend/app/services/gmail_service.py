@@ -1,5 +1,6 @@
 # app/services/gmail_service.py
 import base64
+import uuid
 from bs4 import BeautifulSoup
 from app.models.email import Email
 from app.models.user import User
@@ -68,24 +69,30 @@ class GmailService:
             upsert=True
         )
         
+        # First check if user exists
+        existing_user = await db[self.users_collection].find_one({"email": email})
+        
         # Create or update user account based on email
         now = datetime.utcnow()
         user = User(
-            email=email,  # Email is now the primary identifier
+            id=existing_user["id"] if existing_user else str(uuid.uuid4()),  # Use existing ID or generate new one
+            email=email,
             name=name,
-            created_at=now,
+            created_at=existing_user["created_at"] if existing_user else now,
             last_login=now,
             is_active=True
         )
         
-        # Use email as the unique identifier
+        # Use email as the unique identifier but save all user fields
         await db[self.users_collection].update_one(
-            {"email": email},  # Changed from id to email
+            {"email": email},
             {
                 "$set": {
+                    "id": user.id,
                     "name": name,
                     "last_login": now,
-                    "is_active": True
+                    "is_active": True,
+                    "email": email
                 },
                 "$setOnInsert": {
                     "created_at": now
@@ -95,7 +102,6 @@ class GmailService:
         )
         
         return credentials, user
-
     async def logout(self, user_id: str) -> None:
         """
         Handle user logout by removing credentials but keeping user account
@@ -120,19 +126,20 @@ class GmailService:
                 "user": None
             }
         
-        # Look up user by email instead of id
+        # Look up user by email and return full user object
         user = await db[self.users_collection].find_one({"email": creds["email"]})
         
         return {
-            "isAuthenticated": True,
-            "email": creds["email"],
+            "isAuthenticated": bool(creds),
+            "email": creds["email"] if creds else None,
             "user": {
+                "id": user["id"],
                 "name": user.get("name"),
                 "email": user.get("email"),
                 "created_at": user.get("created_at")
             } if user else None
         }
-
+    
     def create_auth_url(self, user_id: str) -> str:
         """
         Create the Google OAuth2 authorization URL

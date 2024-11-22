@@ -1,8 +1,10 @@
 // src/core/api/apiClient.ts
-import axios, { AxiosInstance, AxiosError } from 'axios';
+import axios, { AxiosInstance } from 'axios';
+import { AuthService } from '../services/AuthService';
 
 export class ApiClient {
   private static instance: AxiosInstance;
+  public static authService: AuthService;
 
   private static getInstance(): AxiosInstance {
     if (!ApiClient.instance) {
@@ -17,30 +19,21 @@ export class ApiClient {
       // Request interceptor
       ApiClient.instance.interceptors.request.use(
         (config) => {
-          // You can add auth token here when implementing auth
-          // const token = localStorage.getItem('token');
-          // if (token) {
-          //   config.headers.Authorization = `Bearer ${token}`;
-          // }
+          const userId = localStorage.getItem('gmail_user_id');
+          if (userId) {
+            config.headers.Authorization = userId;
+          }
           return config;
         },
         (error) => Promise.reject(error)
       );
-
-      // Response interceptor
-      ApiClient.instance.interceptors.response.use(
-        (response) => response,
-        (error: AxiosError) => {
-          if (error.response?.status === 401) {
-            // Handle unauthorized access
-            // Example: router.push('/login');
-          }
-          return Promise.reject(error);
-        }
-      );
     }
 
     return ApiClient.instance;
+  }
+
+  static setAuthService(authService: AuthService) {
+    ApiClient.authService = authService;
   }
 
   static async get<T>(url: string, params?: object): Promise<T> {
