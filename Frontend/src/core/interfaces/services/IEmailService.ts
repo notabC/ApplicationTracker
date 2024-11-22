@@ -6,6 +6,8 @@ export interface IEmailService {
 }
   
   export interface Email {
+    user_id: string;
+    user_email: string;
     id: string;
     subject: string;
     body: string;

@@ -1,3 +1,4 @@
+// src/core/services/GmailService.ts
 import { injectable } from 'inversify';
 import type { IGmailService, IGmailImportOptions, IGmailEmail } from '../interfaces/services/IGmailService';
 import { makeObservable, observable, action, runInAction } from 'mobx';
@@ -11,6 +12,7 @@ const AUTH_STATE_KEY = 'gmail_auth_state';
 export class GmailService implements IGmailService {
   @observable isAuthenticated = false;
   @observable userEmail: string | null = null;
+  @observable userName: string | null = null;
   @observable isAuthenticating = false;
 
   constructor() {
@@ -22,29 +24,44 @@ export class GmailService implements IGmailService {
   async checkAuthentication() {
     const userId = localStorage.getItem(USER_ID_KEY);
     if (!userId) {
-      this.isAuthenticated = false;
+      runInAction(() => {
+        this.isAuthenticated = false;
+        this.userEmail = null;
+        this.userName = null;
+      });
       return;
     }
 
     try {
-      const response = await ApiClient.get<{isAuthenticated: boolean, email: string}>(
-        API_ENDPOINTS.GMAIL.CHECK_AUTH,
-        { user_id: userId }
-      );
+      const response = await ApiClient.get<{
+        isAuthenticated: boolean;
+        email: string;
+        user: {
+          name: string | null;
+          email: string;
+          created_at: string;
+        } | null;
+      }>(API_ENDPOINTS.GMAIL.CHECK_AUTH, { user_id: userId });
       
       runInAction(() => {
         this.isAuthenticated = response.isAuthenticated;
-        this.userEmail = response.email;
+        this.userEmail = response.user?.email || null;
+        this.userName = response.user?.name || null;
       });
       
       if (!response.isAuthenticated) {
         localStorage.removeItem(USER_ID_KEY);
+        localStorage.removeItem(AUTH_STATE_KEY);
       }
-    } catch {
+    } catch (error) {
+      console.error('Auth check failed:', error);
       runInAction(() => {
         this.isAuthenticated = false;
+        this.userEmail = null;
+        this.userName = null;
       });
       localStorage.removeItem(USER_ID_KEY);
+      localStorage.removeItem(AUTH_STATE_KEY);
     }
   }
 
@@ -66,7 +83,6 @@ export class GmailService implements IGmailService {
         { user_id: userId, state }
       );
 
-      // Redirect to auth URL instead of opening popup
       window.location.href = response.url;
       return true;
     } catch (error) {
@@ -79,26 +95,63 @@ export class GmailService implements IGmailService {
     }
   }
 
+  @action
   async fetchEmails(options: IGmailImportOptions): Promise<IGmailEmail[]> {
-    const userId = localStorage.getItem(USER_ID_KEY);
-    if (!userId) throw new Error('Not authenticated');
+    if (!this.isAuthenticated) {
+      throw new Error('Not authenticated');
+    }
 
     try {
-      return await ApiClient.get<IGmailEmail[]>(API_ENDPOINTS.GMAIL.EMAILS, {
-        user_id: userId,
-        tags: options.labels,
-        start_date: options.startDate,
-        end_date: options.endDate,
-        search_query: options.keywords,
-        limit: 50
-      });
+      const queryParams = new URLSearchParams();
+      if (options.labels) queryParams.append('tags', options.labels.join(','));
+      if (options.startDate) queryParams.append('start_date', options.startDate);
+      if (options.endDate) queryParams.append('end_date', options.endDate);
+      if (options.keywords) queryParams.append('search_query', options.keywords);
+      queryParams.append('limit', '20');
+
+      return await ApiClient.get<IGmailEmail[]>(
+        `${API_ENDPOINTS.GMAIL.EMAILS}?${queryParams.toString()}`
+      );
     } catch (error) {
       console.error('Error fetching emails:', error);
       throw error;
     }
   }
 
+  @action
   async markAsProcessed(emailIds: string[]): Promise<void> {
-    console.log('Marking emails as processed:', emailIds);
+    if (!this.isAuthenticated) {
+      throw new Error('Not authenticated');
+    }
+
+    try {
+      await ApiClient.post(API_ENDPOINTS.EMAIL.PROCESS, {
+        email_ids: emailIds
+      });
+    } catch (error) {
+      console.error('Error marking emails as processed:', error);
+      throw error;
+    }
+  }
+
+  @action
+  async signOut(): Promise<void> {
+    const userId = localStorage.getItem(USER_ID_KEY);
+    if (userId) {
+      try {
+        await ApiClient.post(`${API_ENDPOINTS.GMAIL.LOGOUT}/${userId}`);
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    }
+
+    localStorage.removeItem(USER_ID_KEY);
+    localStorage.removeItem(AUTH_STATE_KEY);
+    
+    runInAction(() => {
+      this.isAuthenticated = false;
+      this.userEmail = null;
+      this.userName = null;
+    });
   }
 }

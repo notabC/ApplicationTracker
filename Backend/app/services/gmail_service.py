@@ -75,7 +75,7 @@ class GmailService:
         # Create or update user account based on email
         now = datetime.utcnow()
         user = User(
-            id=existing_user["id"] if existing_user else str(uuid.uuid4()),  # Use existing ID or generate new one
+            id=user_id,  # Use existing ID or generate new one
             email=email,
             name=name,
             created_at=existing_user["created_at"] if existing_user else now,
@@ -193,12 +193,12 @@ class GmailService:
         
         return ""
 
-    async def fetch_emails(self, user_id: str, params: GmailFetchParams) -> List[Email]:
+    async def fetch_emails(self, user_id: str, user_email: str, params: GmailFetchParams) -> List[Email]:
         db = await get_database()
         creds_doc = await db[self.credentials_collection].find_one({"user_id": user_id})
         if not creds_doc:
             raise ValueError("User not authenticated")
-
+        
         credentials = Credentials(
             token=creds_doc["access_token"],
             refresh_token=creds_doc["refresh_token"],
@@ -241,7 +241,9 @@ class GmailService:
                 subject=headers.get("Subject", ""),
                 body=body,
                 sender=headers.get("From", ""),
-                date=date
+                date=date,
+                user_email=user_email,
+                user_id=user_id
             ))
             
         return messages

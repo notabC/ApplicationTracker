@@ -4,6 +4,8 @@ import { inject, injectable } from 'inversify';
 import type { IGmailService, IGmailEmail, IGmailImportOptions } from '../../core/interfaces/services/IGmailService';
 import { SERVICE_IDENTIFIERS } from '../../core/constants/identifiers';
 import { JobTrackerViewModel } from './JobTrackerViewModel';
+import type { IAuthService } from '@/core/interfaces/auth/IAuthService';
+import { Email } from '@/core/interfaces/services/IEmailService';
 
 export type ImportStep = 'filters' | 'processing' | 'selection';
 
@@ -24,7 +26,8 @@ export class GmailImportViewModel {
 
   constructor(
     @inject(SERVICE_IDENTIFIERS.GmailService) private gmailService: IGmailService,
-    @inject(SERVICE_IDENTIFIERS.JobTrackerViewModel) private jobTrackerViewModel: JobTrackerViewModel
+    @inject(SERVICE_IDENTIFIERS.JobTrackerViewModel) private jobTrackerViewModel: JobTrackerViewModel,
+    @inject(SERVICE_IDENTIFIERS.AuthService) private authService: IAuthService
   ) {
     makeAutoObservable(this);
   }
@@ -53,11 +56,19 @@ export class GmailImportViewModel {
   }
 
   async importSelected(): Promise<void> {
+    if (!this.authService.isAuthenticated) {
+      throw new Error('User not authenticated');
+    }
+    
     const selectedEmailData = this.emails.filter(email => 
       this.selectedEmails.has(email.id)
     );
 
     try {
+      const userId = localStorage.getItem('gmail_user_id');
+      if (!userId || !this.authService.userEmail) {
+        throw new Error('User ID or email not found');
+      }
       // Convert Gmail emails to your application's email format
       const emailsToAdd = selectedEmailData.map(email => ({
         id: email.id,
@@ -65,14 +76,13 @@ export class GmailImportViewModel {
         body: email.body,
         date: email.date,
         sender: email.sender,
-        processed: false
-      }));
+        processed: false,
+        user_id: userId,
+        user_email: this.authService.userEmail
+      })) as Email[];
 
       // Add emails to JobTrackerViewModel
       this.jobTrackerViewModel.addEmails(emailsToAdd);
-
-      // Mark emails as processed in Gmail service
-      await this.gmailService.markAsProcessed(Array.from(this.selectedEmails));
 
       runInAction(() => {
         this.selectedEmails.clear();
