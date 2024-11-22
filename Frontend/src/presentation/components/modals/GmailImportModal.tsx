@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { 
   Mail, Search, Filter, Loader, X, ChevronRight,
-  Calendar, Tag, KeyRound, ArrowRight
+  Calendar, Tag, KeyRound, ArrowRight, Plus
 } from 'lucide-react';
 import { container } from '../../../di/container';
 import { GmailImportViewModel } from '../../viewModels/GmailImportViewModel';
@@ -15,6 +15,7 @@ interface Props {
 
 export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) => {
   const viewModel = container.get<GmailImportViewModel>(SERVICE_IDENTIFIERS.GmailImportViewModel);
+  const [newLabel, setNewLabel] = useState('');
 
   if (!isOpen) return null;
 
@@ -30,6 +31,21 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
     }
   };
 
+  const handleAddLabel = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newLabel.trim() && !viewModel.filters.labels.includes(newLabel.trim())) {
+      viewModel.updateFilter('labels', [...viewModel.filters.labels, newLabel.trim()]);
+      setNewLabel('');
+    }
+  };
+
+  const handleRemoveLabel = (labelToRemove: string) => {
+    viewModel.updateFilter(
+      'labels',
+      viewModel.filters.labels.filter(label => label !== labelToRemove)
+    );
+  };
+
   const renderContent = () => {
     if (viewModel.step === 'filters') {
       return (
@@ -39,12 +55,57 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
               <Tag className="h-4 w-4" />
               Gmail Labels
             </div>
+
+            {/* Selected Labels Display */}
+            <div className="mb-3 flex flex-wrap gap-2">
+              {viewModel.filters.labels.map((label) => (
+                <div
+                  key={label}
+                  className="flex items-center gap-2 px-3 py-1.5 
+                           bg-[#282c34] rounded-lg border border-gray-800/50
+                           group"
+                >
+                  <span className="text-sm text-gray-300">{label}</span>
+                  <button
+                    onClick={() => handleRemoveLabel(label)}
+                    className="text-gray-500 hover:text-gray-300 transition-colors"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Label Input */}
+            <div className="mb-3">
+              <form onSubmit={handleAddLabel}>
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={newLabel}
+                    onChange={(e) => setNewLabel(e.target.value)}
+                    placeholder="Type a label name and press Enter..."
+                    className="w-full pl-12 pr-4 py-3 bg-[#282c34] rounded-xl
+                             border border-gray-800/50 
+                             text-white placeholder-gray-500
+                             focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/30
+                             transition-all duration-200"
+                  />
+                </div>
+              </form>
+            </div>
+
+            {/* Preset Labels */}
             <div className="grid grid-cols-2 gap-3">
               {['Job Applications', 'Interviews', 'Recruiters', 'Job Offers'].map((label) => (
-                <label key={label} className="flex items-center gap-3 p-3
-                                          bg-[#282c34] rounded-xl border border-gray-800/50
-                                          hover:border-gray-700/50 transition-all duration-200
-                                          cursor-pointer group">
+                <label
+                  key={label}
+                  className="flex items-center gap-3 p-3
+                           bg-[#282c34] rounded-xl border border-gray-800/50
+                           hover:border-gray-700/50 transition-all duration-200
+                           cursor-pointer group"
+                >
                   <input
                     type="checkbox"
                     checked={viewModel.filters.labels.includes(label)}
@@ -245,7 +306,6 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
               </div>
             </div>
           )}
-
         </div>
       );
     }
@@ -272,7 +332,6 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
             </button>
           </div>
         </div>
-
         {/* Content */}
         <div className="flex-1 overflow-hidden overflow-y-auto">
           {renderContent()}
