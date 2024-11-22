@@ -10,3 +10,4 @@ google-auth-oauthlib
 google-auth
 google-api-python-client
 beautifulsoup4==4.12.2
+email-validator
