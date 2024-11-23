@@ -102,14 +102,28 @@ export class GmailService implements IGmailService {
     }
 
     try {
-
-      return await ApiClient.get<IGmailEmail[]>(`${API_ENDPOINTS.GMAIL.EMAILS}`, {
-        tags: options.labels,
-        start_date: options.startDate,
-        end_date: options.endDate,
-        search_query: options.keywords,
-        limit: 20
+      // Build the query params manually to ensure proper encoding
+      const queryParams = new URLSearchParams();
+      
+      // Add each label separately
+      options.labels.forEach(label => {
+        queryParams.append('tags', label);  // This will create multiple 'tags' parameters
       });
+
+      if (options.labels.length === 0) {
+        queryParams.append('tags', 'inbox');
+      }
+      
+      // Add other parameters
+      queryParams.append('start_date', options.startDate || '');
+      queryParams.append('end_date', options.endDate || '');
+      queryParams.append('search_query', options.keywords || '');
+      queryParams.append('limit', '20');
+
+      // Make the request with the manually constructed query string
+      return await ApiClient.get<IGmailEmail[]>(
+        `${API_ENDPOINTS.GMAIL.EMAILS}?${queryParams.toString()}`
+      );
     } catch (error) {
       console.error('Error fetching emails:', error);
       throw error;

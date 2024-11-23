@@ -206,7 +206,6 @@ class GmailService:
             client_id=self.client_config["web"]["client_id"],
             client_secret=self.client_config["web"]["client_secret"]
         )
-
         service = build("gmail", "v1", credentials=credentials)
         query = self._build_search_query(params)
         
@@ -251,8 +250,13 @@ class GmailService:
     def _build_search_query(self, params: GmailFetchParams) -> str:
         query_parts = []
         
-        if params.tags:
-            query_parts.extend(f"label:{tag}" for tag in params.tags)
+        if params.tags and len(params.tags) > 0:
+            # Build the label query
+            if len(params.tags) > 1:
+                tag_query = " OR ".join(f"label:{tag.strip()}" for tag in params.tags)
+                query_parts.append(f"({tag_query})")
+            else:
+                query_parts.append(f"label:{params.tags[0].strip()}")
         
         if params.start_date:
             query_parts.append(f"after:{params.start_date.strftime('%Y/%m/%d')}")
@@ -262,8 +266,9 @@ class GmailService:
             
         if params.search_query:
             query_parts.append(params.search_query)
-            
-        return " ".join(query_parts)
+        
+        final_query = " ".join(query_parts)
+        return final_query
 
     def _parse_email(self, email: dict) -> dict:
         headers = {h["name"]: h["value"] for h in email["payload"]["headers"]}
