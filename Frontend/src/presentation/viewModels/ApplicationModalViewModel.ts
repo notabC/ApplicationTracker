@@ -3,8 +3,9 @@ import { makeAutoObservable, runInAction, computed, action, observable } from 'm
 import { inject, injectable } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { Application, ApplicationLog } from '@/core/domain/models/Application';
-import type { IApplicationService, IViewModelUpdateField, IWorkflowService } from '@/core/interfaces/services';
+import type { IApplicationService, IViewModelUpdateField } from '@/core/interfaces/services';
 import { RootStore } from './RootStore';
+import { WorkflowEditorViewModel } from './WorkflowEditorViewModel';
 
 @injectable()
 export class ApplicationModalViewModel implements IViewModelUpdateField {
@@ -14,7 +15,7 @@ export class ApplicationModalViewModel implements IViewModelUpdateField {
 
   constructor(
     @inject(SERVICE_IDENTIFIERS.ApplicationService) private applicationService: IApplicationService,
-    @inject(SERVICE_IDENTIFIERS.WorkflowService) private workflowService: IWorkflowService,
+    @inject(SERVICE_IDENTIFIERS.WorkflowEditorViewModel) private workflowEditorViewModel: WorkflowEditorViewModel,
     @inject(SERVICE_IDENTIFIERS.RootStore) private rootStore: RootStore
   ) {
     makeAutoObservable(this);
@@ -100,22 +101,22 @@ export class ApplicationModalViewModel implements IViewModelUpdateField {
   }
 
   getAvailableStages(currentStage: string): string[] {
-    const workflow = this.workflowService.getWorkflow();
-    const { stages, stageOrder } = workflow;
+    const workflow = this.workflowEditorViewModel.workflow;
+    const { stages, stage_order } = workflow;
     const currentStageObj = stages.find(s => s.name === currentStage);
     if (!currentStageObj) return [];
 
-    const currentIndex = stageOrder.indexOf(currentStageObj.id);
+    const currentIndex = stage_order.indexOf(currentStageObj.id);
     return stages
       .filter(stage => 
         stage.name === 'Rejected' || 
-        stageOrder.indexOf(stage.id) > currentIndex
+        stage_order.indexOf(stage.id) > currentIndex
       )
       .map(stage => stage.name);
   }
 
   getStageColor(stageName: string): string {
-    const workflow = this.workflowService.getWorkflow();
+    const workflow = this.workflowEditorViewModel.workflow;
     const stage = workflow.stages.find(s => s.name === stageName);
     
     if (!stage) return 'gray';

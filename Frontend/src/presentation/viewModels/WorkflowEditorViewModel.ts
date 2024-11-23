@@ -1,23 +1,60 @@
-// src/presentation/viewModels/WorkflowEditorViewModel.ts
-import { makeAutoObservable, action, computed, observable } from 'mobx';
+import { makeAutoObservable, action, observable, computed, runInAction } from 'mobx';
 import { inject, injectable } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { WorkflowStage, Workflow } from '@/core/domain/models/Workflow';
-import { UnsavedChangesViewModel } from './UnsavedChangesViewModel';
 import type { IWorkflowService } from '@/core/interfaces/services';
 
 @injectable()
 export class WorkflowEditorViewModel {
-  @observable private _workflow: Workflow;
+  @observable private _workflow: Workflow = {
+    stages: [],
+    stage_order: [],
+    default: true,
+    id: ''
+  };
+  @observable private _originalWorkflow: Workflow = {
+    stages: [],
+    stage_order: [],
+    default: true,
+    id: ''
+  };
   @observable draggedStageId: string | null = null;
-  @observable isOpen = false;
-
+  @observable isLoading: boolean = false;
+  @observable error: string | null = null;
+  @observable hasUnsavedChanges: boolean = false;
+  
   constructor(
     @inject(SERVICE_IDENTIFIERS.WorkflowService) private workflowService: IWorkflowService,
-    @inject(SERVICE_IDENTIFIERS.UnsavedChangesViewModel) public unsavedChangesViewModel: UnsavedChangesViewModel
   ) {
     makeAutoObservable(this);
-    this._workflow = this.workflowService.getWorkflow();
+    this.initializeWorkflow();
+  }
+
+  private async initializeWorkflow(): Promise<void> {
+    try {
+      this.isLoading = true;
+      const workflow = await this.workflowService.getOrCreateWorkflow();
+      runInAction(() => {
+        this._workflow = workflow;
+        this._originalWorkflow = this.deepCloneWorkflow(workflow);
+        this.isLoading = false;
+        this.hasUnsavedChanges = false;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.error = 'Failed to initialize workflow';
+        this.isLoading = false;
+      });
+      console.error('Failed to initialize workflow:', error);
+    }
+  }
+
+  private deepCloneWorkflow(workflow: Workflow): Workflow {
+    return {
+      ...workflow,
+      stages: workflow.stages.map(stage => ({ ...stage })),
+      stage_order: [...workflow.stage_order]
+    };
   }
 
   @computed
@@ -25,49 +62,25 @@ export class WorkflowEditorViewModel {
     return this._workflow;
   }
 
-  @action
-  setIsOpen(open: boolean): void {
-    this.isOpen = open;
-    if (!open) {
-      this.resetToOriginal();
-    }
+  @computed
+  get hasChanges(): boolean {
+    return this.hasUnsavedChanges;
+  }
+
+  getStages(): WorkflowStage[] {
+    return this.workflow.stages;
+  }
+
+  private markAsChanged(): void {
+    this.hasUnsavedChanges = true;
   }
 
   @action
-  private resetToOriginal(): void {
-    this._workflow = this.workflowService.getWorkflow();
-    this.draggedStageId = null;
-  }
-
-  @action
-  updateStageName(stageId: string, name: string): void {
-    const stage = this._workflow.stages.find(s => s.id === stageId);
-    if (stage && stage.editable !== false) {
-      stage.name = name;
-    }
-  }
-
-  @action
-  updateStageVisibility(stageId: string, visible: boolean): void {
-    const stageIndex = this._workflow.stages.findIndex(s => s.id === stageId);
-    if (stageIndex !== -1) {
-      // Create a new reference to trigger reactivity
-      this._workflow.stages = [
-        ...this._workflow.stages.slice(0, stageIndex),
-        { 
-          ...this._workflow.stages[stageIndex], 
-          visible 
-        },
-        ...this._workflow.stages.slice(stageIndex + 1)
-      ];
-    }
-  }
-
-  @action
-  updateStageColor(stageId: string, color: WorkflowStage['color']): void {
-    const stage = this._workflow.stages.find(s => s.id === stageId);
-    if (stage && stage.editable !== false) {
-      stage.color = color;
+  discardChanges(): void {
+    if (this.hasUnsavedChanges) {
+      this._workflow = this.deepCloneWorkflow(this._originalWorkflow);
+      this.hasUnsavedChanges = false;
+      this.error = null;
     }
   }
 
@@ -77,23 +90,19 @@ export class WorkflowEditorViewModel {
   }
 
   @action
-  handleDrop(targetId: string): void {
-    if (!this.draggedStageId || this.draggedStageId === targetId) return;
+  deleteStage(stageId: string): void {
+    const stage = this.workflow.stages.find(s => s.id === stageId);
+    if (!stage || stage.editable === false) return;
 
-    const draggedStage = this._workflow.stages.find(s => s.id === this.draggedStageId);
-    const targetStage = this._workflow.stages.find(s => s.id === targetId);
+    const updatedStages = this.workflow.stages.filter(s => s.id !== stageId);
+    const updatedStageOrder = this.workflow.stage_order.filter(id => id !== stageId);
 
-    if (!draggedStage || !targetStage || draggedStage.editable === false) return;
-
-    const newOrder = [...this._workflow.stageOrder];
-    const draggedIdx = newOrder.indexOf(this.draggedStageId);
-    const targetIdx = newOrder.indexOf(targetId);
-
-    newOrder.splice(draggedIdx, 1);
-    newOrder.splice(targetIdx, 0, this.draggedStageId);
-
-    this._workflow.stageOrder = newOrder;
-    this.draggedStageId = null;
+    this._workflow = {
+      ...this.workflow,
+      stages: updatedStages,
+      stage_order: updatedStageOrder
+    };
+    this.markAsChanged();
   }
 
   @action
@@ -106,29 +115,98 @@ export class WorkflowEditorViewModel {
       visible: true
     };
 
-    this._workflow.stages.push(newStage);
-    this._workflow.stageOrder.push(newStage.id);
+    this._workflow = {
+      ...this.workflow,
+      stages: [...this.workflow.stages, newStage],
+      stage_order: [...this.workflow.stage_order, newStage.id]
+    };
+    this.markAsChanged();
   }
 
   @action
-  deleteStage(stageId: string): void {
-    const stage = this._workflow.stages.find(s => s.id === stageId);
-    if (!stage || stage.editable === false) return;
+  updateStageName(stageId: string, name: string): void {
+    const stage = this.workflow.stages.find(s => s.id === stageId);
+    if (stage && stage.editable !== false) {
+      const updatedStages = this.workflow.stages.map(s => 
+        s.id === stageId ? { ...s, name } : s
+      );
+      this._workflow = { ...this.workflow, stages: updatedStages };
+      this.markAsChanged();
+    }
+  }
 
-    this._workflow.stages = this._workflow.stages.filter(s => s.id !== stageId);
-    this._workflow.stageOrder = this._workflow.stageOrder.filter(id => id !== stageId);
+  @action
+  updateStageVisibility(stageId: string, visible: boolean): void {
+    const stage = this.workflow.stages.find(s => s.id === stageId);
+    if (stage && stage.editable !== false) {
+      const updatedStages = this.workflow.stages.map(s => 
+        s.id === stageId ? { ...s, visible } : s
+      );
+      this._workflow = { ...this.workflow, stages: updatedStages };
+      this.markAsChanged();
+    }
+  }
+
+  @action
+  updateStageColor(stageId: string, color: WorkflowStage['color']): void {
+    const stage = this.workflow.stages.find(s => s.id === stageId);
+    if (stage && stage.editable !== false) {
+      const updatedStages = this.workflow.stages.map(s => 
+        s.id === stageId ? { ...s, color } : s
+      );
+      this._workflow = { ...this.workflow, stages: updatedStages };
+      this.markAsChanged();
+    }
+  }
+
+  @action
+  handleDrop(targetId: string): void {
+    if (!this.draggedStageId || this.draggedStageId === targetId) return;
+
+    const draggedStage = this.workflow.stages.find(s => s.id === this.draggedStageId);
+    if (!draggedStage || draggedStage.editable === false) return;
+
+    const newOrder = [...this.workflow.stage_order];
+    const draggedIdx = newOrder.indexOf(this.draggedStageId);
+    const targetIdx = newOrder.indexOf(targetId);
+
+    newOrder.splice(draggedIdx, 1);
+    newOrder.splice(targetIdx, 0, this.draggedStageId);
+
+    this._workflow = { ...this.workflow, stage_order: newOrder };
+    this.markAsChanged();
+    this.draggedStageId = null;
   }
 
   @action
   async saveWorkflow(): Promise<void> {
+    if (!this._workflow) return;
+
     try {
-      await this.workflowService.updateWorkflow(this._workflow);
-      this.unsavedChangesViewModel.discardChanges();
+      this.isLoading = true;
+      const savedWorkflow = await this.workflowService.updateWorkflow(this._workflow);
+      runInAction(() => {
+        this._workflow = savedWorkflow;
+        this._originalWorkflow = this.deepCloneWorkflow(savedWorkflow);
+        this.isLoading = false;
+        this.error = null;
+        this.hasUnsavedChanges = false;
+      });
     } catch (error) {
+      runInAction(() => {
+        this.error = 'Failed to save workflow';
+        this.isLoading = false;
+      });
       console.error('Failed to save workflow:', error);
       throw error;
     }
   }
 
+  @action
+  resetWorkflow(): void {
+    this._workflow = this.deepCloneWorkflow(this._originalWorkflow);
+    this.hasUnsavedChanges = false;
+    this.error = null;
+    this.isLoading = false;
+  }
 }
-

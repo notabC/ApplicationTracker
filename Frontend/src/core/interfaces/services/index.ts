@@ -11,11 +11,15 @@ export interface IApplicationService {
 }
 
 export interface IWorkflowService {
-  getWorkflow(): Workflow;
-  updateWorkflow(workflow: Workflow): void;
-  getStages(): WorkflowStage[];
-  getColorForStage(stageId: string): string;
-  getStageById(stageId: string): WorkflowStage | undefined;
+  getOrCreateWorkflow(): Promise<Workflow>;
+  getWorkflow(workflowId: string): Promise<Workflow>;
+  updateWorkflow(workflow: Workflow): Promise<Workflow>;
+  getStages(workflowId: string): Promise<WorkflowStage[]>;
+  getColorForStage(workflowId: string, stageId: string): Promise<string>;
+  getStageById(workflowId: string, stageId: string): Promise<WorkflowStage | undefined>;
+  updateStage(workflowId: string, stageId: string, stage: WorkflowStage): Promise<Workflow>;
+  updateStageOrder(workflowId: string, stageOrder: string[]): Promise<Workflow>;
+  updateStageVisibility(workflowId: string, stageId: string, visible: boolean): Promise<Workflow>;
 }
 
 // a viewmodel that can update fields of an application

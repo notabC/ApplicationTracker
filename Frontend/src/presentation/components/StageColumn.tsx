@@ -6,8 +6,6 @@ import { DragEvent } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { EmailCard } from './EmailCard';
 import { ApplicationCard } from './ApplicationCard';
-import { container, SERVICE_IDENTIFIERS } from '@/di/container';
-import { IWorkflowService } from '@/core/interfaces/services';
 
 interface Props {
   stage: WorkflowStage;
@@ -16,8 +14,7 @@ interface Props {
 }
 
 export const StageColumn = observer(({ stage, applications, viewModel }: Props) => {
-  const workFlowService = container.get<IWorkflowService>(SERVICE_IDENTIFIERS.WorkflowService);
-  const currentStage = workFlowService.getStageById(stage.id);
+  const currentStage = viewModel.workflowStages.find(s => s.id === stage.id);
   const isVisible = currentStage?.visible ?? stage.visible;
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {

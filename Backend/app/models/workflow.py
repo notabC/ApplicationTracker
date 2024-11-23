@@ -1,27 +1,29 @@
-# backend/models/workflow.py
+# models/workflow.py
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 from bson import ObjectId
 
 class WorkflowStage(BaseModel):
     id: str = Field(default_factory=lambda: str(ObjectId()))
     name: str
-    order: int
-    color: str
-
+    color: str = "gray"
+    editable: bool = True
+    visible: bool = True
+    
 class Workflow(BaseModel):
     id: str = Field(default_factory=lambda: str(ObjectId()))
     stages: List[WorkflowStage]
+    stage_order: List[str]
     default: bool = False
 
     model_config = {
         "json_schema_extra": {
             "example": {
                 "stages": [
-                    {"name": "Applied", "order": 1, "color": "#4A90E2"},
-                    {"name": "Interview", "order": 2, "color": "#F5A623"},
-                    {"name": "Offer", "order": 3, "color": "#7ED321"}
+                    {"id": "unassigned", "name": "Unassigned", "color": "gray", "editable": False, "visible": True},
+                    {"id": "resume-submitted", "name": "Resume Submitted", "color": "blue", "editable": True, "visible": True}
                 ],
+                "stage_order": ["unassigned", "resume-submitted"],
                 "default": True
             }
         }

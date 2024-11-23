@@ -4,10 +4,10 @@ import { inject, injectable } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { Email } from '@/core/interfaces/services/IEmailService';
 import type { Application } from '@/core/domain/models/Application';
-import type { IWorkflowService } from '@/core/interfaces/services';
 import { IGmailEmail } from '@/core/interfaces/services/IGmailService';
 import { JobTrackerViewModel } from './JobTrackerViewModel';
 import { RootStore } from './RootStore';
+import { WorkflowEditorViewModel } from './WorkflowEditorViewModel';
 
 interface SearchInput {
   company: string;
@@ -26,7 +26,7 @@ export class EmailProcessingViewModel {
   error: string | null = null;
 
   constructor(
-    @inject(SERVICE_IDENTIFIERS.WorkflowService) private workflowService: IWorkflowService,
+    @inject(SERVICE_IDENTIFIERS.WorkflowEditorViewModel) private workflowEditorViewModel: WorkflowEditorViewModel,
     @inject(SERVICE_IDENTIFIERS.JobTrackerViewModel) private jobTrackerViewModel: JobTrackerViewModel,
     @inject(SERVICE_IDENTIFIERS.RootStore) private rootStore: RootStore,
   ) {
@@ -122,17 +122,17 @@ export class EmailProcessingViewModel {
    * @returns An array of available stage names.
    */
   getAvailableStages(currentStage: string): string[] {
-    const workflow = this.workflowService.getWorkflow();
-    const { stages, stageOrder } = workflow;
+    const workflow = this.workflowEditorViewModel.workflow;
+    const { stages, stage_order } = workflow;
     const currentStageObj = stages.find((s) => s.name === currentStage);
     if (!currentStageObj) return [];
 
-    const currentIndex = stageOrder.indexOf(currentStageObj.id);
+    const currentIndex = stage_order.indexOf(currentStageObj.id);
     return stages
       .filter(
         (stage) =>
           stage.name === 'Rejected' ||
-          stageOrder.indexOf(stage.id) > currentIndex,
+        stage_order.indexOf(stage.id) > currentIndex,
       )
       .map((stage) => stage.name);
   }

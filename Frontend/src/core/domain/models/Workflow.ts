@@ -8,7 +8,8 @@
   }
   
   export interface Workflow {
+    id: string;
     stages: WorkflowStage[];
-    stageOrder: string[];
+    stage_order: string[];
+    default: boolean;
   }
-  

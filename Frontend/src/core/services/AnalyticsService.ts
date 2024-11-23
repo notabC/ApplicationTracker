@@ -15,24 +15,23 @@ import {
 import { SERVICE_IDENTIFIERS } from '../constants/identifiers';
 import type { IApplicationRepository } from '@/domain/repositories/ApplicationRepository';
 import { Application } from '../domain/models/Application';
-import type { IWorkflowService } from '../interfaces/services';
+import { MockWorkflowRepository } from '@/domain/repositories/MockWorkflowRepository';
 
 @injectable()
 export class AnalyticsService implements IAnalyticsService {
   constructor(
     @inject(SERVICE_IDENTIFIERS.ApplicationRepository)
     private applicationRepository: IApplicationRepository,
-    
-    @inject(SERVICE_IDENTIFIERS.WorkflowService)
-    private workflowService: IWorkflowService
   ) {}
+
+  private workflowRepository: MockWorkflowRepository = new MockWorkflowRepository();
 
   getStageFunnelMetrics(dateRange: DateRange): StageFunnelMetric[] {
     const applications = this.applicationRepository.getApplications().filter(app => 
       this.isWithinDateRange(app.dateApplied, dateRange)
     );
 
-    const stages = this.workflowService.getStages().map(stage => stage.name);
+    const stages = this.workflowRepository.getStages().map(stage => stage.name);
     const metrics: StageFunnelMetric[] = [];
     
     let total = applications.length;
@@ -61,7 +60,7 @@ export class AnalyticsService implements IAnalyticsService {
       app.logs && app.logs.length > 1
     );
 
-    const workflowStages = this.workflowService.getStages();
+    const workflowStages = this.workflowRepository.getStages();
     const stageOrder = workflowStages.map(stage => stage.name).filter(stageName => stageName !== 'Unassigned');
 
     // Define valid transitions based on workflow's stageOrder
@@ -110,7 +109,7 @@ export class AnalyticsService implements IAnalyticsService {
       this.isWithinDateRange(app.dateApplied, dateRange)
     );
 
-    const stages = this.workflowService.getStages().map(stage => stage.name);
+    const stages = this.workflowRepository.getStages().map(stage => stage.name);
     return stages.map(stage => {
       const stageApps = applications.filter(app => app.stage === stage || app.logs.some(log => log.toStage === stage));
       

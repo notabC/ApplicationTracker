@@ -3,10 +3,10 @@ import { injectable, inject } from "inversify";
 import { makeAutoObservable } from 'mobx';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { Application } from '@/core/domain/models/Application';
-import type { IWorkflowService } from '@/core/interfaces/services';
 import { DragDropViewModel } from './DragDropViewModel';
 import { RootStore } from './RootStore';
 import type { Email, IEmailService } from '@/core/interfaces/services/IEmailService';
+import { WorkflowEditorViewModel } from "./WorkflowEditorViewModel";
 
 @injectable()
 export class JobTrackerViewModel {
@@ -26,7 +26,7 @@ export class JobTrackerViewModel {
   error: string | null = null;
 
   constructor(
-    @inject(SERVICE_IDENTIFIERS.WorkflowService) private workflowService: IWorkflowService,
+    @inject(SERVICE_IDENTIFIERS.WorkflowEditorViewModel) private workflowEditorViewModel: WorkflowEditorViewModel,
     @inject(SERVICE_IDENTIFIERS.DragDropViewModel) private dragDropViewModel: DragDropViewModel,
     @inject(SERVICE_IDENTIFIERS.RootStore) private rootStore: RootStore,
     @inject(SERVICE_IDENTIFIERS.EmailService) private emailService: IEmailService,
@@ -37,7 +37,11 @@ export class JobTrackerViewModel {
 
   // Computed Properties
   get workflowStages() {
-    return this.workflowService.getStages();
+    return this.workflowEditorViewModel.getStages();
+  }
+
+  get workflow() {
+    return this.workflowEditorViewModel.workflow;
   }
 
   get applications(): Application[] {

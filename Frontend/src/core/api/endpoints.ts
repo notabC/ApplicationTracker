@@ -7,7 +7,14 @@ export const API_ENDPOINTS = {
     },
     WORKFLOW: {
       BASE: '/api/workflow',
-      STAGES: '/api/workflow/stages',
+      DEFAULT: '/api/workflow/default',
+      BY_ID: (id: string) => `/api/workflow/${id}`,
+      STAGES: {
+        BASE: (workflowId: string) => `/api/workflow/${workflowId}/stages`,
+        BY_ID: (workflowId: string, stageId: string) => `/api/workflow/${workflowId}/stages/${stageId}`,
+        ORDER: (workflowId: string) => `/api/workflow/${workflowId}/order`,
+        VISIBILITY: (workflowId: string, stageId: string) => `/api/workflow/${workflowId}/visibility/${stageId}`,
+      },
     },
     EMAIL: {
       BASE: '/api/emails',

@@ -1,59 +1,117 @@
-// File: src/core/services/WorkflowService.ts
 import { injectable } from 'inversify';
-import { makeObservable, observable, action } from 'mobx';
 import type { Workflow, WorkflowStage } from '../domain/models/Workflow';
 import { IWorkflowService } from '../interfaces/services';
+import { ApiClient } from '../api/apiClient';
+import { API_ENDPOINTS } from '../api/endpoints';
 
 @injectable()
 export class WorkflowService implements IWorkflowService {
-  @observable private workflow: Workflow = {
-    stages: [
-      { id: 'unassigned', name: 'Unassigned', color: 'gray', editable: false, visible: true },
-      { id: 'resume-submitted', name: 'Resume Submitted', color: 'blue', editable: true, visible: true },
-      { id: 'online-assessment', name: 'Online Assessment', color: 'yellow', editable: true, visible: true },
-      { id: 'interview-process', name: 'Interview Process', color: 'purple', editable: true, visible: true },
-      { id: 'offer', name: 'Offer', color: 'green', editable: true, visible: true },
-      { id: 'rejected', name: 'Rejected', color: 'red', editable: true, visible: true }
-    ],
-    stageOrder: [
-      'unassigned',
-      'resume-submitted',
-      'online-assessment',
-      'interview-process',
-      'offer',
-      'rejected'
-    ]
-  };
+  async getOrCreateWorkflow(): Promise<Workflow> {
+    try {
+      const workflows = await ApiClient.get<Workflow[]>(API_ENDPOINTS.WORKFLOW.BASE);
+      
+      if (workflows.length > 0) {
+        return workflows[0];
+      }
 
-  constructor() {
-    makeObservable(this);
+      // If no workflows exist, get default template and create new workflow
+      const defaultTemplate = await ApiClient.get<Workflow>(API_ENDPOINTS.WORKFLOW.DEFAULT);
+      return await ApiClient.post<Workflow>(API_ENDPOINTS.WORKFLOW.BASE, defaultTemplate);
+    } catch (error) {
+      console.error('Failed to get or create workflow:', error);
+      throw error;
+    }
   }
 
-  getWorkflow(): Workflow {
-    return this.workflow;
+  async getWorkflow(workflowId: string): Promise<Workflow> {
+    try {
+      return await ApiClient.get<Workflow>(API_ENDPOINTS.WORKFLOW.BY_ID(workflowId));
+    } catch (error) {
+      console.error('Failed to get workflow:', error);
+      throw error;
+    }
   }
 
-  @action
-  updateWorkflow(workflow: Workflow) {
-    this.workflow = workflow;
+  async getStages(workflowId: string): Promise<WorkflowStage[]> {
+    try {
+      const workflow = await this.getWorkflow(workflowId);
+      return workflow.stage_order.map((stageId) => {
+        const stage = workflow.stages.find(s => s.id === stageId);
+        if (!stage) throw new Error(`Stage with id ${stageId} not found`);
+        return stage;
+      });
+    } catch (error) {
+      console.error('Failed to get stages:', error);
+      throw error;
+    }
   }
 
-  getStageById(stageId: string): WorkflowStage | undefined {
-    return this.workflow.stages.find(s => s.id === stageId);
+  async getColorForStage(workflowId: string, stageId: string): Promise<string> {
+    try {
+      const workflow = await this.getWorkflow(workflowId);
+      const stage = workflow.stages.find(s => s.id === stageId);
+      return stage ? stage.color : 'gray';
+    } catch (error) {
+      console.error('Failed to get stage color:', error);
+      throw error;
+    }
   }
 
-  getStages(): WorkflowStage[] {
-    // return this.workflow.stages; return it according to the order
-    return this.workflow.stageOrder.map((stageId) => {
-      const stage = this.workflow.stages.find(s => s.id === stageId);
-      if (!stage) throw new Error(`Stage with id ${stageId} not found`);
-      return stage;
-    });
+  async getStageById(workflowId: string, stageId: string): Promise<WorkflowStage | undefined> {
+    try {
+      const workflow = await this.getWorkflow(workflowId);
+      return workflow.stages.find(s => s.id === stageId);
+    } catch (error) {
+      console.error('Failed to get stage:', error);
+      throw error;
+    }
   }
 
-  getColorForStage(stageId: string): string {
-    const stage = this.workflow.stages.find(s => s.id === stageId);
-    return stage ? stage.color : 'gray';
+  async updateWorkflow(workflow: Workflow): Promise<Workflow> {
+    try {
+      return await ApiClient.put<Workflow>(
+        API_ENDPOINTS.WORKFLOW.BY_ID(workflow.id), 
+        workflow
+      );
+    } catch (error) {
+      console.error('Failed to update workflow:', error);
+      throw error;
+    }
+  }
+
+  async updateStage(workflowId: string, stageId: string, stage: WorkflowStage): Promise<Workflow> {
+    try {
+      return await ApiClient.put<Workflow>(
+        API_ENDPOINTS.WORKFLOW.STAGES.BY_ID(workflowId, stageId),
+        stage
+      );
+    } catch (error) {
+      console.error('Failed to update stage:', error);
+      throw error;
+    }
+  }
+
+  async updateStageOrder(workflowId: string, stageOrder: string[]): Promise<Workflow> {
+    try {
+      return await ApiClient.put<Workflow>(
+        API_ENDPOINTS.WORKFLOW.STAGES.ORDER(workflowId),
+        stageOrder
+      );
+    } catch (error) {
+      console.error('Failed to update stage order:', error);
+      throw error;
+    }
+  }
+
+  async updateStageVisibility(workflowId: string, stageId: string, visible: boolean): Promise<Workflow> {
+    try {
+      return await ApiClient.put<Workflow>(
+        API_ENDPOINTS.WORKFLOW.STAGES.VISIBILITY(workflowId, stageId),
+        { visible }
+      );
+    } catch (error) {
+      console.error('Failed to update stage visibility:', error);
+      throw error;
+    }
   }
 }
-

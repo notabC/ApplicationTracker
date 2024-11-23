@@ -8,7 +8,6 @@ import { container } from '@/di/container';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import { WorkflowEditorViewModel } from '@/presentation/viewModels/WorkflowEditorViewModel';
 import { WorkflowStage } from '@/core/domain/models/Workflow';
-import { IWorkflowService } from '@/core/interfaces/services';
 
 interface Props {
   isOpen: boolean;
@@ -30,21 +29,13 @@ export const WorkflowEditorModal: React.FC<Props> = observer(({ isOpen, onClose 
   if (!isOpen) return null;
 
   const handleClose = async () => {
-    if (viewModel.unsavedChangesViewModel.hasUnsavedChanges) {
-      const shouldSave = window.confirm('You have unsaved changes. Would you like to save them before closing?');
-      if (shouldSave) {
-        await viewModel.saveWorkflow();
-      } else {
-        viewModel.unsavedChangesViewModel.discardChanges();
-      }
-    }
+    viewModel.resetWorkflow();
     onClose();
   };
 
   const StageCard = ({ stage }: { stage: WorkflowStage }) => {
-    const workFlowService = container.get<IWorkflowService>(SERVICE_IDENTIFIERS.WorkflowService);
     const isExpanded = expandedStage === stage.id;
-    const currentStage = workFlowService.getStageById(stage.id);
+    const currentStage = viewModel.getStages().find(s => s.id === stage.id);
     const isVisible = currentStage?.visible ?? stage.visible;
     
     return (
@@ -208,7 +199,7 @@ export const WorkflowEditorModal: React.FC<Props> = observer(({ isOpen, onClose 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
           <div className="space-y-3">
-            {viewModel.workflow.stageOrder.map((stageId) => {
+            {viewModel.workflow.stage_order.map((stageId) => {
               const stage = viewModel.workflow.stages.find(s => s.id === stageId);
               if (!stage) return null;
               return <StageCard key={stage.id} stage={stage} />;

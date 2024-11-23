@@ -4,10 +4,6 @@ import { GripVertical, ChevronDown, Clock } from 'lucide-react';
 import { Application } from '@/core/domain/models/Application';
 import type { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
 import { StageSelector } from './StageSelector';
-import { IWorkflowService } from '@/core/interfaces/services';
-import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
-import { container } from '@/di/container';
-
 interface Props {
   application: Application;
   viewModel: JobTrackerViewModel;
@@ -15,19 +11,19 @@ interface Props {
 
 export const ApplicationCard: React.FC<Props> = observer(({ application, viewModel }) => {
   const [showStageSelect, setShowStageSelect] = useState(false);
-  const workflowService = container.get<IWorkflowService>(SERVICE_IDENTIFIERS.WorkflowService);
 
   const getAvailableStages = (currentStage: string): string[] => {
-    const workflow = workflowService.getWorkflow();
-    const { stages, stageOrder } = workflow;
+    const workflow = viewModel.workflow;
+    // const workflow = workflowService.getWorkflow();
+    const { stages, stage_order } = workflow;
     const currentStageObj = stages.find(s => s.name === currentStage);
     if (!currentStageObj) return [];
 
-    const currentIndex = stageOrder.indexOf(currentStageObj.id);
+    const currentIndex = stage_order.indexOf(currentStageObj.id);
     return stages
       .filter(stage => 
         stage.name === 'Rejected' || 
-        stageOrder.indexOf(stage.id) > currentIndex
+        stage_order.indexOf(stage.id) > currentIndex
       )
       .map(stage => stage.name);
   };
