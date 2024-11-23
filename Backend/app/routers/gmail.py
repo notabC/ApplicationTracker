@@ -71,9 +71,9 @@ async def check_auth(user_id: str):
     
 
 # Add the new Gmail emails endpoint
-@router.get("/gmail/emails")
+@router.get("/emails")
 async def get_gmail_emails(
-    tags: List[str] = Query(..., description="List of Gmail labels"),  # Changed to List[str]
+    tags: Optional[List[str]] = Query(..., description="List of Gmail labels"),  # Changed to List[str]
     start_date: Optional[str] = Query(None, description="Start date in YYYY-MM-DD format"),
     end_date: Optional[str] = Query(None, description="End date in YYYY-MM-DD format"),
     search_query: Optional[str] = Query("", description="Search query string"),
@@ -81,9 +81,6 @@ async def get_gmail_emails(
     current_user: dict = Depends(get_current_user)
 ):
     try:
-        # No need to split tags as FastAPI will already provide them as a list
-        print(f"Received tags: {tags}")  # Debug log
-        
         # Parse dates if provided
         start_date_obj = None
         end_date_obj = None
@@ -100,9 +97,7 @@ async def get_gmail_emails(
             search_query=search_query,
             limit=limit
         )
-        
-        print(f"Constructed params: {params}")  # Debug log
-        
+                
         emails = await gmail_service.fetch_emails(
             user_id=current_user["id"],
             user_email=current_user["email"],

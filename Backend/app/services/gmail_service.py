@@ -194,7 +194,6 @@ class GmailService:
         return ""
 
     async def fetch_emails(self, user_id: str, user_email: str, params: GmailFetchParams) -> List[Email]:
-        print(f"Received params: {params}")  # Debug incoming parameters
         db = await get_database()
         creds_doc = await db[self.credentials_collection].find_one({"user_id": user_id})
         if not creds_doc:
@@ -207,10 +206,8 @@ class GmailService:
             client_id=self.client_config["web"]["client_id"],
             client_secret=self.client_config["web"]["client_secret"]
         )
-        # print(params)
         service = build("gmail", "v1", credentials=credentials)
         query = self._build_search_query(params)
-        print(f"Executing Gmail query: {query}")
         
         messages = []
         response = service.users().messages().list(
@@ -218,8 +215,6 @@ class GmailService:
             q=query,
             maxResults=params.limit
         ).execute()
-
-        print(f"Found {len(response.get('messages', []))} messages")  # Debug response
 
         for msg in response.get("messages", []):
             email = service.users().messages().get(
@@ -273,7 +268,6 @@ class GmailService:
             query_parts.append(params.search_query)
         
         final_query = " ".join(query_parts)
-        print(f"Generated Gmail query: {final_query}")  # Debug log
         return final_query
 
     def _parse_email(self, email: dict) -> dict:

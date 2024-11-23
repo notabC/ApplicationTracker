@@ -109,6 +109,10 @@ export class GmailService implements IGmailService {
       options.labels.forEach(label => {
         queryParams.append('tags', label);  // This will create multiple 'tags' parameters
       });
+
+      if (options.labels.length === 0) {
+        queryParams.append('tags', 'inbox');
+      }
       
       // Add other parameters
       queryParams.append('start_date', options.startDate || '');
