@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { 
   Mail, Search, Filter, Loader, X, ChevronRight,
-  Calendar, Tag, KeyRound, ArrowRight, Plus
+  Calendar, Tag, KeyRound, ArrowRight
 } from 'lucide-react';
 import { container } from '../../../di/container';
 import { GmailImportViewModel } from '../../viewModels/GmailImportViewModel';
