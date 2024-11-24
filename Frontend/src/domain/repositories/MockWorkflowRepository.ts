@@ -23,7 +23,9 @@ export class MockWorkflowRepository {
       'rejected'
     ],
     default: true,
-    id: ''
+    id: '',
+    user_email: '',
+    user_id: ''
   };
 
   constructor() {

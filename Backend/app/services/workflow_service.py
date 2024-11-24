@@ -1,9 +1,9 @@
-# services/workflow_service.py
+# app/services/workflow_service.py
 import logging
 from fastapi import HTTPException
 from app.database import get_database
 from bson import ObjectId
-from typing import List, Optional
+from typing import List, Optional, Dict
 from ..models.workflow import Workflow, WorkflowStage
 
 logger = logging.getLogger(__name__)
@@ -16,25 +16,28 @@ class WorkflowService:
         db = await get_database()
         return db[self.collection_name]
 
-    async def get_all(self) -> List[Workflow]:
+    async def get_all(self, user: Dict) -> List[Workflow]:
         collection = await self.get_collection()
         workflows = []
-        async for wf in collection.find():
+        async for wf in collection.find({"user_email": user["email"]}):
             wf["id"] = str(wf.pop("_id"))
             workflows.append(Workflow(**wf))
         return workflows
 
-    async def get_default(self) -> Optional[Workflow]:
+    async def get_default(self, user: Dict) -> Optional[Workflow]:
         collection = await self.get_collection()
-        wf = await collection.find_one({"default": True})
+        wf = await collection.find_one({
+            "default": True,
+            "user_email": user["email"]
+        })
         if wf:
             wf["id"] = str(wf.pop("_id"))
             return Workflow(**wf)
         return None
 
-    async def update_stage(self, workflow_id: str, stage_id: str, stage: WorkflowStage) -> Optional[Workflow]:
+    async def update_stage(self, workflow_id: str, stage_id: str, stage: WorkflowStage, user: Dict) -> Optional[Workflow]:
         collection = await self.get_collection()
-        workflow = await self.get_by_id(workflow_id)
+        workflow = await self.get_by_id(workflow_id, user)
         
         if not workflow:
             raise HTTPException(status_code=404, detail="Workflow not found")
@@ -47,10 +50,10 @@ class WorkflowService:
             raise HTTPException(status_code=400, detail="Stage is not editable")
             
         workflow.stages[stage_index] = stage
-        return await self.update(workflow_id, workflow)
+        return await self.update(workflow_id, workflow, user)
 
-    async def update_stage_order(self, workflow_id: str, stage_order: List[str]) -> Optional[Workflow]:
-        workflow = await self.get_by_id(workflow_id)
+    async def update_stage_order(self, workflow_id: str, stage_order: List[str], user: Dict) -> Optional[Workflow]:
+        workflow = await self.get_by_id(workflow_id, user)
         if not workflow:
             raise HTTPException(status_code=404, detail="Workflow not found")
             
@@ -58,10 +61,10 @@ class WorkflowService:
             raise HTTPException(status_code=400, detail="Invalid stage order")
             
         workflow.stage_order = stage_order
-        return await self.update(workflow_id, workflow)
+        return await self.update(workflow_id, workflow, user)
 
-    async def update_stage_visibility(self, workflow_id: str, stage_id: str, visible: bool) -> Optional[Workflow]:
-        workflow = await self.get_by_id(workflow_id)
+    async def update_stage_visibility(self, workflow_id: str, stage_id: str, visible: bool, user: Dict) -> Optional[Workflow]:
+        workflow = await self.get_by_id(workflow_id, user)
         if not workflow:
             raise HTTPException(status_code=404, detail="Workflow not found")
             
@@ -73,12 +76,14 @@ class WorkflowService:
             raise HTTPException(status_code=400, detail="Stage is not editable")
             
         stage.visible = visible
-        return await self.update(workflow_id, workflow)
+        return await self.update(workflow_id, workflow, user)
     
-    async def create(self, workflow: Workflow) -> Optional[Workflow]:
+    async def create(self, workflow: Workflow, user: Dict) -> Optional[Workflow]:
         collection = await self.get_collection()
         workflow_dict = workflow.model_dump()
         workflow_dict["_id"] = ObjectId(workflow_dict.pop("id"))
+        workflow_dict["user_id"] = user["id"]
+        workflow_dict["user_email"] = user["email"]
         
         try:
             await collection.insert_one(workflow_dict)
@@ -87,22 +92,30 @@ class WorkflowService:
             logger.error(f"Failed to create workflow: {e}")
             return None
         
-    async def get_by_id(self, workflow_id: str) -> Optional[Workflow]:
+    async def get_by_id(self, workflow_id: str, user: Dict) -> Optional[Workflow]:
         collection = await self.get_collection()
-        wf = await collection.find_one({"_id": ObjectId(workflow_id)})
+        wf = await collection.find_one({
+            "_id": ObjectId(workflow_id),
+            "user_email": user["email"]
+        })
         if wf:
             wf["id"] = str(wf.pop("_id"))
             return Workflow(**wf)
         return None
     
-    async def update(self, workflow_id: str, workflow: Workflow) -> Optional[Workflow]:
+    async def update(self, workflow_id: str, workflow: Workflow, user: Dict) -> Optional[Workflow]:
         collection = await self.get_collection()
         workflow_dict = workflow.model_dump()
         workflow_dict["_id"] = ObjectId(workflow_id)
+        workflow_dict["user_id"] = user["id"]
+        workflow_dict["user_email"] = user["email"]
         del workflow_dict["id"]
         
         result = await collection.replace_one(
-            {"_id": ObjectId(workflow_id)},
+            {
+                "_id": ObjectId(workflow_id),
+                "user_email": user["email"]
+            },
             workflow_dict
         )
         if result.modified_count:
@@ -110,14 +123,19 @@ class WorkflowService:
             return workflow
         return None
 
-    async def delete(self, workflow_id: str) -> bool:
+    async def delete(self, workflow_id: str, user: Dict) -> bool:
         collection = await self.get_collection()
-        result = await collection.delete_one({"_id": ObjectId(workflow_id)})
+        result = await collection.delete_one({
+            "_id": ObjectId(workflow_id),
+            "user_email": user["email"]
+        })
         return result.deleted_count > 0
 
-    async def create_initial_workflow(self) -> Optional[Workflow]:
+    async def create_initial_workflow(self, user: Dict) -> Optional[Workflow]:
         default = Workflow(
             id=str(ObjectId()),
+            user_id=user["id"],
+            user_email=user["email"],
             stages=[
                 WorkflowStage(id="unassigned", name="Unassigned", color="gray", editable=False, visible=True),
                 WorkflowStage(id="resume-submitted", name="Resume Submitted", color="blue", editable=True, visible=True),
@@ -129,4 +147,4 @@ class WorkflowService:
             stage_order=["unassigned", "resume-submitted", "online-assessment", "interview-process", "offer", "rejected"],
             default=True
         )
-        return await self.create(default)
+        return await self.create(default, user)

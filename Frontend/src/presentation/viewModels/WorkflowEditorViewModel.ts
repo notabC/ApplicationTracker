@@ -10,13 +10,17 @@ export class WorkflowEditorViewModel {
     stages: [],
     stage_order: [],
     default: true,
-    id: ''
+    id: '',
+    user_email: '',
+    user_id: ''
   };
   @observable private _originalWorkflow: Workflow = {
     stages: [],
     stage_order: [],
     default: true,
-    id: ''
+    id: '',
+    user_email: '',
+    user_id: ''
   };
   @observable draggedStageId: string | null = null;
   @observable isLoading: boolean = false;
@@ -68,7 +72,12 @@ export class WorkflowEditorViewModel {
   }
 
   getStages(): WorkflowStage[] {
-    return this.workflow.stages;
+    // return this.workflow.stages; return it according to the order
+    return this.workflow.stage_order.map((stageId) => {
+      const stage = this.workflow.stages.find(s => s.id === stageId);
+      if (!stage) throw new Error(`Stage with id ${stageId} not found`);
+      return stage;
+    });
   }
 
   private markAsChanged(): void {

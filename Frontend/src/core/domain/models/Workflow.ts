@@ -9,7 +9,9 @@
   
   export interface Workflow {
     id: string;
+    user_id: string;
+    user_email: string;
     stages: WorkflowStage[];
     stage_order: string[];
     default: boolean;
-  }
+}
