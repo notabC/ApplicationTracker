@@ -9,6 +9,11 @@ import { Email } from '@/core/interfaces/services/IEmailService';
 
 export type ImportStep = 'filters' | 'processing' | 'selection';
 
+type LoadingState = {
+  isLoading: boolean;
+  pageLoading: Set<number>;
+};
+
 @injectable()
 export class GmailImportViewModel {
   @observable step: ImportStep = 'filters';
@@ -21,7 +26,10 @@ export class GmailImportViewModel {
     startDate: '',
     endDate: ''
   };
-  @observable isLoading = false;
+  @observable loadingState: LoadingState = {
+    isLoading: false,
+    pageLoading: new Set<number>()
+  };
   @observable error: string | null = null;
 
   // Pagination-related observables
@@ -99,7 +107,7 @@ export class GmailImportViewModel {
   // Load the next page
   @action
   async loadNextPage() {
-    if (this.hasNextPage && !this.isLoading) {
+    if (this.hasNextPage && !this.loadingState.pageLoading.has(this.currentPage + 1)) {
       await this.goToPage(this.currentPage + 1);
     }
   }
@@ -152,8 +160,9 @@ export class GmailImportViewModel {
   // Fetch emails with optional pageToken and targetPage
   @action
   async fetchEmails(pageToken?: string, targetPage: number = 1) {
-    this.isLoading = true;
-    this.step = 'processing';
+    // Add the target page to loading set
+    this.loadingState.pageLoading.add(targetPage);
+    this.loadingState.isLoading = true;
     
     try {
       const response = await this.gmailService.fetchEmails({
@@ -185,7 +194,9 @@ export class GmailImportViewModel {
       });
     } finally {
       runInAction(() => {
-        this.isLoading = false;
+        // Remove the target page from loading set
+        this.loadingState.pageLoading.delete(targetPage);
+        this.loadingState.isLoading = false;
       });
     }
   }
@@ -206,11 +217,31 @@ export class GmailImportViewModel {
       startDate: '',
       endDate: ''
     };
+    this.loadingState = {
+      isLoading: false,
+      pageLoading: new Set<number>()
+    };
     this.error = null;
   }
 
   // Computed property to check if any emails are selected
   get hasSelectedEmails() {
     return this.selectedEmails.size > 0;
+  }
+
+  // Additional Computed Property for Current Page Selection
+  get isCurrentPageAllSelected() {
+    if (this.emails.length === 0) return false;
+    return this.emails.every(email => this.selectedEmails.has(email.id));
+  }
+
+  // Action to select/deselect all emails on the current page
+  @action
+  selectAllCurrentPage(selected: boolean) {
+    if (selected) {
+      this.emails.forEach(email => this.selectedEmails.add(email.id));
+    } else {
+      this.emails.forEach(email => this.selectedEmails.delete(email.id));
+    }
   }
 }
