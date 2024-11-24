@@ -1,6 +1,6 @@
 // src/core/services/GmailService.ts
 import { injectable } from 'inversify';
-import type { IGmailService, IGmailImportOptions, IGmailEmail } from '../interfaces/services/IGmailService';
+import type { IGmailService, IGmailImportOptions, IGmailEmail, IGmailResponse } from '../interfaces/services/IGmailService';
 import { makeObservable, observable, action, runInAction } from 'mobx';
 import { ApiClient } from '../api/apiClient';
 import { API_ENDPOINTS } from '../api/endpoints';
@@ -96,38 +96,39 @@ export class GmailService implements IGmailService {
   }
 
   @action
-  async fetchEmails(options: IGmailImportOptions): Promise<IGmailEmail[]> {
-    if (!this.isAuthenticated) {
-      throw new Error('Not authenticated');
-    }
-
-    try {
-      // Build the query params manually to ensure proper encoding
-      const queryParams = new URLSearchParams();
-      
-      // Add each label separately
-      options.labels.forEach(label => {
-        queryParams.append('tags', label);  // This will create multiple 'tags' parameters
-      });
-
-      if (options.labels.length === 0) {
-        queryParams.append('tags', 'inbox');
+  async fetchEmails(options: IGmailImportOptions): Promise<IGmailResponse> {
+      if (!this.isAuthenticated) {
+          throw new Error('Not authenticated');
       }
-      
-      // Add other parameters
-      queryParams.append('start_date', options.startDate || '');
-      queryParams.append('end_date', options.endDate || '');
-      queryParams.append('search_query', options.keywords || '');
-      queryParams.append('limit', '20');
 
-      // Make the request with the manually constructed query string
-      return await ApiClient.get<IGmailEmail[]>(
-        `${API_ENDPOINTS.GMAIL.EMAILS}?${queryParams.toString()}`
-      );
-    } catch (error) {
-      console.error('Error fetching emails:', error);
-      throw error;
-    }
+      try {
+          const queryParams = new URLSearchParams();
+          
+          options.labels.forEach(label => {
+              queryParams.append('tags', label);
+          });
+
+          if (options.labels.length === 0) {
+              queryParams.append('tags', 'inbox');
+          }
+          
+          queryParams.append('start_date', options.startDate || '');
+          queryParams.append('end_date', options.endDate || '');
+          queryParams.append('search_query', options.keywords || '');
+          queryParams.append('limit', '20');
+          
+          // Add page token if available
+          if (options.pageToken) {
+              queryParams.append('page_token', options.pageToken);
+          }
+
+          return await ApiClient.get<IGmailResponse>(
+              `${API_ENDPOINTS.GMAIL.EMAILS}?${queryParams.toString()}`
+          );
+      } catch (error) {
+          console.error('Error fetching emails:', error);
+          throw error;
+      }
   }
 
   @action

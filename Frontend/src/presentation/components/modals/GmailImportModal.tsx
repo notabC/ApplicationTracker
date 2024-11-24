@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { 
-  Mail, Search, Filter, Loader, X, ChevronRight,
+  Mail, Search, Filter, Loader, X, ChevronRight, ChevronLeft,
   Calendar, Tag, KeyRound, ArrowRight
 } from 'lucide-react';
 import { container } from '../../../di/container';
@@ -45,6 +45,64 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
       viewModel.filters.labels.filter(label => label !== labelToRemove)
     );
   };
+
+  // New: Render Email List with Pagination handled by PaginationFooter
+  const renderEmailList = () => (
+    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      {viewModel.emails.map((email) => (
+        <div 
+          key={email.id} 
+          className="bg-[#282c34] rounded-xl border border-gray-800/50
+                   hover:border-gray-700/50 transition-all duration-200"
+        >
+          <div className="p-4">
+            <div className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                checked={viewModel.selectedEmails.has(email.id)}
+                onChange={() => viewModel.toggleEmailSelection(email.id)}
+                className="mt-1.5 rounded-lg border-gray-700 text-blue-500 
+                         focus:ring-blue-500/30 bg-gray-800"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-sm font-medium text-white truncate">
+                    {email.subject}
+                  </h4>
+                  <button
+                    onClick={() => viewModel.toggleEmailExpansion(email.id)}
+                    className="p-1.5 hover:bg-gray-700/50 rounded-lg transition-colors"
+                  >
+                    <ChevronRight 
+                      className={`h-4 w-4 text-gray-400 transform transition-transform
+                              duration-200 ${viewModel.expandedEmails.has(email.id) ? 'rotate-90' : ''}`}
+                    />
+                  </button>
+                </div>
+                <div className="flex justify-between items-center mt-1.5">
+                  <span className="text-xs text-gray-400">{email.sender}</span>
+                  <span className="text-xs text-gray-500">{email.date}</span>
+                </div>
+                <div className="mt-2 text-xs text-gray-300 line-clamp-2 leading-relaxed">
+                  {email.body}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {viewModel.expandedEmails.has(email.id) && (
+            <div className="px-4 pb-4 border-t border-gray-800/50 mt-2">
+              <div className="bg-[#1a1d24] rounded-xl p-4 mt-4">
+                <p className="text-sm text-gray-300 whitespace-pre-line break-words leading-relaxed">
+                  {email.body}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 
   const renderContent = () => {
     if (viewModel.step === 'filters') {
@@ -222,61 +280,48 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
             </label>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {viewModel.emails.map((email) => (
-              <div 
-                key={email.id} 
-                className="bg-[#282c34] rounded-xl border border-gray-800/50
-                         hover:border-gray-700/50 transition-all duration-200"
-              >
-                <div className="p-4">
-                  <div className="flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      checked={viewModel.selectedEmails.has(email.id)}
-                      onChange={() => viewModel.toggleEmailSelection(email.id)}
-                      className="mt-1.5 rounded-lg border-gray-700 text-blue-500 
-                               focus:ring-blue-500/30 bg-gray-800"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-center">
-                        <h4 className="text-sm font-medium text-white truncate">
-                          {email.subject}
-                        </h4>
-                        <button
-                          onClick={() => viewModel.toggleEmailExpansion(email.id)}
-                          className="p-1.5 hover:bg-gray-700/50 rounded-lg transition-colors"
-                        >
-                          <ChevronRight 
-                            className={`h-4 w-4 text-gray-400 transform transition-transform
-                                    duration-200 ${viewModel.expandedEmails.has(email.id) ? 'rotate-90' : ''}`}
-                          />
-                        </button>
-                      </div>
-                      <div className="flex justify-between items-center mt-1.5">
-                        <span className="text-xs text-gray-400">{email.sender}</span>
-                        <span className="text-xs text-gray-500">{email.date}</span>
-                      </div>
-                      <div className="mt-2 text-xs text-gray-300 line-clamp-2 leading-relaxed">
-                        {email.body}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          {/* Render Email List */}
+          {renderEmailList()}
 
-                {viewModel.expandedEmails.has(email.id) && (
-                  <div className="px-4 pb-4 border-t border-gray-800/50 mt-2">
-                    <div className="bg-[#1a1d24] rounded-xl p-4 mt-4">
-                      <p className="text-sm text-gray-300 whitespace-pre-line break-words leading-relaxed">
-                        {email.body}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
+          {/* Pagination Footer */}
+          <div className="px-4 py-3 border-t border-gray-800/50 bg-[#1a1d24] flex items-center justify-between">
+            <button
+              onClick={() => viewModel.goToPage(viewModel.currentPage - 1)}
+              disabled={viewModel.currentPage === 1 || viewModel.isLoading}
+              className="flex items-center gap-2 px-3 py-2 bg-[#282c34] rounded-lg
+                      border border-gray-800/50 hover:border-gray-700/50
+                      disabled:opacity-50 disabled:cursor-not-allowed
+                      text-sm text-gray-400 hover:text-gray-300
+                      transition-all duration-200"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </button>
+
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-400">
+                Page {viewModel.currentPage}
+              </span>
+              {viewModel.isLoading && (
+                <Loader className="h-4 w-4 text-blue-400 animate-spin" />
+              )}
+            </div>
+
+            <button
+              onClick={() => viewModel.goToPage(viewModel.currentPage + 1)}
+              disabled={!viewModel.hasNextPage || viewModel.isLoading}
+              className="flex items-center gap-2 px-3 py-2 bg-[#282c34] rounded-lg
+                      border border-gray-800/50 hover:border-gray-700/50
+                      disabled:opacity-50 disabled:cursor-not-allowed
+                      text-sm text-gray-400 hover:text-gray-300
+                      transition-all duration-200"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
 
+          {/* Existing Bottom Bar */}
           {viewModel.hasSelectedEmails && (
             <div className="sticky bottom-0 left-0 right-0 p-4 border-t border-gray-800/50 
                           bg-[#1a1d24]/80 backdrop-blur-md
@@ -309,6 +354,8 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
         </div>
       );
     }
+
+    return null; // Fallback in case none of the steps match
   };
 
   return (

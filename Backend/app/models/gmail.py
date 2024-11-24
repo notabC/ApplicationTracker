@@ -16,6 +16,7 @@ class GmailFetchParams(BaseModel):
     end_date: Optional[datetime] = None
     search_query: Optional[str] = None
     limit: int = 20
+    page_token: Optional[str] = None  # Add page token
 
     class Config:
         json_encoders = {

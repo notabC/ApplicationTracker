@@ -1,12 +1,5 @@
 // src/core/interfaces/services/IGmailService.ts
-export interface IGmailImportOptions {
-    labels: string[];
-    keywords: string;
-    startDate: string;
-    endDate: string;
-  }
-  
-  export interface IGmailEmail {
+    export interface IGmailEmail {
     id: string;
     subject: string;
     body: string;
@@ -15,10 +8,24 @@ export interface IGmailImportOptions {
     processed: boolean;
   }
 
-  export interface IGmailService {
+  export interface IGmailImportOptions {
+    labels: string[];
+    keywords: string;
+    startDate: string;
+    endDate: string;
+    pageToken?: string;
+}
+
+export interface IGmailResponse {
+    emails: IGmailEmail[];
+    nextPageToken: string | null;
+    hasMore: boolean;
+}
+
+export interface IGmailService {
     isAuthenticated: boolean;
     authenticate(): Promise<boolean>;
-    fetchEmails(options: IGmailImportOptions): Promise<IGmailEmail[]>;
+    fetchEmails(options: IGmailImportOptions): Promise<IGmailResponse>;
     markAsProcessed(emailIds: string[]): Promise<void>;
     checkAuthentication(): Promise<void>;
-  }
+}

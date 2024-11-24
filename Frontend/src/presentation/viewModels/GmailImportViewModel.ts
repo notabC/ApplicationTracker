@@ -1,5 +1,5 @@
 // src/presentation/viewModels/GmailImportViewModel.ts
-import { makeAutoObservable, runInAction } from 'mobx';
+import { action, makeAutoObservable, observable, runInAction } from 'mobx';
 import { inject, injectable } from 'inversify';
 import type { IGmailService, IGmailEmail, IGmailImportOptions } from '../../core/interfaces/services/IGmailService';
 import { SERVICE_IDENTIFIERS } from '../../core/constants/identifiers';
@@ -11,18 +11,24 @@ export type ImportStep = 'filters' | 'processing' | 'selection';
 
 @injectable()
 export class GmailImportViewModel {
-  step: ImportStep = 'filters';
-  emails: IGmailEmail[] = [];
-  selectedEmails = new Set<string>();
-  expandedEmails = new Set<string>();
-  filters: IGmailImportOptions = {
+  @observable step: ImportStep = 'filters';
+  @observable emails: IGmailEmail[] = [];
+  @observable selectedEmails = new Set<string>();
+  @observable expandedEmails = new Set<string>();
+  @observable filters: IGmailImportOptions = {
     labels: [],
     keywords: '',
     startDate: '',
     endDate: ''
   };
-  isLoading = false;
-  error: string | null = null;
+  @observable isLoading = false;
+  @observable error: string | null = null;
+
+  // Pagination-related observables
+  @observable currentPage: number = 1;
+  @observable pageCache: Record<number, IGmailEmail[]> = {}; // Cache emails by page number
+  @observable hasNextPage: boolean = false;
+  @observable currentPageToken: string | null = null;
 
   constructor(
     @inject(SERVICE_IDENTIFIERS.GmailService) private gmailService: IGmailService,
@@ -30,29 +36,6 @@ export class GmailImportViewModel {
     @inject(SERVICE_IDENTIFIERS.AuthService) private authService: IAuthService
   ) {
     makeAutoObservable(this);
-  }
-  
-  async fetchEmails() {
-    this.isLoading = true;
-    this.step = 'processing';
-    
-    try {
-      const emails = await this.gmailService.fetchEmails(this.filters);
-      runInAction(() => {
-        this.emails = emails;
-        this.step = 'selection';
-        this.error = null;
-      });
-    } catch (error) {
-      runInAction(() => {
-        this.error = 'Failed to fetch emails';
-        this.step = 'filters';
-      });
-    } finally {
-      runInAction(() => {
-        this.isLoading = false;
-      });
-    }
   }
 
   async importSelected(): Promise<void> {
@@ -96,15 +79,6 @@ export class GmailImportViewModel {
     }
   }
 
-  // Email selection methods
-  toggleEmailSelection(emailId: string) {
-    if (this.selectedEmails.has(emailId)) {
-      this.selectedEmails.delete(emailId);
-    } else {
-      this.selectedEmails.add(emailId);
-    }
-  }
-
   toggleEmailExpansion(emailId: string) {
     if (this.expandedEmails.has(emailId)) {
       this.expandedEmails.delete(emailId);
@@ -113,6 +87,51 @@ export class GmailImportViewModel {
     }
   }
 
+  // Filter updates
+  @action
+  updateFilter<K extends keyof IGmailImportOptions>(
+    key: K,
+    value: IGmailImportOptions[K]
+  ) {
+    this.filters[key] = value;
+  }
+
+  // Load the next page
+  @action
+  async loadNextPage() {
+    if (this.hasNextPage && !this.isLoading) {
+      await this.goToPage(this.currentPage + 1);
+    }
+  }
+
+  // Navigate to a specific page
+  @action
+  async goToPage(page: number) {
+    if (page < 1) return;
+
+    // If the page is cached, use it
+    if (this.pageCache[page]) {
+      this.currentPage = page;
+      this.emails = this.pageCache[page];
+      return;
+    }
+
+    // Fetch the next page using the currentPageToken
+    if (page === this.currentPage + 1 && this.hasNextPage) {
+      await this.fetchEmails(this.currentPageToken ?? undefined, page);
+    }
+  }
+
+  // Computed property to check if all emails are selected
+  get isAllSelected() {
+    if (!this.emails || this.emails.length === 0) {
+      return false;
+    }
+    return this.selectedEmails.size === this.emails.length;
+  }
+
+  // Selection methods
+  @action
   selectAllEmails(selected: boolean) {
     if (selected) {
       this.selectedEmails = new Set(this.emails.map(email => email.id));
@@ -121,20 +140,66 @@ export class GmailImportViewModel {
     }
   }
 
-  // Filter updates
-  updateFilter<K extends keyof IGmailImportOptions>(
-    key: K,
-    value: IGmailImportOptions[K]
-  ) {
-    this.filters[key] = value;
+  @action
+  toggleEmailSelection(emailId: string) {
+    if (this.selectedEmails.has(emailId)) {
+      this.selectedEmails.delete(emailId);
+    } else {
+      this.selectedEmails.add(emailId);
+    }
   }
 
-  // Reset state
+  // Fetch emails with optional pageToken and targetPage
+  @action
+  async fetchEmails(pageToken?: string, targetPage: number = 1) {
+    this.isLoading = true;
+    this.step = 'processing';
+    
+    try {
+      const response = await this.gmailService.fetchEmails({
+        ...this.filters,
+        pageToken,
+      });
+
+      runInAction(() => {
+        if (targetPage === 1) {
+          this.emails = response.emails || [];
+        } else {
+          this.emails = response.emails || [];
+        }
+        this.currentPageToken = response.nextPageToken;
+        this.hasNextPage = response.hasMore;
+        this.currentPage = targetPage;
+
+        // Cache the results for this page
+        this.pageCache[this.currentPage] = response.emails || [];
+
+        this.step = 'selection';
+        this.error = null;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.error = 'Failed to fetch emails';
+        this.step = 'filters';
+        this.emails = []; // Reset to empty array on error
+      });
+    } finally {
+      runInAction(() => {
+        this.isLoading = false;
+      });
+    }
+  }
+
+  @action
   reset() {
     this.step = 'filters';
     this.emails = [];
     this.selectedEmails.clear();
     this.expandedEmails.clear();
+    this.currentPage = 1;
+    this.pageCache = {};
+    this.currentPageToken = null;
+    this.hasNextPage = false;
     this.filters = {
       labels: [],
       keywords: '',
@@ -144,12 +209,7 @@ export class GmailImportViewModel {
     this.error = null;
   }
 
-  // Computed properties
-  get isAllSelected() {
-    return this.emails.length > 0 && 
-           this.selectedEmails.size === this.emails.length;
-  }
-
+  // Computed property to check if any emails are selected
   get hasSelectedEmails() {
     return this.selectedEmails.size > 0;
   }

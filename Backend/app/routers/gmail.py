@@ -70,18 +70,17 @@ async def check_auth(user_id: str):
         raise HTTPException(status_code=500, detail=str(e))
     
 
-# Add the new Gmail emails endpoint
 @router.get("/emails")
 async def get_gmail_emails(
-    tags: Optional[List[str]] = Query(..., description="List of Gmail labels"),  # Changed to List[str]
-    start_date: Optional[str] = Query(None, description="Start date in YYYY-MM-DD format"),
-    end_date: Optional[str] = Query(None, description="End date in YYYY-MM-DD format"),
-    search_query: Optional[str] = Query("", description="Search query string"),
-    limit: int = Query(20, description="Maximum number of emails to return"),
+    tags: Optional[List[str]] = Query(...),
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    search_query: Optional[str] = Query(""),
+    limit: int = Query(20),
+    page_token: Optional[str] = Query(None),
     current_user: dict = Depends(get_current_user)
 ):
     try:
-        # Parse dates if provided
         start_date_obj = None
         end_date_obj = None
         if start_date:
@@ -89,22 +88,22 @@ async def get_gmail_emails(
         if end_date:
             end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
         
-        # Create the params object
         params = GmailFetchParams(
-            tags=tags,  # Pass the list directly
+            tags=tags,
             start_date=start_date_obj,
             end_date=end_date_obj,
             search_query=search_query,
-            limit=limit
+            limit=limit,
+            page_token=page_token
         )
                 
-        emails = await gmail_service.fetch_emails(
+        result = await gmail_service.fetch_emails(
             user_id=current_user["id"],
             user_email=current_user["email"],
             params=params
         )
         
-        return emails
+        return result
         
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
