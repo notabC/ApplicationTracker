@@ -9,28 +9,110 @@ import { container } from '../../../di/container';
 import { GmailImportViewModel } from '../../viewModels/GmailImportViewModel';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 
+// SelectionHeader Component
+const SelectionHeader: React.FC<{
+  currentPage: number;
+  hasNextPage: boolean;
+  isAllSelected: boolean;
+  onPageChange: (page: number) => void;
+  isLoading: boolean;
+  onSelectAll: (selected: boolean) => void;
+}> = ({
+  currentPage,
+  hasNextPage,
+  isAllSelected,
+  onPageChange,
+  isLoading,
+  onSelectAll
+}) => (
+  <div className="sticky top-0 z-10 bg-[#1a1d24]/95 backdrop-blur-sm border-b border-gray-800/50">
+    <div className="p-4 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <input
+          type="checkbox"
+          checked={isAllSelected}
+          onChange={(e) => onSelectAll(e.target.checked)}
+          className="w-5 h-5 rounded-lg border-gray-700 text-blue-500 focus:ring-blue-500/30 bg-gray-800"
+        />
+        <span className="text-base text-gray-400">Select All</span>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="p-2 bg-[#282c34] rounded-lg border border-gray-800/50 hover:border-gray-700/50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-400 hover:text-gray-300 transition-all duration-200"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <span className="text-base text-gray-400 min-w-[4rem] text-center">
+            Page {currentPage}
+          </span>
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={!hasNextPage}
+            className="p-2 bg-[#282c34] rounded-lg border border-gray-800/50 hover:border-gray-700/50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-400 hover:text-gray-300 transition-all duration-200"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    {/* Loading Indicator */}
+    {isLoading && (
+      <div className="absolute left-1/2 transform -translate-x-1/2 -bottom-12">
+        <div className="bg-blue-500/10 px-4 py-2 rounded-full border border-blue-500/20 
+                        backdrop-blur-sm flex items-center gap-2">
+              <Loader className="h-5 w-5 text-blue-400 animate-spin" />
+              <span className="text-sm text-blue-400">Loading...</span>
+            </div>
+      </div>
+    )}
+  </div>
+);
+
+// SelectionFooter Component
+const SelectionFooter: React.FC<{
+  selectedCount: number;
+  onImport: () => void;
+  isLoading: boolean;
+}> = ({ selectedCount, onImport, isLoading }) => {
+  if (selectedCount === 0) return null;
+
+  return (
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+      <button
+        onClick={onImport}
+        disabled={isLoading}
+        className="flex items-center gap-2 px-6 py-2.5 
+                  bg-blue-800/80 backdrop-blur-sm
+                  border border-gray-700/30
+                  rounded-full shadow-lg 
+                  transition-all duration-200 
+                  disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <div className="h-5 w-5 rounded-full 
+                        flex items-center justify-center">
+          {isLoading ? (
+            <Loader className="h-4 w-4 animate-spin text-blue-400" />
+          ) : (
+            <Check className="h-4 w-4 text-blue-400" />
+          )}
+        </div>
+        <span className="text-base text-gray-200 font-medium">
+          Import {selectedCount} {selectedCount === 1 ? 'email' : 'emails'}
+        </span>
+      </button>
+    </div>
+  );
+};
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
 }
-
-// Floating Selection Indicator Component
-const SelectionIndicator: React.FC<{ count: number }> = ({ count }) => (
-  <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-    <div className="flex items-center gap-2 px-6 py-2.5 
-                    bg-gray-900/80 backdrop-blur-sm
-                    border border-gray-700/30
-                    rounded-full shadow-lg">
-      <div className="h-5 w-5 rounded-full bg-blue-500/20 
-                      flex items-center justify-center">
-        <Check className="h-4 w-4 text-blue-400" />
-      </div>
-      <span className="text-base text-gray-200">
-        {count} selected
-      </span>
-    </div>
-  </div>
-);
 
 export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) => {
   const viewModel = container.get<GmailImportViewModel>(SERVICE_IDENTIFIERS.GmailImportViewModel);
@@ -127,6 +209,7 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
 
   const renderEmailList = () => (
     <div className="flex-1 overflow-y-auto p-4 space-y-6 relative">
+  
       {/* Email List */}
       <div className={viewModel.loadingState.isLoading ? "opacity-50 pointer-events-none transition-opacity duration-200" : ""}>
         {viewModel.emails.map(renderEmailItem)}
@@ -140,95 +223,6 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
       )}
     </div>
   );
-
-  const renderSelectionHeader = () => {
-    // Removed the selection counter from the header to free up space
-    if (viewModel.step !== 'selection') return null;
-  
-    return (
-      <div className="sticky top-0 z-10 bg-[#1a1d24]/95 backdrop-blur-sm border-b border-gray-800/50">
-        {/* Controls Bar */}
-        <div className="flex flex-col gap-4 p-4"> {/* Stack controls vertically */}
-          {/* Top Row: Select All and Import Button */}
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-3"> {/* Increased gap */}
-              <input
-                type="checkbox"
-                checked={isCurrentPageAllSelected}
-                onChange={(e) => handleSelectAllCurrentPage(e.target.checked)}
-                className="w-5 h-5 rounded-lg border-gray-700 text-blue-500 
-                         focus:ring-blue-500/30 bg-gray-800"
-              />
-              <span className="text-base text-gray-400">Select All</span> {/* Increased text size */}
-            </div>
-
-            {/* Import Button */}
-            {viewModel.hasSelectedEmails && (
-              <button
-                onClick={handleImport}
-                disabled={viewModel.loadingState.isLoading}
-                className="flex items-center gap-2 px-6 py-2.5
-                         bg-blue-500/10 text-blue-400 rounded-full
-                         border border-blue-500/20 hover:border-blue-500/30
-                         hover:bg-blue-500/20 
-                         disabled:opacity-50 disabled:cursor-not-allowed
-                         transition-all duration-200"
-              >
-                {viewModel.loadingState.isLoading ? (
-                  <Loader className="h-5 w-5 animate-spin" />
-                ) : (
-                  <Check className="h-5 w-5" />
-                )}
-                <span className="text-base">Import</span> {/* Increased text size */}
-              </button>
-            )}
-          </div>
-
-          {/* Bottom Row: Pagination Controls */}
-          <div className="flex items-center justify-center gap-4"> {/* Increased gap */}
-            <button
-              onClick={() => viewModel.goToPage(viewModel.currentPage - 1)}
-              disabled={viewModel.currentPage === 1}
-              className="p-3 bg-[#282c34] rounded-lg 
-                      border border-gray-800/50 hover:border-gray-700/50
-                      disabled:opacity-50 disabled:cursor-not-allowed
-                      text-gray-400 hover:text-gray-300
-                      transition-all duration-200"
-            >
-              <ChevronLeft className="h-5 w-5" /> {/* Increased icon size */}
-            </button>
-
-            <span className="text-base text-gray-400 min-w-[5rem] text-center"> {/* Increased text size */}
-              Page {viewModel.currentPage}
-            </span>
-
-            <button
-              onClick={() => viewModel.goToPage(viewModel.currentPage + 1)}
-              disabled={!viewModel.hasNextPage}
-              className="p-3 bg-[#282c34] rounded-lg 
-                      border border-gray-800/50 hover:border-gray-700/50
-                      disabled:opacity-50 disabled:cursor-not-allowed
-                      text-gray-400 hover:text-gray-300
-                      transition-all duration-200"
-            >
-              <ChevronRight className="h-5 w-5" /> {/* Increased icon size */}
-            </button>
-          </div>
-        </div>
-
-        {/* Loading Indicator */}
-        {viewModel.loadingState.isLoading && (
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4">
-            <div className="bg-blue-500/10 px-4 py-2 rounded-full border border-blue-500/20 
-                        backdrop-blur-sm flex items-center gap-2">
-              <Loader className="h-5 w-5 text-blue-400 animate-spin" /> {/* Increased icon size */}
-              <span className="text-sm text-blue-400">Loading...</span>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
 
   const renderContent = () => {
     if (viewModel.step === 'filters') {
@@ -395,7 +389,16 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
     if (viewModel.step === 'selection') {
       return (
         <div className="flex flex-col h-full">
-          {renderSelectionHeader()}
+          {/* Selection Header */}
+          <SelectionHeader
+            currentPage={viewModel.currentPage}
+            hasNextPage={viewModel.hasNextPage}
+            isAllSelected={isCurrentPageAllSelected}
+            onPageChange={(page: number) => viewModel.goToPage(page)} // Wrapper function to preserve 'this'
+            isLoading={viewModel.loadingState.isLoading}
+            onSelectAll={handleSelectAllCurrentPage}
+          />
+          {/* Email List */}
           {renderEmailList()}
         </div>
       );
@@ -440,10 +443,12 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
           </div>
         )}
 
-        {/* Floating Selection Indicator */}
-        {viewModel.selectedEmails.size > 0 && (
-          <SelectionIndicator count={viewModel.selectedEmails.size} />
-        )}
+        {/* Selection Footer */}
+        <SelectionFooter 
+          selectedCount={viewModel.selectedEmails.size} 
+          onImport={handleImport} 
+          isLoading={viewModel.loadingState.isLoading}
+        />
       </div>
     </div>
   );
