@@ -4,7 +4,7 @@ import { ApplicationService } from '@/core/services/ApplicationService';
 import { WorkflowService } from '@/core/services/WorkflowService';
 import { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
-import { IApplicationService, IWorkflowService } from '@/core/interfaces/services';
+import { IApplicationService } from '@/core/interfaces/services';
 import { AddApplicationViewModel } from '@/presentation/viewModels/AddApplicationViewModel';
 import { GmailImportViewModel } from '@/presentation/viewModels/GmailImportViewModel';
 import { GmailService } from '@/core/services/GmailService';
@@ -18,12 +18,13 @@ import { MockApplicationRepository } from '@/domain/repositories/MockApplication
 import { IAnalyticsService } from '@/core/interfaces/services/IAnalyticsService';
 import { AnalyticsService } from '@/core/services/AnalyticsService';
 import { AnalyticsViewModel } from '@/presentation/viewModels/AnalyticsViewModel';
-import { ActivityHistoryViewModel } from '@/presentation/viewModels/ActivityHistoryViewModel';
 import { RootStore } from '@/presentation/viewModels/RootStore';
 import { AuthViewModel } from '@/presentation/viewModels/AuthViewModel';
 import { AuthService } from '@/core/services/AuthService';
 import { ProtectedFeatureViewModel } from '@/presentation/viewModels/ProtectedFeatureViewModel';
 import { WorkflowEditorViewModel } from '@/viewModels/WorkflowEditorViewModel';
+import { ActivityHistoryViewModel } from '@/viewModels/ActivityHistoryViewModel';
+import { IWorkflowService } from '@/domain/interfaces/IWorkflow';
 
 export const container = new Container();
 

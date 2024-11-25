@@ -1,4 +1,5 @@
-// src/core/domain/models/ActivityLog.ts
+import { ActivityHistoryViewModel } from "@/viewModels/ActivityHistoryViewModel";
+
 export type ActivityType = 
   | 'stage_change'
   | 'application_created'
@@ -25,5 +26,18 @@ export interface ActivityLog {
     newValue?: string;
     [key: string]: any;
   };
-  user?: string; // For future auth implementation
 }
+
+export interface ActivityHistoryLogItemProps {
+    log: ActivityLog;
+    viewModel: ActivityHistoryViewModel;
+}
+
+export interface ActivityHistoryFiltersProps {
+    viewModel: ActivityHistoryViewModel;
+}
+
+export interface ActivityHistoryModalProps {
+    onClose: () => void;
+  }
+  

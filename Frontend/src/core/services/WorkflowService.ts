@@ -1,8 +1,7 @@
 import { injectable } from 'inversify';
-import type { Workflow, WorkflowStage } from '../domain/models/Workflow';
-import { IWorkflowService } from '../interfaces/services';
 import { ApiClient } from '../api/apiClient';
 import { API_ENDPOINTS } from '../api/endpoints';
+import { IWorkflowService, Workflow, WorkflowStage } from '@/domain/interfaces/IWorkflow';
 
 @injectable()
 export class WorkflowService implements IWorkflowService {

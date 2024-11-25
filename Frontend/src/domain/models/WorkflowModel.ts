@@ -1,6 +1,6 @@
 // src/domain/models/WorkflowModel.ts
-import { WorkflowStage, Workflow } from '@/core/domain/models/Workflow';
 import { makeAutoObservable } from 'mobx';
+import { Workflow, WorkflowStage } from '../interfaces/IWorkflow';
 
 export class WorkflowModel {
     private stages: WorkflowStage[] = [];

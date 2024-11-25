@@ -1,7 +1,7 @@
 // File: src/core/services/WorkflowService.ts
-import type { Workflow, WorkflowStage } from '@/core/domain/models/Workflow';
 import { injectable } from 'inversify';
 import { makeObservable, observable, action } from 'mobx';
+import type { Workflow, WorkflowStage } from '../interfaces/IWorkflow';
 
 @injectable()
 export class MockWorkflowRepository {

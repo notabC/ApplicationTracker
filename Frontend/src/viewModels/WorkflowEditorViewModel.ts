@@ -1,7 +1,6 @@
 // src/viewModels/WorkflowEditorViewModel.ts
-import { WorkflowStage } from "@/core/domain/models/Workflow";
-import type { IWorkflowService } from "@/core/interfaces/services";
 import { SERVICE_IDENTIFIERS } from "@/di/container";
+import type { IWorkflowService, WorkflowStage } from "@/domain/interfaces/IWorkflow";
 import { WorkflowModel } from "@/domain/models/WorkflowModel";
 import { injectable, inject } from "inversify";
 import { observable, makeAutoObservable, computed, action, runInAction } from "mobx";

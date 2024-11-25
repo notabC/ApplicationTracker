@@ -1,5 +1,4 @@
-import { WorkflowStage } from "@/core/domain/models/Workflow";
-import { StageCardContentProps } from "@/domain/interfaces/IWorkflow";
+import { StageCardContentProps, WorkflowStage } from "@/domain/interfaces/IWorkflow";
 import { Settings2, Eye, EyeOff, Palette, ChevronDown, X } from "lucide-react";
 import { observer } from "mobx-react-lite";
 
