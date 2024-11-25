@@ -7,7 +7,7 @@ import type { Application } from '@/core/domain/models/Application';
 import { IGmailEmail } from '@/core/interfaces/services/IGmailService';
 import { JobTrackerViewModel } from './JobTrackerViewModel';
 import { RootStore } from './RootStore';
-import { WorkflowEditorViewModel } from './WorkflowEditorViewModel';
+import { WorkflowEditorViewModel } from '@/viewModels/WorkflowEditorViewModel';
 
 interface SearchInput {
   company: string;
@@ -122,8 +122,8 @@ export class EmailProcessingViewModel {
    * @returns An array of available stage names.
    */
   getAvailableStages(currentStage: string): string[] {
-    const workflow = this.workflowEditorViewModel.workflow;
-    const { stages, stage_order } = workflow;
+    const stages = this.workflowEditorViewModel.stages;
+    const stage_order = this.workflowEditorViewModel.stageOrder;
     const currentStageObj = stages.find((s) => s.name === currentStage);
     if (!currentStageObj) return [];
 

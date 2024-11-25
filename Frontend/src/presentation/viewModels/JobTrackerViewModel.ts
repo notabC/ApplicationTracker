@@ -1,12 +1,13 @@
 // src/presentation/viewModels/JobTrackerViewModel.ts
 import { injectable, inject } from "inversify";
-import { makeAutoObservable } from 'mobx';
+import { action, makeAutoObservable } from 'mobx';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { Application } from '@/core/domain/models/Application';
 import { DragDropViewModel } from './DragDropViewModel';
 import { RootStore } from './RootStore';
 import type { Email, IEmailService } from '@/core/interfaces/services/IEmailService';
-import { WorkflowEditorViewModel } from "./WorkflowEditorViewModel";
+import { container } from "@/di/container";
+import { WorkflowEditorViewModel } from "@/viewModels/WorkflowEditorViewModel";
 
 @injectable()
 export class JobTrackerViewModel {
@@ -37,13 +38,13 @@ export class JobTrackerViewModel {
 
   // Computed Properties
   get workflowStages() {
-    return this.workflowEditorViewModel.getStages();
+    return this.workflowEditorViewModel.stages;
   }
 
-  get workflow() {
-    return this.workflowEditorViewModel.workflow;
+  get stageOrder() {
+    return this.workflowEditorViewModel.stageOrder;
   }
-
+  
   get applications(): Application[] {
     return this.rootStore.applications;
   }
@@ -120,20 +121,12 @@ export class JobTrackerViewModel {
     this.showImportModal = true;
   }
 
-  showEditWorkflowModal() {
-    this.showWorkflowModal = true;
-  }
-
   setShowAddModal(show: boolean) {
     this.showAddModal = show;
   }
 
   setShowImportModal(show: boolean) {
     this.showImportModal = show;
-  }
-
-  setShowWorkflowModal(show: boolean) {
-    this.showWorkflowModal = show;
   }
 
   setIsGmailModalOpen(show: boolean) {
@@ -235,5 +228,23 @@ export class JobTrackerViewModel {
 
   setShowHistory(show: boolean): void {
     this.showHistory = show;
+  }
+
+  @action
+  showEditWorkflowModal(): void {
+    const workflowViewModel = container.get<WorkflowEditorViewModel>(
+      SERVICE_IDENTIFIERS.WorkflowEditorViewModel
+    );
+    workflowViewModel.openModal();
+  }
+
+  @action
+  setShowWorkflowModal(show: boolean): void {
+    const workflowViewModel = container.get<WorkflowEditorViewModel>(
+      SERVICE_IDENTIFIERS.WorkflowEditorViewModel
+    );
+    if (!show) {
+      workflowViewModel.closeModal();
+    }
   }
 }

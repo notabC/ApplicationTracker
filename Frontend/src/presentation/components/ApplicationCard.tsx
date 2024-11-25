@@ -13,10 +13,10 @@ export const ApplicationCard: React.FC<Props> = observer(({ application, viewMod
   const [showStageSelect, setShowStageSelect] = useState(false);
 
   const getAvailableStages = (currentStage: string): string[] => {
-    const workflow = viewModel.workflow;
-    // const workflow = workflowService.getWorkflow();
-    const { stages, stage_order } = workflow;
+    const stages = viewModel.workflowStages;
+    const stage_order = viewModel.stageOrder;
     const currentStageObj = stages.find(s => s.name === currentStage);
+    
     if (!currentStageObj) return [];
 
     const currentIndex = stage_order.indexOf(currentStageObj.id);

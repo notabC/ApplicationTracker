@@ -10,9 +10,9 @@ import { GmailImportModal } from '@/presentation/components/modals/GmailImportMo
 import { EmailProcessingModal } from '../components/modals/EmailProcessingModal';
 import { ApplicationModal } from '../components/modals/ApplicationModal';
 import { StageColumn } from '../components/StageColumn'; // Updated import path
-import { WorkflowEditorModal } from '../components/modals/WorkflowEditorModal';
 import { ActivityHistoryModal } from '../components/modals/ActivityHistoryModal';
 import { AuthViewModel } from '../viewModels/AuthViewModel';
+import { WorkflowEditorModal } from '@/views/components/workflow/WorkflowEditorModal';
 
 export const JobTracker: React.FC = observer(() => {
   const viewModel = container.get<JobTrackerViewModel>(SERVICE_IDENTIFIERS.JobTrackerViewModel);
@@ -210,7 +210,6 @@ export const JobTracker: React.FC = observer(() => {
           
         {/* Workflow Editor Modal */}
         <WorkflowEditorModal
-          isOpen={viewModel.showWorkflowModal}
           onClose={() => viewModel.setShowWorkflowModal(false)}
         />
   

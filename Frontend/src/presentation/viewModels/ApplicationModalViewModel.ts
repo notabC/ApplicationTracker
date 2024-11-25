@@ -5,7 +5,7 @@ import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { Application, ApplicationLog } from '@/core/domain/models/Application';
 import type { IApplicationService, IViewModelUpdateField } from '@/core/interfaces/services';
 import { RootStore } from './RootStore';
-import { WorkflowEditorViewModel } from './WorkflowEditorViewModel';
+import { WorkflowEditorViewModel } from '@/viewModels/WorkflowEditorViewModel';
 
 @injectable()
 export class ApplicationModalViewModel implements IViewModelUpdateField {
@@ -101,8 +101,9 @@ export class ApplicationModalViewModel implements IViewModelUpdateField {
   }
 
   getAvailableStages(currentStage: string): string[] {
-    const workflow = this.workflowEditorViewModel.workflow;
-    const { stages, stage_order } = workflow;
+    const stages = this.workflowEditorViewModel.stages;
+    const stage_order = this.workflowEditorViewModel.stageOrder;
+
     const currentStageObj = stages.find(s => s.name === currentStage);
     if (!currentStageObj) return [];
 
@@ -116,8 +117,8 @@ export class ApplicationModalViewModel implements IViewModelUpdateField {
   }
 
   getStageColor(stageName: string): string {
-    const workflow = this.workflowEditorViewModel.workflow;
-    const stage = workflow.stages.find(s => s.name === stageName);
+    const stages = this.workflowEditorViewModel.stages;
+    const stage = stages.find(s => s.name === stageName);
     
     if (!stage) return 'gray';
     return stage.color;

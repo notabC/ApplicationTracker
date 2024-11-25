@@ -13,7 +13,6 @@ import { EmailProcessingViewModel } from '@/presentation/viewModels/EmailProcess
 import { ApplicationModalViewModel } from '@/presentation/viewModels/ApplicationModalViewModel';
 import { DragDropViewModel } from '@/presentation/viewModels/DragDropViewModel';
 import { UnsavedChangesViewModel } from '@/presentation/viewModels/UnsavedChangesViewModel';
-import { WorkflowEditorViewModel } from '@/presentation/viewModels/WorkflowEditorViewModel';
 import { IApplicationRepository } from '@/domain/repositories/ApplicationRepository';
 import { MockApplicationRepository } from '@/domain/repositories/MockApplicationRepository';
 import { IAnalyticsService } from '@/core/interfaces/services/IAnalyticsService';
@@ -24,6 +23,7 @@ import { RootStore } from '@/presentation/viewModels/RootStore';
 import { AuthViewModel } from '@/presentation/viewModels/AuthViewModel';
 import { AuthService } from '@/core/services/AuthService';
 import { ProtectedFeatureViewModel } from '@/presentation/viewModels/ProtectedFeatureViewModel';
+import { WorkflowEditorViewModel } from '@/viewModels/WorkflowEditorViewModel';
 
 export const container = new Container();
 
