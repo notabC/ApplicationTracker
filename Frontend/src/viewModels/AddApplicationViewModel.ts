@@ -2,7 +2,7 @@ import { injectable, inject } from 'inversify';
 import { makeAutoObservable, observable, action, computed, runInAction } from 'mobx';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import { Application } from '@/core/domain/models/Application';
-import { RootStore } from '../RootStore';
+import { RootStore } from '@/presentation/viewModels/RootStore';
 
 interface FormData {
   company: string;

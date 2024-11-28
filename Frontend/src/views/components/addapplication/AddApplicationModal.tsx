@@ -5,13 +5,13 @@ import {
   ClipboardList, DollarSign, MapPin, FileText,
   Loader, AlertCircle
 } from 'lucide-react';
-import { AddApplicationViewModel } from '../../../viewmodels/addapplication/AddApplicationViewModel';
 import { container } from '@/di/container';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import { ProtectedFeatureViewModel } from '@/presentation/viewModels/ProtectedFeatureViewModel';
-import { AuthModal } from '../AuthModal';
 import InputField from './InputField';
 import TextArea from './TextArea';
+import AuthModal from '@/presentation/components/AuthModal';
+import { AddApplicationViewModel } from '@/viewModels/AddApplicationViewModel';
 
 interface Props {
   isOpen: boolean;

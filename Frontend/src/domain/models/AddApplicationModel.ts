@@ -40,7 +40,7 @@ export class AddApplicationModel {
   validateForm(): boolean {
     const requiredFields: Array<keyof AddApplicationModel> = ['company', 'position'];
     for (const field of requiredFields) {
-      if (!this[field].trim()) {
+      if (typeof this[field] === 'string' && !this[field].trim()) {
         return false;
       }
     }

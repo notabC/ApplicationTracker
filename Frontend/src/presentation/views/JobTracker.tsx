@@ -5,7 +5,6 @@ import { Search, SlidersHorizontal, PlusCircle, Mail, Settings2, Clock, LineChar
 import { container } from '@/di/container';
 import { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
-import AddApplicationModal from '@/presentation/components/modals/AddApplicationModal';
 import { GmailImportModal } from '@/presentation/components/modals/GmailImportModal';
 import { EmailProcessingModal } from '../components/modals/EmailProcessingModal';
 import { ApplicationModal } from '../components/modals/ApplicationModal';
@@ -13,6 +12,7 @@ import { StageColumn } from '../components/StageColumn'; // Updated import path
 import { AuthViewModel } from '../viewModels/AuthViewModel';
 import { WorkflowEditorModal } from '@/views/components/workflow/WorkflowEditorModal';
 import { ActivityHistoryModal } from '@/views/components/activityHistory/ActivityHistoryModal';
+import AddApplicationModal from '@/views/components/addapplication/AddApplicationModal';
 
 export const JobTracker: React.FC = observer(() => {
   const viewModel = container.get<JobTrackerViewModel>(SERVICE_IDENTIFIERS.JobTrackerViewModel);

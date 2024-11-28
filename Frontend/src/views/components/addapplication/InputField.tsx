@@ -1,7 +1,7 @@
 import React from 'react';
 import { AlertCircle } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
-import { AddApplicationViewModel } from '@/viewmodels/addapplication/AddApplicationViewModel';
+import { AddApplicationViewModel } from '@/viewModels/AddApplicationViewModel';
 
 interface InputFieldProps {
   id: keyof AddApplicationViewModel['formData'];

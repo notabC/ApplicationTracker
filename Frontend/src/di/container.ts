@@ -4,7 +4,6 @@ import { WorkflowService } from '@/core/services/WorkflowService';
 import { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import { IApplicationService } from '@/core/interfaces/services';
-import { AddApplicationViewModel } from '@/viewmodels/addapplication/AddApplicationViewModel';
 import { GmailImportViewModel } from '@/presentation/viewModels/GmailImportViewModel';
 import { GmailService } from '@/core/services/GmailService';
 import { EmailService } from '@/core/services/EmailService';
@@ -24,6 +23,7 @@ import { ProtectedFeatureViewModel } from '@/presentation/viewModels/ProtectedFe
 import { WorkflowEditorViewModel } from '@/viewModels/WorkflowEditorViewModel';
 import { ActivityHistoryViewModel } from '@/viewModels/ActivityHistoryViewModel';
 import { IWorkflowService } from '@/domain/interfaces/IWorkflow';
+import { AddApplicationViewModel } from '@/viewModels/AddApplicationViewModel';
 
 export const container = new Container();
 
