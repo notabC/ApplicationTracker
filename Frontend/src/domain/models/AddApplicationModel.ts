@@ -1,25 +1,31 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, observable, action, computed } from 'mobx';
 import { Application } from '@/core/domain/models/Application';
 import { RootStore } from '@/presentation/viewModels/RootStore';
 
 export class AddApplicationModel {
-  company: string = '';
-  position: string = '';
-  type: string = 'frontend';
-  tags: string[] = ['frontend'];
-  description: string = '';
-  salary: string = '';
-  location: string = '';
-  notes: string = '';
+  @observable company: string = '';
+  @observable position: string = '';
+  @observable type: string = 'frontend';
+  @observable tags: string[] = ['frontend'];
+  @observable description: string = '';
+  @observable salary: string = '';
+  @observable location: string = '';
+  @observable notes: string = '';
+  @observable fieldErrors: Record<string, string> = {};
+
+  private readonly requiredFields: Array<keyof AddApplicationModel> = ['company', 'position'];
 
   constructor(private rootStore: RootStore) {
     makeAutoObservable(this);
   }
 
+  @action
   updateField(field: keyof AddApplicationModel, value: string | string[]): void {
     (this[field] as string | string[]) = value;
+    this.clearFieldError(field);
   }
 
+  @action
   toggleTag(tag: string): void {
     if (this.tags.includes(tag)) {
       this.tags = this.tags.filter(t => t !== tag);
@@ -28,6 +34,7 @@ export class AddApplicationModel {
     }
   }
 
+  @action
   resetForm(): void {
     this.company = '';
     this.position = '';
@@ -37,23 +44,59 @@ export class AddApplicationModel {
     this.salary = '';
     this.location = '';
     this.notes = '';
+    this.fieldErrors = {};
   }
 
+  @computed
+  get hasErrors(): boolean {
+    return Object.values(this.fieldErrors).some(error => error !== '');
+  }
+
+  @action
   validateForm(): boolean {
-    const requiredFields: Array<keyof AddApplicationModel> = ['company', 'position'];
-    for (const field of requiredFields) {
-      if (typeof this[field] === 'string' && !this[field].trim()) {
-        return false;
+    const errors: Record<string, string> = {};
+
+    // Required fields validation
+    this.requiredFields.forEach(field => {
+      const value = this[field];
+      if (typeof value === 'string' && !value.trim()) {
+        errors[field] = `${this.capitalize(field)} is required`;
+      }
+    });
+
+    // Salary format validation
+    if (this.salary.trim()) {
+      const salaryPattern = /^\$\d{1,3}(,\d{3})*(\.\d{2})?\s*-\s*\$\d{1,3}(,\d{3})*(\.\d{2})?$/;
+      if (!salaryPattern.test(this.salary)) {
+        errors.salary = 'Salary range format is invalid (e.g., $80,000 - $100,000)';
       }
     }
-    return true;
+
+    this.fieldErrors = errors;
+    return Object.keys(errors).length === 0;
   }
 
-  deepClone<T>(obj: T): T {
+  @action
+  clearFieldError(field: keyof AddApplicationModel): void {
+    if (this.fieldErrors[field]) {
+      const { [field]: removedError, ...rest } = this.fieldErrors;
+      this.fieldErrors = rest;
+    }
+  }
+
+  private capitalize(word: string): string {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }
+
+  private deepClone<T>(obj: T): T {
     return JSON.parse(JSON.stringify(obj));
   }
 
   async handleSubmit(): Promise<void> {
+    if (!this.validateForm()) {
+      throw new Error('Form validation failed');
+    }
+
     const currentDate = new Date().toISOString().split('T')[0];
     
     const newApplication: Application = {
@@ -72,7 +115,6 @@ export class AddApplicationModel {
       }]
     };
 
-    // Replace with your actual submission logic, e.g., API call
     await this.rootStore.addApplication(newApplication);
   }
 }
