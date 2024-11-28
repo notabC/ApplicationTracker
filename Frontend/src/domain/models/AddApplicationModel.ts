@@ -1,4 +1,6 @@
 import { makeAutoObservable } from 'mobx';
+import { Application } from '@/core/domain/models/Application';
+import { RootStore } from '@/presentation/viewModels/RootStore';
 
 export class AddApplicationModel {
   company: string = '';
@@ -10,7 +12,7 @@ export class AddApplicationModel {
   location: string = '';
   notes: string = '';
 
-  constructor() {
+  constructor(private rootStore: RootStore) {
     makeAutoObservable(this);
   }
 
@@ -49,5 +51,28 @@ export class AddApplicationModel {
 
   deepClone<T>(obj: T): T {
     return JSON.parse(JSON.stringify(obj));
+  }
+
+  async handleSubmit(): Promise<void> {
+    const currentDate = new Date().toISOString().split('T')[0];
+    
+    const newApplication: Application = {
+      id: Date.now().toString(),
+      ...this.deepClone(this),
+      dateApplied: currentDate,
+      stage: 'Resume Submitted',
+      lastUpdated: currentDate,
+      logs: [{
+        id: crypto.randomUUID(),
+        date: currentDate,
+        fromStage: null,
+        toStage: 'Resume Submitted',
+        message: 'Application created manually',
+        source: 'manual'
+      }]
+    };
+
+    // Replace with your actual submission logic, e.g., API call
+    await this.rootStore.addApplication(newApplication);
   }
 }

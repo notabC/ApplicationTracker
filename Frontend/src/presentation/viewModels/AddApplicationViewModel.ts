@@ -1,34 +1,12 @@
-// src/viewModels/AddApplicationViewModel.ts
-
 import { injectable, inject } from 'inversify';
 import { makeAutoObservable, observable, action, computed, runInAction } from 'mobx';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
-import { Application } from '@/core/domain/models/Application';
 import { RootStore } from './RootStore';
-
-interface FormData {
-  company: string;
-  position: string;
-  type: string;
-  tags: string[];
-  description: string;
-  salary: string;
-  location: string;
-  notes: string;
-}
+import { AddApplicationModel } from '@/domain/models/AddApplicationModel';
 
 @injectable()
 export class AddApplicationViewModel {
-  @observable formData: FormData = {
-    company: '',
-    position: '',
-    type: 'frontend',
-    tags: ['frontend'],
-    description: '',
-    salary: '',
-    location: '',
-    notes: ''
-  };
+  @observable formData: AddApplicationModel = new AddApplicationModel();
 
   @observable availableTags: string[] = ['frontend', 'backend', 'fullstack'];
 
@@ -38,7 +16,7 @@ export class AddApplicationViewModel {
   @observable fieldErrors: Record<string, string> = {};
 
   // Define required fields
-  private requiredFields: Array<keyof FormData> = ['company', 'position'];
+  private requiredFields: Array<keyof AddApplicationModel> = ['company', 'position'];
 
   constructor(
     @inject(SERVICE_IDENTIFIERS.RootStore) private rootStore: RootStore
@@ -76,7 +54,7 @@ export class AddApplicationViewModel {
   }
 
   @action
-  clearFieldError(field: keyof FormData) {
+  clearFieldError(field: keyof AddApplicationModel) {
     if (this.fieldErrors[field]) {
       const { [field]: removedError, ...rest } = this.fieldErrors;
       this.fieldErrors = rest;
@@ -84,22 +62,15 @@ export class AddApplicationViewModel {
   }
 
   @action
-  updateField(field: keyof FormData, value: string | string[]) {
-    this.formData = {
-      ...this.formData,
-      [field]: value
-    };
+  updateField(field: keyof AddApplicationModel, value: string | string[]) {
+    this.formData.updateField(field, value);
     // Clear error for the field being updated
     this.clearFieldError(field);
   }
 
   @action
   toggleTag(tag: string) {
-    if (this.formData.tags.includes(tag)) {
-      this.formData.tags = this.formData.tags.filter(t => t !== tag);
-    } else {
-      this.formData.tags.push(tag);
-    }
+    this.formData.toggleTag(tag);
   }
 
   @action
@@ -109,7 +80,7 @@ export class AddApplicationViewModel {
     const newTag = prompt('Enter a new tag:');
     if (newTag && !this.availableTags.includes(newTag.trim())) {
       this.availableTags.push(newTag.trim());
-      this.formData.tags.push(newTag.trim());
+      this.formData.toggleTag(newTag.trim());
     }
   }
 
@@ -119,27 +90,7 @@ export class AddApplicationViewModel {
     this.error = null;
 
     try {
-      const currentDate = new Date().toISOString().split('T')[0];
-      
-      const newApplication: Application = {
-        id: Date.now().toString(),
-        ...this.formData,
-        dateApplied: currentDate,
-        stage: 'Resume Submitted',
-        lastUpdated: currentDate,
-        logs: [{
-          id: crypto.randomUUID(),
-          date: currentDate,
-          fromStage: null,
-          toStage: 'Resume Submitted',
-          message: 'Application created manually',
-          source: 'manual'
-        }]
-      };
-
-      // Replace with your actual submission logic, e.g., API call
-      await this.rootStore.addApplication(newApplication);
-
+      await this.formData.handleSubmit();
       runInAction(() => {
         this.submissionSuccessful = true;
       });
@@ -157,16 +108,7 @@ export class AddApplicationViewModel {
 
   @action
   resetForm() {
-    this.formData = {
-      company: '',
-      position: '',
-      type: 'frontend',
-      tags: ['frontend'],
-      description: '',
-      salary: '',
-      location: '',
-      notes: ''
-    };
+    this.formData.resetForm();
     this.fieldErrors = {};
     this.error = null;
     this.submissionSuccessful = false;
