@@ -32,26 +32,7 @@ export class AddApplicationViewModel {
 
   @action
   validateForm(): boolean {
-    const errors: Record<string, string> = {};
-
-    this.requiredFields.forEach(field => {
-      const value = this.formData[field];
-      if (typeof value === 'string' && !value.trim()) {
-        errors[field] = `${this.capitalize(field)} is required`;
-      }
-    });
-
-    // Additional validations
-    // Example: Validate salary range format
-    if (this.formData.salary.trim()) {
-      const salaryPattern = /^\$\d{1,3}(,\d{3})*(\.\d{2})?\s*-\s*\$\d{1,3}(,\d{3})*(\.\d{2})?$/;
-      if (!salaryPattern.test(this.formData.salary)) {
-        errors.salary = 'Salary range format is invalid (e.g., $80,000 - $100,000)';
-      }
-    }
-
-    this.fieldErrors = errors;
-    return Object.keys(errors).length === 0;
+    return this.formData.validateForm();
   }
 
   @action
