@@ -6,7 +6,7 @@ import { AddApplicationModel } from '@/domain/models/AddApplicationModel';
 
 @injectable()
 export class AddApplicationViewModel {
-  @observable formData: AddApplicationModel = new AddApplicationModel();
+  @observable formData: AddApplicationModel;
 
   @observable availableTags: string[] = ['frontend', 'backend', 'fullstack'];
 
@@ -22,6 +22,7 @@ export class AddApplicationViewModel {
     @inject(SERVICE_IDENTIFIERS.RootStore) private rootStore: RootStore
   ) {
     makeAutoObservable(this);
+    this.formData = new AddApplicationModel(this.rootStore);
   }
 
   @computed
