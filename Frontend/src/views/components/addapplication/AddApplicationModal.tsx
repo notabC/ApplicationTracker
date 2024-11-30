@@ -12,13 +12,9 @@ import InputField from './InputField';
 import TextArea from './TextArea';
 import AuthModal from '@/presentation/components/AuthModal';
 import { AddApplicationViewModel } from '@/viewModels/AddApplicationViewModel';
+import { IAddApplicationModalProps } from '@/domain/interfaces/IAddApplication';
 
-interface Props {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-const AddApplicationModal: React.FC<Props> = observer(({ isOpen, onClose }) => {
+const AddApplicationModal: React.FC<IAddApplicationModalProps> = observer(({ isOpen, onClose }) => {
   const [showErrorSummary, setShowErrorSummary] = useState(false);
   const protectedFeatureViewModel = container.get<ProtectedFeatureViewModel>(
     SERVICE_IDENTIFIERS.ProtectedFeatureViewModel

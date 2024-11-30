@@ -28,3 +28,8 @@ export interface IAddApplicationModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+export interface IAddApplicationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
