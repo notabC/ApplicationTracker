@@ -5,6 +5,7 @@ import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { Application } from '@/core/domain/models/Application';
 import type { IViewModelUpdateField } from '@/core/interfaces/services';
 import { ApplicationModel } from '@/domain/models/ApplicationModel';
+import { UnsavedChangesViewModel } from '@/presentation/viewModels/UnsavedChangesViewModel';
 
 @injectable()
 export class ApplicationModalViewModel implements IViewModelUpdateField {
@@ -13,7 +14,8 @@ export class ApplicationModalViewModel implements IViewModelUpdateField {
   @observable unsavedChanges: Partial<Application> = {};
 
   constructor(
-    @inject(SERVICE_IDENTIFIERS.ApplicationModel) private applicationModel: ApplicationModel
+    @inject(SERVICE_IDENTIFIERS.ApplicationModel) private applicationModel: ApplicationModel,
+    @inject(SERVICE_IDENTIFIERS.UnsavedChangesViewModel) private unsavedChangesVM: UnsavedChangesViewModel
   ) {
     makeAutoObservable(this);
   }
@@ -32,6 +34,39 @@ export class ApplicationModalViewModel implements IViewModelUpdateField {
     }
   }
 
+  /**
+   * Handles field changes by delegating tracking to UnsavedChangesViewModel.
+   * @param application The current application.
+   * @param field The field being updated.
+   * @param value The new value for the field.
+   * @param trackChanges Whether to track this change.
+   */
+  @action
+  handleFieldChange(
+    application: Application,
+    field: keyof Application,
+    value: any,
+    trackChanges: boolean = false
+  ): void {
+    if (trackChanges) {
+      const originalValue = application[field];
+      this.unsavedChangesVM.trackChange(
+        application.id.toString(),
+        field,
+        value,
+        originalValue,
+        this
+      );
+    }
+    this.updateField(application.id, field, value);
+  }
+
+  /**
+   * Updates the local unsavedChanges state.
+   * @param _applicationId The ID of the application being updated.
+   * @param field The field to update.
+   * @param value The new value for the field.
+   */
   @action
   updateField<K extends keyof Application>(
     _applicationId: string,
@@ -44,19 +79,26 @@ export class ApplicationModalViewModel implements IViewModelUpdateField {
     };
   }
 
+  /**
+   * Saves all unsaved changes by delegating to ApplicationModel.
+   * @param application The current application.
+   */
   @action
   async saveChanges(application: Application): Promise<void> {
     if (!this.hasUnsavedChanges) return;
 
-    const updates: Partial<Application> = {
-      ...this.unsavedChanges,
-      lastUpdated: new Date().toISOString().split('T')[0]
-    };
-
-    await this.applicationModel.updateApplication(application.id, updates);
+    await this.applicationModel.updateApplication(
+      application.id,
+      this.unsavedChanges
+    );
     this.discardChanges();
   }
 
+  /**
+   * Handles stage changes by delegating to ApplicationModel.
+   * @param application The current application.
+   * @param newStage The new stage to set.
+   */
   @action
   async handleStageChange(
     application: Application,
@@ -66,9 +108,13 @@ export class ApplicationModalViewModel implements IViewModelUpdateField {
     this.setShowStageSelect(false);
   }
 
+  /**
+   * Discards all unsaved changes.
+   */
   @action
   discardChanges(): void {
     this.unsavedChanges = {};
+    this.unsavedChangesVM.discardChanges();
   }
 
   @computed
@@ -88,6 +134,9 @@ export class ApplicationModalViewModel implements IViewModelUpdateField {
     return this.applicationModel.formatDate(date);
   }
 
+  /**
+   * Resets the ViewModel state.
+   */
   reset(): void {
     this.showStageSelect = false;
     this.expandedLogs.clear();

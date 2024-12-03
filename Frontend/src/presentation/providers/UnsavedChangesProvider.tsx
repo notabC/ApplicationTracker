@@ -1,5 +1,5 @@
 // src/presentation/providers/UnsavedChangesProvider.tsx
-import React, { createContext, useContext } from 'react';
+import React, { createContext } from 'react';
 import { observer } from 'mobx-react-lite';
 import { container } from '@/di/container';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
@@ -13,14 +13,6 @@ interface UnsavedChangesContextProps {
 }
 
 const UnsavedChangesContext = createContext<UnsavedChangesContextProps | null>(null);
-
-export const useUnsavedChanges = () => {
-  const context = useContext(UnsavedChangesContext);
-  if (!context) {
-    throw new Error('useUnsavedChanges must be used within UnsavedChangesProvider');
-  }
-  return context;
-};
 
 interface Props {
   children: React.ReactNode;

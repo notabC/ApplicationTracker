@@ -1,3 +1,4 @@
+// src/presentation/components/ApplicationModal.tsx
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import {
@@ -12,7 +13,6 @@ import type { Application } from '@/core/domain/models/Application';
 import { EditableField } from '../EditableField';
 import { TagManager } from '../TagManager';
 import { StageSelector } from '../StageSelector';
-import { useUnsavedChanges } from '@/presentation/providers/UnsavedChangesProvider';
 import { RootStore } from '@/presentation/viewModels/RootStore';
 
 interface Props {
@@ -30,18 +30,9 @@ export const ApplicationModal: React.FC<Props> = observer(({
   totalApplications,
   currentIndex
 }) => {
-  const { trackChange } = useUnsavedChanges();
   const viewModel = container.get<ApplicationModalViewModel>(SERVICE_IDENTIFIERS.ApplicationModalViewModel);
   const rootStore = container.get<RootStore>(SERVICE_IDENTIFIERS.RootStore);
   const updatedApplication = rootStore.getApplicationById(application.id) || application;
-
-  const handleFieldChange = (field: keyof Application, value: any, track=false) => {
-    const originalValue = application[field];
-    if (track) {
-      trackChange(application.id.toString(), field, value, originalValue, viewModel);
-    }
-    viewModel.updateField(application.id, field, value);
-  };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -62,16 +53,16 @@ export const ApplicationModal: React.FC<Props> = observer(({
             <div className="flex flex-col gap-2 flex-1 min-w-0">
               <input
                 type="text"
-                value={viewModel.unsavedChanges.company !== undefined ? viewModel.unsavedChanges.company : application.company}
-                onChange={(e) => handleFieldChange('company', e.target.value, true)}
+                value={viewModel.unsavedChanges.company ?? application.company}
+                onChange={(e) => viewModel.handleFieldChange(application, 'company', e.target.value, true)}
                 className="text-xl font-medium text-white bg-transparent hover:bg-[#282c34] 
                          px-3 py-1.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30
                          transition-all duration-200 w-full"
               />
               <input
                 type="text"
-                value={viewModel.unsavedChanges.position !== undefined ? viewModel.unsavedChanges.position : application.position}
-                onChange={(e) => handleFieldChange('position', e.target.value, true)}
+                value={viewModel.unsavedChanges.position ?? application.position}
+                onChange={(e) => viewModel.handleFieldChange(application, 'position', e.target.value, true)}
                 className="text-sm text-gray-400 bg-transparent hover:bg-[#282c34]
                          px-3 py-1.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30
                          transition-all duration-200 w-full"
@@ -102,8 +93,8 @@ export const ApplicationModal: React.FC<Props> = observer(({
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
                 <EditableField
-                  value={application.description}
-                  onChange={(value) => handleFieldChange('description', value)}
+                  value={updatedApplication.description}
+                  onChange={(value) => viewModel.handleFieldChange(application, 'description', value, false)}
                   application={application}
                   field="description"
                   label='Description'
@@ -113,8 +104,8 @@ export const ApplicationModal: React.FC<Props> = observer(({
 
               <div>
                 <EditableField
-                  value={application.salary}
-                  onChange={(value) => handleFieldChange('salary', value)}
+                  value={updatedApplication.salary}
+                  onChange={(value) => viewModel.handleFieldChange(application, 'salary', value, false)}
                   application={application}
                   field="salary"
                   label='Salary Range'
@@ -124,8 +115,8 @@ export const ApplicationModal: React.FC<Props> = observer(({
 
               <div>
                 <EditableField
-                  value={application.location}
-                  onChange={(value) => handleFieldChange('location', value)}
+                  value={updatedApplication.location}
+                  onChange={(value) => viewModel.handleFieldChange(application, 'location', value, false)}
                   application={application}
                   field="location"
                   label='Location'
@@ -135,8 +126,8 @@ export const ApplicationModal: React.FC<Props> = observer(({
 
               <div className="col-span-2">
                 <EditableField
-                  value={application.notes}
-                  onChange={(value) => handleFieldChange('notes', value)}
+                  value={updatedApplication.notes}
+                  onChange={(value) => viewModel.handleFieldChange(application, 'notes', value, false)}
                   application={application}
                   field="notes"
                   label='Notes'
@@ -146,8 +137,8 @@ export const ApplicationModal: React.FC<Props> = observer(({
             </div>
 
             <TagManager
-              tags={application.tags}
-              onTagsUpdate={(tags) => handleFieldChange('tags', tags)}
+              tags={updatedApplication.tags}
+              onTagsUpdate={(tags) => viewModel.handleFieldChange(application, 'tags', tags, false)}
             />
 
             {/* Status Log */}
@@ -158,7 +149,7 @@ export const ApplicationModal: React.FC<Props> = observer(({
               </div>
               
               <div className="space-y-3">
-                {application.logs.slice().reverse().map((log) => (
+                {updatedApplication.logs.slice().reverse().map((log) => (
                   <div 
                     key={log.id}
                     className={`bg-[#282c34] rounded-xl border border-gray-800/50
