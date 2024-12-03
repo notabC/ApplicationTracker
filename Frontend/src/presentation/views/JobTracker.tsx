@@ -7,12 +7,12 @@ import { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewMod
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import { GmailImportModal } from '@/presentation/components/modals/GmailImportModal';
 import { EmailProcessingModal } from '../components/modals/EmailProcessingModal';
-import { ApplicationModal } from '../components/modals/ApplicationModal';
 import { StageColumn } from '../components/StageColumn'; // Updated import path
 import { AuthViewModel } from '../viewModels/AuthViewModel';
 import { WorkflowEditorModal } from '@/views/components/workflow/WorkflowEditorModal';
 import { ActivityHistoryModal } from '@/views/components/activityHistory/ActivityHistoryModal';
 import AddApplicationModal from '@/views/components/addapplication/AddApplicationModal';
+import { ApplicationModal } from '@/views/components/applicationModal/ApplicationModal';
 
 export const JobTracker: React.FC = observer(() => {
   const viewModel = container.get<JobTrackerViewModel>(SERVICE_IDENTIFIERS.JobTrackerViewModel);
