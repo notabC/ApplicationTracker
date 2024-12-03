@@ -1,3 +1,4 @@
+from app.config import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import applications, workflow, email, gmail
@@ -16,7 +17,7 @@ app = FastAPI(title="Job Tracker API")
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Update this with your frontend URL in production
+    allow_origins=[settings.FRONTEND_URL],  # Update this with your frontend URL in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
