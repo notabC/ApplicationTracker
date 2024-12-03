@@ -8,6 +8,7 @@ import { JobTracker } from './presentation/views/JobTracker';
 import { PrivacyPolicy } from './views/Privacy';
 import { Login } from './presentation/components/Login';
 import { PrivateRoute } from './presentation/components/PrivateRoute';
+import LandingPage from './views/LandingPage';
 
 const App: React.FC = () => {
   return (
@@ -28,6 +29,7 @@ const App: React.FC = () => {
             <Route path="/analytics" element={<AnalyticsView />} />
             <Route path='/privacy' element={<PrivacyPolicy />} />
             <Route path='/login' element={<Login />} />
+            <Route path='/home' element={<LandingPage />} />
             {/* Add other routes as needed */}
           </Routes>
         </UnsavedChangesProvider>
