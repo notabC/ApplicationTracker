@@ -2,7 +2,7 @@ import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { container } from '@/di/container';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
-import { EmailProcessingViewModel } from '@/presentation/viewModels/EmailProcessingViewModel';
+import { EmailProcessingViewModel } from '@/viewModels/EmailProcessingViewModel';
 import type { Email } from '@/core/interfaces/services/IEmailService';
 import { X, Mail, Search, BuildingIcon, Briefcase } from 'lucide-react';
 
@@ -17,11 +17,6 @@ export const EmailProcessingModal: React.FC<Props> = observer(({
 }) => {
   const viewModel = container.get<EmailProcessingViewModel>(SERVICE_IDENTIFIERS.EmailProcessingViewModel);
 
-  const handleClose = () => {
-    viewModel.reset();
-    onClose();
-  };
-
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-[#1a1d24] rounded-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-800/50">
@@ -34,7 +29,7 @@ export const EmailProcessingModal: React.FC<Props> = observer(({
             <h2 className="text-xl font-medium text-white">Process Email</h2>
           </div>
           <button 
-            onClick={handleClose} 
+            onClick={() => { viewModel.reset(); onClose(); }} 
             className="p-2 hover:bg-gray-800/50 rounded-xl transition-colors duration-200"
           >
             <X className="h-5 w-5 text-gray-400" />
@@ -120,7 +115,7 @@ export const EmailProcessingModal: React.FC<Props> = observer(({
                       
                       {/* Available Stages */}
                       <div className="grid grid-cols-2 gap-2">
-                        {viewModel.getAvailableStages(app.stage).map(stage => (
+                        {viewModel.availableStages(app.stage).map(stage => (
                           <button
                             key={stage}
                             onClick={async () => {

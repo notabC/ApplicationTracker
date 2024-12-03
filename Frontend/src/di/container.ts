@@ -7,7 +7,7 @@ import { IApplicationService } from '@/core/interfaces/services';
 import { GmailImportViewModel } from '@/presentation/viewModels/GmailImportViewModel';
 import { GmailService } from '@/core/services/GmailService';
 import { EmailService } from '@/core/services/EmailService';
-import { EmailProcessingViewModel } from '@/presentation/viewModels/EmailProcessingViewModel';
+import { EmailProcessingViewModel } from '@/viewModels/EmailProcessingViewModel';
 import { DragDropViewModel } from '@/presentation/viewModels/DragDropViewModel';
 import { UnsavedChangesViewModel } from '@/presentation/viewModels/UnsavedChangesViewModel';
 import { IApplicationRepository } from '@/domain/repositories/ApplicationRepository';
