@@ -17,7 +17,7 @@ app = FastAPI(title="Job Tracker API")
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_URL],  # Update this with your frontend URL in production
+    allow_origins=["http://localhost:3000", "https://trackwise.pro"],  # Update this with your frontend URL in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
