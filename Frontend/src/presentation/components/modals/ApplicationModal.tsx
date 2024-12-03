@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { container } from '@/di/container';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
-import { ApplicationModalViewModel } from '@/presentation/viewModels/ApplicationModalViewModel';
+import { ApplicationModalViewModel } from '@/viewModels/ApplicationModalViewModel';
 import type { Application } from '@/core/domain/models/Application';
 import { EditableField } from '../EditableField';
 import { TagManager } from '../TagManager';

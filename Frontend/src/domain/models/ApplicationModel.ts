@@ -1,18 +1,14 @@
-// src/presentation/viewModels/ApplicationModalViewModel.ts
-import { makeAutoObservable, runInAction, computed, action, observable } from 'mobx';
+// src/domain/models/ApplicationModel.ts
+import { makeAutoObservable } from 'mobx';
 import { inject, injectable } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { Application, ApplicationLog } from '@/core/domain/models/Application';
-import type { IApplicationService, IViewModelUpdateField } from '@/core/interfaces/services';
-import { RootStore } from './RootStore';
+import type { IApplicationService } from '@/core/interfaces/services';
 import { WorkflowEditorViewModel } from '@/viewModels/WorkflowEditorViewModel';
+import { RootStore } from '@/presentation/viewModels/RootStore';
 
 @injectable()
-export class ApplicationModalViewModel implements IViewModelUpdateField {
-  @observable showStageSelect = false;
-  @observable expandedLogs = new Set<string>();
-  @observable unsavedChanges: Partial<Application> = {};
-
+export class ApplicationModel {
   constructor(
     @inject(SERVICE_IDENTIFIERS.ApplicationService) private applicationService: IApplicationService,
     @inject(SERVICE_IDENTIFIERS.WorkflowEditorViewModel) private workflowEditorViewModel: WorkflowEditorViewModel,
@@ -21,53 +17,19 @@ export class ApplicationModalViewModel implements IViewModelUpdateField {
     makeAutoObservable(this);
   }
 
-  @action
-  setShowStageSelect(show: boolean): void {
-    this.showStageSelect = show;
-  }
-
-  @action
-  toggleLogExpansion(logId: string): void {
-    if (this.expandedLogs.has(logId)) {
-      this.expandedLogs.delete(logId);
-    } else {
-      this.expandedLogs.add(logId);
-    }
-  }
-
-  @action
-  updateField<K extends keyof Application>(
-    _applicationId: string,
-    field: K,
-    value: Application[K]
-  ): void {
-    this.unsavedChanges = {
-      ...this.unsavedChanges,
-      [field]: value
-    };
-  }
-
-  @action
-  async saveChanges(application: Application): Promise<void> {
-    if (Object.keys(this.unsavedChanges).length === 0) return;
-
+  async updateApplication(applicationId: string, updates: Partial<Application>): Promise<void> {
     const updatedApplication = {
-      ...application,
-      ...this.unsavedChanges,
+      ...updates,
       lastUpdated: new Date().toISOString().split('T')[0]
     };
 
-    await this.applicationService.updateApplication(updatedApplication.id, updatedApplication);
-    runInAction(() => {
-      this.unsavedChanges = {};
-    });
+    await this.applicationService.updateApplication(applicationId, updatedApplication);
   }
 
-  @action
-  async handleStageChange(
+  async createStageChangeLog(
     application: Application,
     newStage: string
-  ): Promise<void> {
+  ): Promise<Application> {
     const currentDate = new Date().toISOString().split('T')[0];
     const newLog: ApplicationLog = {
       id: crypto.randomUUID(),
@@ -78,26 +40,15 @@ export class ApplicationModalViewModel implements IViewModelUpdateField {
       source: 'manual'
     };
 
-    const updatedApplication = {
+    const updatedApplication: Application = {
       ...application,
       stage: newStage,
       lastUpdated: currentDate,
       logs: [...application.logs, newLog]
     };
 
-    this.rootStore.updateApplication(updatedApplication);
-    this.setShowStageSelect(false);
-    
-  }
-
-  @action
-  discardChanges(): void {
-    this.unsavedChanges = {};
-  }
-
-  @computed
-  get hasUnsavedChanges(): boolean {
-    return Object.keys(this.unsavedChanges).length > 0;
+    await this.rootStore.updateApplication(updatedApplication);
+    return updatedApplication;
   }
 
   getAvailableStages(currentStage: string): string[] {
@@ -119,9 +70,7 @@ export class ApplicationModalViewModel implements IViewModelUpdateField {
   getStageColor(stageName: string): string {
     const stages = this.workflowEditorViewModel.stages;
     const stage = stages.find(s => s.name === stageName);
-    
-    if (!stage) return 'gray';
-    return stage.color;
+    return stage?.color ?? 'gray';
   }
 
   formatDate(date: string): string {
@@ -130,11 +79,5 @@ export class ApplicationModalViewModel implements IViewModelUpdateField {
       month: 'short',
       day: 'numeric'
     });
-  }
-
-  reset(): void {
-    this.showStageSelect = false;
-    this.expandedLogs.clear();
-    this.unsavedChanges = {};
   }
 }

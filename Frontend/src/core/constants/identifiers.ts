@@ -21,4 +21,5 @@ export const SERVICE_IDENTIFIERS = {
   AuthService: Symbol('AuthService'),
   AuthViewModel: Symbol('AuthViewModel'),
   ProtectedFeatureViewModel: Symbol('ProtectedFeatureViewModel'),
+  ApplicationModel: Symbol('ApplicationModel'),
 };
