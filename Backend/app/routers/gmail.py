@@ -38,7 +38,7 @@ async def auth_callback(code: str, state: str):
         )
         
         credentials, user = await gmail_service.store_credentials(state, flow, code)
-        return RedirectResponse(url=f"{settings.FRONTEND_URL}")
+        return RedirectResponse(url=f"{settings.FRONTEND_URL}/dashboard")
         
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
