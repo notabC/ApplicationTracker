@@ -1,45 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  ResponsiveContainer,
-  Tooltip,
-} from 'recharts';
-import {
-  ArrowRight,
-  LayoutDashboard,
-  Mail,
-  Clock,
-} from 'lucide-react';
+import { LineChart, Line, AreaChart, Area, BarChart, Bar, ResponsiveContainer, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { ArrowRight, LayoutDashboard, Mail, Clock } from 'lucide-react';
 
-// Types for Intersection Observer options
-interface IntersectionObserverOptions {
-  root?: Element | null;
-  rootMargin?: string;
-  threshold?: number | number[];
-}
-
-// Custom Hook: useIntersectionObserver
-const useIntersectionObserver = (
-  options: IntersectionObserverOptions
-): [React.RefObject<HTMLDivElement>, boolean] => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState<boolean>(false);
+const useIntersectionObserver = (options: IntersectionObserverInit) => {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      options
-    );
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setIsVisible(true);
+        observer.disconnect();
+      }
+    }, options);
 
     if (ref.current) {
       observer.observe(ref.current);
@@ -53,85 +26,51 @@ const useIntersectionObserver = (
   return [ref, isVisible];
 };
 
-// Props for Input component
-interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
-  className?: string;
-}
 
-// Input Component
-const Input: React.FC<InputProps> = ({ className = '', ...props }) => (
+const Input = ({ className, ...props }: { className?: string; [key: string]: any }) => (
   <input
     {...props}
     className={`p-2.5 sm:p-3 bg-gray-800/50 border border-gray-700/50 text-gray-300 placeholder-gray-500 text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500/30 ${className}`}
   />
 );
 
-// Props for Button component
-interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  className?: string;
-}
-
-// Button Component
-const Button: React.FC<ButtonProps> = ({ className = '', ...props }) => (
+const Button = ({ className, ...props }: { className?: string; [key: string]: any }) => (
   <button
     {...props}
     className={`px-3 sm:px-4 py-2.5 text-sm font-medium rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500/30 ${className}`}
   />
 );
 
-// Data type for charts
-interface ChartData {
-  value: number;
-}
-
-// LandingPage Component
-const LandingPage: React.FC = () => {
-  const [email, setEmail] = useState<string>('');
-  const [animatedData, setAnimatedData] = useState<ChartData[]>([]);
+const LandingPage = () => {
+  const [email, setEmail] = useState('');
+  const [animatedData, setAnimatedData] = useState<{ value: number }[]>([]);
 
   // Intersection Observer for StatsCard
   const [statsRef, statsVisible] = useIntersectionObserver({
     threshold: 0.1,
-  });
+  }) as [React.MutableRefObject<HTMLDivElement | null>, boolean];
 
   // Initial Data Sets
-  const lineData: ChartData[] = [
-    { value: 10 },
-    { value: 40 },
-    { value: 30 },
-    { value: 50 },
-    { value: 45 },
-    { value: 60 },
+  const lineData = [
+    { value: 10 }, { value: 40 }, { value: 30 },
+    { value: 50 }, { value: 45 }, { value: 60 }
   ];
-
-  const areaData: ChartData[] = [
-    { value: 20 },
-    { value: 45 },
-    { value: 35 },
-    { value: 55 },
-    { value: 40 },
-    { value: 65 },
+  
+  const areaData = [
+    { value: 20 }, { value: 45 }, { value: 35 },
+    { value: 55 }, { value: 40 }, { value: 65 }
   ];
-
-  const barData: ChartData[] = [
-    { value: 15 },
-    { value: 35 },
-    { value: 25 },
-    { value: 45 },
-    { value: 35 },
-    { value: 55 },
+  
+  const barData = [
+    { value: 15 }, { value: 35 }, { value: 25 },
+    { value: 45 }, { value: 35 }, { value: 55 }
   ];
 
   // Animation effect for Line Chart data
   useEffect(() => {
     const animateData = () => {
-      const newData = lineData.map((item) => ({
-        value: Math.max(
-          0,
-          Math.min(100, item.value + (Math.random() * 10 - 5))
-        ),
+      const newData = lineData.map(item => ({
+        value: Math.max(0, Math.min(100, item.value + (Math.random() * 10 - 5)))
       }));
       setAnimatedData(newData);
     };
@@ -141,7 +80,7 @@ const LandingPage: React.FC = () => {
 
     const interval = setInterval(animateData, 1500);
     return () => clearInterval(interval);
-  }, [lineData]);
+  }, []);
 
   // Custom Cursor Effect
   useEffect(() => {
@@ -149,7 +88,7 @@ const LandingPage: React.FC = () => {
     cursor.classList.add('custom-cursor');
     document.body.appendChild(cursor);
 
-    const moveCursor = (e: MouseEvent) => {
+    const moveCursor = (e: { clientX: any; clientY: any; }) => {
       cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
     };
 
@@ -162,19 +101,15 @@ const LandingPage: React.FC = () => {
   }, []);
 
   return (
-    <>
+    <>      
       <div
         className="min-h-screen w-full bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 bg-grid-white relative"
-        onTouchStart={() => {
-          /* Handle touch start */
-        }}
-        onTouchMove={() => {
-          /* Handle touch move */
-        }}
+        onTouchStart={() => { /* Handle touch start */ }}
+        onTouchMove={() => { /* Handle touch move */ }}
       >
         {/* Grain Overlay */}
         <div className="grain-overlay"></div>
-
+        
         {/* Navbar with Glassmorphism */}
         <nav className="sticky top-0 z-50 backdrop-blur-md bg-gray-950/60 border-b border-gray-800/50">
           <div className="w-full mx-auto px-6 py-4">
@@ -183,15 +118,10 @@ const LandingPage: React.FC = () => {
                 <div className="relative group">
                   <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
                   <div className="relative bg-gray-900 rounded-xl p-2">
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-400 font-bold text-lg">
-                      {/* add a picture and the path is /logo.png */}
-                        <img src="/logo.png" alt="logo" className="h-8" />
-                    </span>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-400 font-bold text-lg">TW</span>
                   </div>
                 </div>
-                <span className="text-white font-medium text-xl">
-                  Trackwise
-                </span>
+                <span className="text-white font-medium text-xl">TrackWise</span>
               </div>
               {/* Additional Navbar Items (if any) can be added here */}
             </div>
@@ -209,8 +139,7 @@ const LandingPage: React.FC = () => {
               </span>
             </h1>
             <p className="text-base sm:text-lg lg:text-xl text-gray-300 mb-8 leading-relaxed mx-auto max-w-2xl font-cabinet-grotesk fade-in-up">
-              Intelligent tracking and analytics to help you land your dream job
-              faster
+              Intelligent tracking and analytics to help you land your dream job faster
             </p>
 
             {/* Waitlist Form with Glassmorphism & Neumorphism */}
@@ -221,7 +150,7 @@ const LandingPage: React.FC = () => {
                   type="email"
                   placeholder="Enter your email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e: { target: { value: React.SetStateAction<string>; }; }) => setEmail(e.target.value)}
                   className="flex-1 h-10 px-3 bg-gray-800/50 border border-gray-700/50 text-gray-300 placeholder:text-gray-500 text-sm rounded-md focus-visible:ring-emerald-500/30"
                 />
                 <Button className="h-10 px-4 sm:w-auto text-sm font-medium bg-gradient-to-r from-emerald-500 to-blue-500 text-white rounded-md transition-all duration-300 hover:scale-105">
@@ -236,24 +165,24 @@ const LandingPage: React.FC = () => {
 
           {/* Stats Grid with Different Chart Types */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8 mt-24 mb-24 px-2 sm:px-6 mx-auto w-full max-w-6xl">
-            <StatsCard
-              title="Application Trends"
+            <StatsCard 
+              title="Application Trends" 
               description="Real-time view of your application progress"
               data={animatedData.length ? animatedData : lineData}
               type="line"
               ref={statsRef}
               isVisible={statsVisible}
             />
-            <StatsCard
-              title="Success Rate"
+            <StatsCard 
+              title="Success Rate" 
               description="Track your application success over time"
               data={areaData}
               type="area"
               ref={statsRef}
               isVisible={statsVisible}
             />
-            <StatsCard
-              title="Weekly Progress"
+            <StatsCard 
+              title="Weekly Progress" 
               description="Applications submitted per week"
               data={barData}
               type="bar"
@@ -280,9 +209,7 @@ const LandingPage: React.FC = () => {
         </div>
 
         {/* Floating Action Button */}
-        <button 
-            onClick={() => window.location.href = '/'}
-            className="fixed bottom-6 right-6 p-4 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 shadow-lg shadow-emerald-500/20 hover:scale-110 transition-transform">
+        <button className="fixed bottom-6 right-6 p-4 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 shadow-lg shadow-emerald-500/20 hover:scale-110 transition-transform">
           <LayoutDashboard className="w-6 h-6 text-white" />
         </button>
       </div>
@@ -290,142 +217,127 @@ const LandingPage: React.FC = () => {
   );
 };
 
-// Props for StatsCard component
+
+// Define the shape of your data points
+interface DataPoint {
+  value: number;
+}
+
+// Define the props for the StatsCard component
 interface StatsCardProps {
   title: string;
   description: string;
-  data: ChartData[];
+  data: DataPoint[];
   type: 'line' | 'area' | 'bar';
   isVisible: boolean;
 }
 
-// StatsCard Component with ForwardRef
+// ForwardRef is used if you need to pass refs to the component
 const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
-  ({ title, description, data, type, isVisible }, ref) => (
-    <div
-      ref={ref}
-      className={`group relative w-full fade-in-up ${
-        isVisible ? 'visible' : ''
-      } stats-card`}
-    >
-      <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/50 to-blue-500/50 rounded-3xl blur opacity-20 group-hover:opacity-30 transition duration-500"></div>
-      <div className="relative p-4 backdrop-blur-xl bg-gray-900/80 rounded-3xl border border-gray-800/50 transition duration-300 hover:translate-y-[-2px] w-full">
-        <div className="flex flex-col space-y-2 mb-2">
-          <h3 className="font-semibold text-white">{title}</h3>
-          <p className="text-gray-400 text-sm">{description}</p>
-        </div>
+  ({ title, description, data, type, isVisible }, ref) => {
+    // Initialize the chart component as null
+    let ChartComponent: React.ReactElement = <div>No chart available</div>;
 
-        <div className="w-full h-[100px] mt-4">
+    // Determine which chart to render based on the 'type' prop
+    if (type === 'line') {
+      ChartComponent = (
+        <LineChart data={data}>
+          <defs>
+            <linearGradient id="gradientLine" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+              <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <XAxis dataKey="name" />
+          <YAxis />
+          <CartesianGrid strokeDasharray="3 3" />
+          <Line
+            type="monotone"
+            dataKey="value"
+            stroke="url(#gradientLine)"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+          />
+        </LineChart>
+      );
+    } else if (type === 'area') {
+      ChartComponent = (
+        <AreaChart data={data}>
+          <defs>
+            <linearGradient id="gradientArea" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
+              <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <XAxis dataKey="name" />
+          <YAxis />
+          <CartesianGrid strokeDasharray="3 3" />
+          <Area
+            type="monotone"
+            dataKey="value"
+            stroke="#82ca9d"
+            fill="url(#gradientArea)"
+            strokeWidth={2}
+            isAnimationActive={false}
+          />
+        </AreaChart>
+      );
+    } else if (type === 'bar') {
+      ChartComponent = (
+        <BarChart data={data}>
+          <defs>
+            <linearGradient id="gradientBar" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#ffc658" stopOpacity={0.8} />
+              <stop offset="95%" stopColor="#ffc658" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <XAxis dataKey="name" />
+          <YAxis />
+          <CartesianGrid strokeDasharray="3 3" />
+          <Bar
+            dataKey="value"
+            fill="url(#gradientBar)"
+            radius={[4, 4, 0, 0]}
+            isAnimationActive={false}
+          />
+        </BarChart>
+      );
+    }
+
+    return (
+      <div
+        ref={ref}
+        className={`group relative w-full fade-in-up ${
+          isVisible ? 'visible' : ''
+        } stats-card`}
+      >
+        <h3 className="text-xl font-semibold">{title}</h3>
+        <p className="text-gray-600">{description}</p>
+        <div className="w-full h-[200px] mt-4">
           <ResponsiveContainer width="100%" height="100%">
-            <>
-              {type === 'line' && (
-                <LineChart data={data}>
-                  <defs>
-                    <linearGradient id={`gradient-${title}`} x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#34d399" />
-                      <stop offset="100%" stopColor="#3b82f6" />
-                    </linearGradient>
-                  </defs>
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    stroke={`url(#gradient-${title})`}
-                    strokeWidth={2}
-                    dot={false}
-                    isAnimationActive={false}
-                  />
-                  <Tooltip />
-                </LineChart>
-              )}
-
-              {type === 'area' && (
-                <AreaChart data={data}>
-                  <defs>
-                    <linearGradient id={`areaGradient-${title}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#34d399" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id={`gradient-${title}`} x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#34d399" />
-                      <stop offset="100%" stopColor="#3b82f6" />
-                    </linearGradient>
-                  </defs>
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    stroke={`url(#gradient-${title})`}
-                    fill={`url(#areaGradient-${title})`}
-                    strokeWidth={2}
-                    isAnimationActive={false}
-                  />
-                  <Tooltip />
-                </AreaChart>
-              )}
-
-              {type === 'bar' && (
-                <BarChart data={data}>
-                  <defs>
-                    <linearGradient id={`gradient-${title}`} x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#34d399" />
-                      <stop offset="100%" stopColor="#3b82f6" />
-                    </linearGradient>
-                  </defs>
-                  <Bar
-                    dataKey="value"
-                    fill={`url(#gradient-${title})`}
-                    radius={[4, 4, 0, 0]}
-                    isAnimationActive={false}
-                  />
-                  <Tooltip />
-                </BarChart>
-              )}
-            </>
+            {ChartComponent}
           </ResponsiveContainer>
         </div>
       </div>
-    </div>
-  )
+    );
+  }
 );
 
-StatsCard.displayName = 'StatsCard';
-
-// Props for FeatureCard component
 interface FeatureCardProps {
   title: string;
   description: string;
 }
 
-// FeatureCard Component
-const FeatureCard: React.FC<FeatureCardProps> = ({
-  title,
-  description,
-}) => {
+const FeatureCard = ({ title, description }: FeatureCardProps) => {
   const getIcon = () => {
     switch (title) {
       case 'Smart Dashboard':
-        return (
-          <LayoutDashboard
-            className="w-6 h-6 text-emerald-400"
-            strokeWidth={1.5}
-            aria-label="Smart Dashboard Icon"
-          />
-        );
+        return <LayoutDashboard className="w-6 h-6 text-emerald-400" strokeWidth={1.5} aria-label="Smart Dashboard Icon" />;
       case 'Email Integration':
-        return (
-          <Mail
-            className="w-6 h-6 text-emerald-400"
-            strokeWidth={1.5}
-            aria-label="Email Integration Icon"
-          />
-        );
+        return <Mail className="w-6 h-6 text-emerald-400" strokeWidth={1.5} aria-label="Email Integration Icon" />;
       case 'Progress Tracking':
-        return (
-          <Clock
-            className="w-6 h-6 text-emerald-400"
-            strokeWidth={1.5}
-            aria-label="Progress Tracking Icon"
-          />
-        );
+        return <Clock className="w-6 h-6 text-emerald-400" strokeWidth={1.5} aria-label="Progress Tracking Icon" />;
       default:
         return null;
     }
