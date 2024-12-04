@@ -314,7 +314,9 @@ const LandingPage = () => {
         </div>
 
         {/* Floating Action Button */}
-        <button className="fixed bottom-6 right-6 p-4 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 shadow-lg shadow-emerald-500/20 hover:scale-110 transition-transform">
+        <button 
+          onClick={() => window.location.href = '/dashboard'}
+          className="fixed bottom-6 right-6 p-4 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 shadow-lg shadow-emerald-500/20 hover:scale-110 transition-transform">
           <LayoutDashboard className="w-6 h-6 text-white" />
         </button>
 

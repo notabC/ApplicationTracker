@@ -19,7 +19,7 @@ const App: React.FC = () => {
             {/* <Route path="/" element={<JobTracker />} /> */}
             {/* Protected routes */}
             <Route
-              path="/"
+              path="/dashboard"
               element={
                 <PrivateRoute>
                   <JobTracker />
@@ -29,7 +29,7 @@ const App: React.FC = () => {
             <Route path="/analytics" element={<AnalyticsView />} />
             <Route path='/privacy' element={<PrivacyPolicy />} />
             <Route path='/login' element={<Login />} />
-            <Route path='/home' element={<LandingPage />} />
+            <Route path='/' element={<LandingPage />} />
             {/* Add other routes as needed */}
           </Routes>
         </UnsavedChangesProvider>
