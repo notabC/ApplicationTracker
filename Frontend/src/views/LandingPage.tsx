@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LineChart, Line, AreaChart, Area, BarChart, Bar, ResponsiveContainer, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { LineChart, Line, AreaChart, Area, BarChart, Bar, ResponsiveContainer } from 'recharts';
 import { ArrowRight, LayoutDashboard, Mail, Clock } from 'lucide-react';
 
 const useIntersectionObserver = (options: IntersectionObserverInit) => {
