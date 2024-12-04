@@ -3,7 +3,7 @@ import { DollarSign, MapPin, ClipboardEdit } from 'lucide-react';
 import type { Application } from '@/core/domain/models/Application';
 import type { ApplicationModalViewModel } from '@/viewModels/ApplicationModalViewModel';
 import { ApplicationModalStatusLog } from './ApplicationModalStatusLog';
-import { EditableField } from '@/presentation/components/EditableField';
+import { EditableField } from '@/views/components/applicationModal/EditableField';
 import { TagManager } from '@/presentation/components/TagManager';
 import { observer } from 'mobx-react-lite';
 

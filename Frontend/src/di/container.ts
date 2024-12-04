@@ -18,7 +18,6 @@ import { AnalyticsViewModel } from '@/presentation/viewModels/AnalyticsViewModel
 import { RootStore } from '@/presentation/viewModels/RootStore';
 import { AuthViewModel } from '@/presentation/viewModels/AuthViewModel';
 import { AuthService } from '@/core/services/AuthService';
-import { ProtectedFeatureViewModel } from '@/presentation/viewModels/ProtectedFeatureViewModel';
 import { WorkflowEditorViewModel } from '@/viewModels/WorkflowEditorViewModel';
 import { ActivityHistoryViewModel } from '@/viewModels/ActivityHistoryViewModel';
 import { IWorkflowService } from '@/domain/interfaces/IWorkflow';
@@ -105,10 +104,6 @@ container.bind<AuthService>(SERVICE_IDENTIFIERS.AuthService)
 container.bind<AuthViewModel>(SERVICE_IDENTIFIERS.AuthViewModel)
   .to(AuthViewModel)
   .inSingletonScope();
-
-container.bind<ProtectedFeatureViewModel>(SERVICE_IDENTIFIERS.ProtectedFeatureViewModel)
-  .to(ProtectedFeatureViewModel)
-  .inTransientScope();
 
 container.bind<ApplicationModel>(SERVICE_IDENTIFIERS.ApplicationModel)
   .to(ApplicationModel)

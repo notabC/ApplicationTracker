@@ -7,18 +7,13 @@ import {
 } from 'lucide-react';
 import { container } from '@/di/container';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
-import { ProtectedFeatureViewModel } from '@/presentation/viewModels/ProtectedFeatureViewModel';
 import InputField from './InputField';
 import TextArea from './TextArea';
-import AuthModal from '@/presentation/components/AuthModal';
 import { AddApplicationViewModel } from '@/viewModels/AddApplicationViewModel';
 import { IAddApplicationModalProps } from '@/domain/interfaces/IAddApplication';
 
 const AddApplicationModal: React.FC<IAddApplicationModalProps> = observer(({ isOpen, onClose }) => {
   const [showErrorSummary, setShowErrorSummary] = useState(false);
-  const protectedFeatureViewModel = container.get<ProtectedFeatureViewModel>(
-    SERVICE_IDENTIFIERS.ProtectedFeatureViewModel
-  );
   const viewModel = container.get<AddApplicationViewModel>(SERVICE_IDENTIFIERS.AddApplicationViewModel);
 
   // Handle form submission
@@ -102,10 +97,6 @@ const AddApplicationModal: React.FC<IAddApplicationModalProps> = observer(({ isO
   }, [viewModel.submissionSuccessful, onClose, viewModel]);
 
   if (!isOpen) return null;
-
-  if (protectedFeatureViewModel.showAuthModal && !protectedFeatureViewModel.isAuthenticated) {
-    return <AuthModal isOpen={true} onClose={onClose} />;
-  }
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
