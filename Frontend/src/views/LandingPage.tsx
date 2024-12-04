@@ -204,21 +204,21 @@ const LandingPage = () => {
         
         {/* Navbar with Glassmorphism */}
         <nav className="sticky top-0 z-50 backdrop-blur-md bg-gray-950/60 border-b border-gray-800/50">
-          <div className="w-full mx-auto px-6 py-4">
+          <div className="w-full mx-auto px-0 sm:px-4 py-4">
             <div className="flex items-center justify-between">
             <div className="w-full mx-auto pb-6 pt-2 relative">
-      <img 
-        src="/logo2.png"
-        alt="TrackWise"
-        className="h-8 w-auto object-contain object-left"
-        style={{ 
-          position: 'absolute',
-          transform: 'scale(4)', 
-          transformOrigin: 'left', 
-          imageRendering: 'auto' 
-        }}
-      />
-    </div>
+              <img 
+                src="/logo2.png"
+                alt="TrackWise"
+                className="h-8 w-auto object-contain object-left"
+                style={{ 
+                  position: 'absolute',
+                  transform: 'scale(4)', 
+                  transformOrigin: 'left', 
+                  imageRendering: 'auto' 
+                }}
+              />
+            </div>
               {/* Additional Navbar Items (if any) can be added here */}
             </div>
           </div>
@@ -315,12 +315,67 @@ const LandingPage = () => {
           </div>
         </div>
 
+        {/* Video Demo Section */}
+        <div className="mt-3 w-full max-w-5xl mx-auto px-4"> {/* Increased max-width */}
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-white">See TrackWise in Action</h3>
+            <p className="text-sm text-gray-400 mb-3">Watch how TrackWise helps streamline your job application process</p>
+          </div>
+
+          <div className="relative rounded-2xl overflow-hidden bg-gray-900/80 border border-gray-800/50">
+            <div className="aspect-video"> {/* Changed to aspect-video for better ratio */}
+              <iframe
+                src="https://www.youtube.com/embed/CvvAR9vE7wo"
+                title="TrackWise Demo Video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              />
+            </div>
+          </div>
+          {/* Added optional title/description for context */}
+          
+        </div>
+
         {/* Floating Action Button */}
         <button 
           onClick={() => window.location.href = '/dashboard'}
           className="fixed bottom-6 right-6 p-4 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 shadow-lg shadow-emerald-500/20 hover:scale-110 transition-transform">
           <LayoutDashboard className="w-6 h-6 text-white" />
         </button>
+
+        {/* Footer */}
+        <footer className="mt-24 py-8 border-t border-gray-800/50 backdrop-blur-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="text-sm text-gray-400">
+                © 2024 TrackWise. All rights reserved.
+              </div>
+              <div className="flex items-center gap-6 text-sm">
+                <a 
+                  href="/privacy" 
+                  className="text-gray-400 hover:text-emerald-400 transition-colors"
+                >
+                  Privacy Policy
+                </a>
+                <a 
+                  href="https://discord.gg/bC52tZzQ86" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-gray-400 hover:text-emerald-400 transition-colors"
+                >
+                  Discord Support
+                </a>
+                <a 
+                  href="mailto:admin@trackwise.pro" 
+                  className="text-gray-400 hover:text-emerald-400 transition-colors"
+                >
+                  Email Support
+                </a>
+              </div>
+            </div>
+          </div>
+        </footer>
 
         {/* Waitlist Modal */}
         <WaitlistModal open={showModal} onOpenChange={setShowModal} />
