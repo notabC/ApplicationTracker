@@ -21,6 +21,29 @@ import {
 } from 'lucide-react';
 import { motion, MotionProps } from 'framer-motion';
 
+// Custom Hook to detect media query
+const useMediaQuery = (query: string): boolean => {
+  const [matches, setMatches] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia(query).matches;
+    } else {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    const mediaQueryList = window.matchMedia(query);
+    const listener = (event: MediaQueryListEvent) => {
+      setMatches(event.matches);
+    };
+    mediaQueryList.addEventListener('change', listener);
+
+    return () => mediaQueryList.removeEventListener('change', listener);
+  }, [query]);
+
+  return matches;
+};
+
 // WaitlistModal Component
 const WaitlistModal = ({
   open,
@@ -79,72 +102,85 @@ const WaitlistModal = ({
 };
 
 const EnhancedFAB = () => {
+
   return (
     <div className="fixed bottom-6 right-6 flex flex-col items-center">
       {/* Call-to-action label - Moved up and adjusted positioning */}
-      <motion.div
-        className="absolute -top-12 whitespace-nowrap text-sm text-white/80 font-medium px-4 mr-6 py-1.5 rounded-full bg-gray-900/50 backdrop-blur-sm"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ 
-          opacity: [0, 1, 0],
-          y: [10, 0, 10]
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 1
-        }}
-      >
-        Go to Dashboard
-      </motion.div>
+      {(
+        <motion.div
+          className="absolute -top-12 whitespace-nowrap text-sm text-white/80 font-medium px-4 mr-6 py-1.5 rounded-full bg-gray-900/50 backdrop-blur-sm"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{
+            opacity: [0, 1, 0],
+            y: [10, 0, 10]
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            delay: 1
+          }}
+        >
+          Go to Dashboard
+        </motion.div>
+      )}
 
       {/* Pulsing background effect */}
-      <motion.div
-        className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 opacity-75 blur-lg"
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3]
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      />
-      
+      {(
+        <motion.div
+          className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 opacity-75 blur-lg"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3]
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: 'easeInOut'
+          }}
+        />
+      )}
+
       {/* Rotating gradient border */}
-      <motion.div 
-        className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-400/50 via-blue-400/50 to-emerald-400/50"
-        animate={{
-          rotate: [0, 360]
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-      />
+      {(
+        <motion.div
+          className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-400/50 via-blue-400/50 to-emerald-400/50"
+          animate={{
+            rotate: [0, 360]
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: 'linear'
+          }}
+        />
+      )}
 
       {/* Main button */}
       <motion.button
-        onClick={() => window.location.href = '/dashboard'}
+        onClick={() => (window.location.href = '/dashboard')}
         className="relative p-4 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 shadow-lg"
-        whileHover={{ 
-          scale: 1.1,
-          boxShadow: "0 0 20px rgba(16, 185, 129, 0.4)"
-        }}
-        whileTap={{ scale: 0.95 }}
-        animate={{
-          y: [0, -6, 0]
-        }}
-        transition={{
-          y: {
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut"
+        whileHover={
+          {
+            scale: 1.1,
+            boxShadow: '0 0 20px rgba(16, 185, 129, 0.4)'
           }
-        }}
+        }
+        whileTap={{ scale: 0.95 }}
+        animate={
+          {
+            y: [0, -6, 0]
+          }
+        }
+        transition={
+          {
+            y: {
+              duration: 2,
+              repeat: Infinity,
+              ease: 'easeInOut'
+            }
+          }
+        }
       >
         <LayoutDashboard className="w-6 h-6 text-white" />
       </motion.button>
@@ -205,17 +241,23 @@ const Button = ({
   />
 );
 
-// Animated Check Item Component
+// Updated AnimatedCheckItem Component
 const AnimatedCheckItem = ({ children }: { children: React.ReactNode }) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  const initial = { opacity: 0, x: -20 };
+  const animate = { opacity: 1, x: 0 };
+  const noAnimationState = { opacity: 1, x: 0 };
+
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5 }}
+      initial={isMobile ? noAnimationState : initial}
+      animate={isMobile ? noAnimationState : animate}
+      transition={isMobile ? { duration: 0 } : { duration: 0.5 }}
       className="flex items-center gap-2 text-sm text-gray-300"
     >
       <motion.div
-        whileHover={{ scale: 1.2 }}
+        whileHover={isMobile ? undefined : { scale: 1.2 }}
         className="flex-shrink-0"
       >
         <CheckCircle className="w-4 h-4 text-emerald-400" />
@@ -230,99 +272,142 @@ const StaggerContainer = ({
   children
 }: {
   children: React.ReactNode;
-}) => (
-  <motion.div
-    initial="hidden"
-    whileInView="visible"
-    viewport={{ once: true }}
-    variants={{
-      hidden: { opacity: 0 },
-      visible: {
-        opacity: 1,
-        transition: {
-          staggerChildren: 0.2
+}) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  if (isMobile) {
+    return <div>{children}</div>;
+  }
+
+  return (
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={{
+        hidden: { opacity: 0 },
+        visible: {
+          opacity: 1,
+          transition: {
+            staggerChildren: 0.2
+          }
         }
-      }
-    }}
-  >
-    {children}
-  </motion.div>
-);
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 // Animated Hero Text
-const AnimatedHeroText = () => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    transition={{
-      duration: 0.8,
-      ease: [0.4, 0, 0.2, 1]
-    }}
-    className="fade-in-up"
-  >
-    <h1 className="text-center text-6xl sm:text-7xl lg:text-8xl font-cabinet-grotesk font-bold text-white mb-6 leading-tight">
-      Track Your
-      <motion.span
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.8 }}
-        className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-400 mt-2"
-      >
-        Career Journey
-      </motion.span>
-    </h1>
-  </motion.div>
-);
+const AnimatedHeroText = () => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
-// Animated Stats Card Wrapper
+  const initial = { opacity: 0, y: 20 };
+  const animate = { opacity: 1, y: 0 };
+  const noAnimationState = { opacity: 1, y: 0 };
+
+  return (
+    <motion.div
+      initial={isMobile ? noAnimationState : initial}
+      animate={isMobile ? noAnimationState : animate}
+      transition={
+        isMobile
+          ? { duration: 0 }
+          : {
+              duration: 0.8,
+              ease: [0.4, 0, 0.2, 1]
+            }
+      }
+      className="fade-in-up"
+    >
+      <h1 className="text-center text-6xl sm:text-7xl lg:text-8xl font-cabinet-grotesk font-bold text-white mb-6 leading-tight">
+        Track Your
+        <motion.span
+          initial={isMobile ? noAnimationState : initial}
+          animate={isMobile ? noAnimationState : animate}
+          transition={
+            isMobile
+              ? { duration: 0 }
+              : { delay: 0.3, duration: 0.8 }
+          }
+          className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-400 mt-2"
+        >
+          Career Journey
+        </motion.span>
+      </h1>
+    </motion.div>
+  );
+};
+
+// Updated AnimatedStatsCard Component
 type AnimatedStatsCardProps = Omit<MotionProps, 'onAnimationStart'> & {
   children: React.ReactNode;
 };
 
-const AnimatedStatsCard = React.forwardRef<HTMLDivElement, AnimatedStatsCardProps>(
-  ({ children, ...props }, ref) => (
+const AnimatedStatsCard = React.forwardRef<
+  HTMLDivElement,
+  AnimatedStatsCardProps
+>(({ children, ...props }, ref) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  const initial = { opacity: 0, scale: 0.95 };
+  const animate = { opacity: 1, scale: 1 };
+  const noAnimationState = { opacity: 1, scale: 1 };
+
+  return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, scale: 0.95 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
-      transition={{
-        type: 'spring',
-        stiffness: 100,
-        damping: 20
-      }}
-      whileHover={{
-        y: -8,
-        transition: { duration: 0.2 }
-      }}
+      initial={isMobile ? noAnimationState : initial}
+      animate={isMobile ? noAnimationState : animate}
+      transition={
+        isMobile
+          ? { duration: 0 }
+          : { type: 'spring', stiffness: 100, damping: 20 }
+      }
+      whileHover={
+        isMobile
+          ? undefined
+          : {
+              y: -8,
+              transition: { duration: 0.2 }
+            }
+      }
       {...props}
     >
       {children}
     </motion.div>
-  )
-);
+  );
+});
 
 AnimatedStatsCard.displayName = 'AnimatedStatsCard';
 
-// Animated Feature Card Wrapper
-const AnimatedFeatureCard = ({
-  children
-}: {
-  children: React.ReactNode;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.5 }}
-    whileHover={{
-      scale: 1.02,
-      transition: { duration: 0.2 }
-    }}
-  >
-    {children}
-  </motion.div>
-);
+// Updated AnimatedFeatureCard Component
+const AnimatedFeatureCard = ({ children }: { children: React.ReactNode }) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  const initial = { opacity: 0, y: 20 };
+  const animate = { opacity: 1, y: 0 };
+  const noAnimationState = { opacity: 1, y: 0 };
+
+  return (
+    <motion.div
+      initial={isMobile ? noAnimationState : initial}
+      animate={isMobile ? noAnimationState : animate}
+      transition={isMobile ? { duration: 0 } : { duration: 0.5 }}
+      whileHover={
+        isMobile
+          ? undefined
+          : {
+              scale: 1.02,
+              transition: { duration: 0.2 }
+            }
+      }
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 // Animated Grid Background
 const GridBackground = () => (
@@ -376,30 +461,43 @@ const GradientBorderCard = ({
   children
 }: {
   children: React.ReactNode;
-}) => (
-  <motion.div
-    className="relative rounded-3xl p-[1px] overflow-hidden"
-    initial={{ opacity: 0 }}
-    whileInView={{ opacity: 1 }}
-    viewport={{ once: true }}
-  >
+}) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  return (
     <motion.div
-      className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-blue-500"
-      animate={{
-        rotate: [0, 360]
-      }}
-      transition={{
-        duration: 8,
-        repeat: Infinity,
-        ease: 'linear'
-      }}
-      style={{ borderRadius: 'inherit' }}
-    />
-    <div className="relative bg-gray-900/80 backdrop-blur-xl rounded-3xl p-4">
-      {children}
-    </div>
-  </motion.div>
-);
+      className="relative rounded-3xl p-[1px] overflow-hidden"
+      initial={isMobile ? { opacity: 1 } : { opacity: 0 }}
+      whileInView={isMobile ? undefined : { opacity: 1 }}
+      viewport={{ once: true }}
+      transition={isMobile ? { duration: 0 } : undefined}
+    >
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-blue-500"
+        animate={
+          isMobile
+            ? undefined
+            : {
+                rotate: [0, 360]
+              }
+        }
+        transition={
+          isMobile
+            ? undefined
+            : {
+                duration: 8,
+                repeat: Infinity,
+                ease: 'linear'
+              }
+        }
+        style={{ borderRadius: 'inherit' }}
+      />
+      <div className="relative bg-gray-900/80 backdrop-blur-xl rounded-3xl p-4">
+        {children}
+      </div>
+    </motion.div>
+  );
+};
 
 // Enhanced FeatureCard Component with Animated Checklist
 interface FeatureCardProps {
@@ -487,7 +585,7 @@ const EnhancedFeatureSection = () => {
 
   return (
     <StaggerContainer>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 w-full px-4 sm:px-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 w-full px-4 sm:px-3">
         {features.map((feature, index) => (
           <FeatureCard key={index} {...feature} />
         ))}
@@ -629,10 +727,7 @@ const LandingPage = () => {
   // Intersection Observer for StatsCard
   const [statsRef, statsVisible] = useIntersectionObserver({
     threshold: 0.1
-  }) as [
-    React.MutableRefObject<HTMLDivElement | null>,
-    boolean
-  ];
+  }) as [React.MutableRefObject<HTMLDivElement | null>, boolean];
 
   // Initial Data Sets
   const lineData = [
@@ -698,8 +793,11 @@ const LandingPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Custom Cursor Effect
+  // Custom Cursor Effect (Optional, you can disable this on mobile as well)
   useEffect(() => {
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    if (isMobile) return; // Disable custom cursor on mobile devices
+
     const cursor = document.createElement('div');
     cursor.classList.add('custom-cursor');
     document.body.appendChild(cursor);
@@ -800,17 +898,18 @@ const LandingPage = () => {
             <motion.p
               className="text-center text-base sm:text-lg lg:text-xl text-gray-300 mb-8 leading-relaxed mx-auto max-w-2xl font-cabinet-grotesk fade-in-up"
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.8 }}
             >
-              Intelligent tracking and analytics to help you land your dream job faster
+              Intelligent tracking and analytics to help you land your dream job
+              faster
             </motion.p>
 
             {/* Waitlist Form with Glassmorphism & Neumorphism */}
             <motion.div
               className="max-w-md mx-auto relative"
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7, duration: 0.8 }}
             >
               <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-lg blur opacity-20 clip-path-blob"></div>
@@ -822,9 +921,9 @@ const LandingPage = () => {
                   type="email"
                   placeholder="Enter your Google Gmail address"
                   value={email}
-                  onChange={(
-                    e: React.ChangeEvent<HTMLInputElement>
-                  ) => setEmail(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setEmail(e.target.value)
+                  }
                   disabled={isLoading}
                   className="flex-1 h-10 px-3 bg-gray-800/50 border border-gray-700/50 text-gray-300 placeholder:text-gray-500 text-sm rounded-md focus-visible:ring-emerald-500/30"
                 />
@@ -885,7 +984,7 @@ const LandingPage = () => {
           <motion.div
             className="text-center"
             initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
             <h3 className="text-lg font-semibold text-white">
@@ -899,7 +998,7 @@ const LandingPage = () => {
           <motion.div
             className="relative rounded-2xl overflow-hidden bg-gray-900/80 border border-gray-800/50"
             initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
             <div className="aspect-video">
