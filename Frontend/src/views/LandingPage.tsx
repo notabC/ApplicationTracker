@@ -466,7 +466,7 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
             fill="url(#pieGradient)"
             stroke="none"
           >
-            {data.map((entry, index) => (
+            {data.map((_entry, index) => (
               <Cell 
                 key={`cell-${index}`} 
                 fill="url(#pieGradient)"
