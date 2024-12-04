@@ -1,18 +1,25 @@
 // src/presentation/viewModels/GmailImportViewModel.ts
-import { computed } from 'mobx';
+import { computed, observable, action, makeObservable } from 'mobx';
 import { inject, injectable } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '../core/constants/identifiers';
 import type { IGmailEmail, IGmailImportOptions } from '../core/interfaces/services/IGmailService';
-import * as GmailImportModel from '@/domain/models/GmailImportModel';
+import GmailImportModel from '@/domain/models/GmailImportModel';
 
 @injectable()
 export class GmailImportViewModel {
+  @observable
+  public newLabel: string = '';
+
   constructor(
-    @inject(SERVICE_IDENTIFIERS.GmailImportModel) private model: GmailImportModel.GmailImportModel
-  ) {}
+    @inject(SERVICE_IDENTIFIERS.GmailImportModel) private model: GmailImportModel
+  ) {
+    makeObservable(this);
+  }
+
+  /** Observable and Computed Properties **/
 
   @computed
-  get step(): GmailImportModel.ImportStep {
+  get step(): GmailImportModel['step'] {
     return this.model.step;
   }
 
@@ -76,15 +83,38 @@ export class GmailImportViewModel {
     return this.model.isCurrentPageAllSelected;
   }
 
-  // Action delegates
-  async importSelected(): Promise<void> {
-    return this.model.importSelected();
+  /** Actions **/
+
+  @action.bound
+  addLabel(): void {
+    const trimmedLabel = this.newLabel.trim();
+    if (trimmedLabel && !this.filters.labels.includes(trimmedLabel)) {
+      this.updateFilter('labels', [...this.filters.labels, trimmedLabel]);
+      this.newLabel = '';
+    }
   }
 
-  toggleEmailExpansion(emailId: string): void {
-    this.model.toggleEmailExpansion(emailId);
+  @action.bound
+  removeLabel(labelToRemove: string): void {
+    this.updateFilter(
+      'labels',
+      this.filters.labels.filter(label => label !== labelToRemove)
+    );
   }
 
+  @action.bound
+  async importAndCheckSuccess(): Promise<boolean> {
+    await this.importSelected();
+    return !this.error;
+  }
+
+  @action.bound
+  reset(): void {
+    this.newLabel = '';
+    this.model.reset();
+  }
+
+  @action.bound
   updateFilter<K extends keyof IGmailImportOptions>(
     key: K,
     value: IGmailImportOptions[K]
@@ -92,31 +122,43 @@ export class GmailImportViewModel {
     this.model.updateFilter(key, value);
   }
 
-  loadNextPage(): Promise<void> {
-    return this.model.loadNextPage();
+  @action.bound
+  toggleEmailExpansion(emailId: string): void {
+    this.model.toggleEmailExpansion(emailId);
   }
 
-  goToPage(page: number): Promise<void> {
-    return this.model.goToPage(page);
-  }
-
-  fetchEmails(pageToken?: string, targetPage: number = 1): Promise<void> {
-    return this.model.fetchEmails(pageToken, targetPage);
-  }
-
-  reset(): void {
-    this.model.reset();
-  }
-
-  selectAllEmails(selected: boolean): void {
-    this.model.selectAllEmails(selected);
-  }
-
+  @action.bound
   toggleEmailSelection(emailId: string): void {
     this.model.toggleEmailSelection(emailId);
   }
 
+  @action.bound
+  selectAllEmails(selected: boolean): void {
+    this.model.selectAllEmails(selected);
+  }
+
+  @action.bound
   selectAllCurrentPage(selected: boolean): void {
     this.model.selectAllCurrentPage(selected);
   }
+
+  /** Delegated Methods **/
+
+  async importSelected(): Promise<void> {
+    return this.model.importSelected();
+  }
+
+  async loadNextPage(): Promise<void> {
+    return this.model.loadNextPage();
+  }
+
+  async goToPage(page: number): Promise<void> {
+    return this.model.goToPage(page);
+  }
+
+  async fetchEmails(pageToken?: string, targetPage: number = 1): Promise<void> {
+    return this.model.fetchEmails(pageToken, targetPage);
+  }
 }
+
+export default GmailImportViewModel;

@@ -44,6 +44,8 @@ export class GmailImportModel {
     makeAutoObservable(this);
   }
 
+  /** Actions **/
+
   async importSelected(): Promise<void> {
     if (!this.authService.isAuthenticated) {
       throw new Error('User not authenticated');
@@ -202,6 +204,8 @@ export class GmailImportModel {
     }
   }
 
+  /** Computed Properties **/
+
   get isAllSelected(): boolean {
     return this.emails.length > 0 && this.selectedEmails.size === this.emails.length;
   }
@@ -214,3 +218,5 @@ export class GmailImportModel {
     return this.emails.length > 0 && this.emails.every(email => this.selectedEmails.has(email.id));
   }
 }
+
+export default GmailImportModel;
