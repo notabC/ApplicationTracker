@@ -235,26 +235,21 @@ interface StatsCardProps {
 // ForwardRef is used if you need to pass refs to the component
 const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
   ({ title, description, data, type, isVisible }, ref) => {
-    // Initialize the chart component as null
-    let ChartComponent: React.ReactElement = <div>No chart available</div>;
+    let ChartComponent: React.ReactElement = <div />;
 
-    // Determine which chart to render based on the 'type' prop
     if (type === 'line') {
       ChartComponent = (
         <LineChart data={data}>
           <defs>
-            <linearGradient id="gradientLine" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-              <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+            <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#34d399" />
+              <stop offset="100%" stopColor="#3b82f6" />
             </linearGradient>
           </defs>
-          <XAxis dataKey="name" />
-          <YAxis />
-          <CartesianGrid strokeDasharray="3 3" />
           <Line
             type="monotone"
             dataKey="value"
-            stroke="url(#gradientLine)"
+            stroke="url(#gradient)"
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
@@ -265,19 +260,16 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
       ChartComponent = (
         <AreaChart data={data}>
           <defs>
-            <linearGradient id="gradientArea" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
-              <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
+            <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#34d399" stopOpacity={0.3} />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <XAxis dataKey="name" />
-          <YAxis />
-          <CartesianGrid strokeDasharray="3 3" />
           <Area
             type="monotone"
             dataKey="value"
-            stroke="#82ca9d"
-            fill="url(#gradientArea)"
+            stroke="url(#gradient)"
+            fill="url(#areaGradient)"
             strokeWidth={2}
             isAnimationActive={false}
           />
@@ -287,17 +279,14 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
       ChartComponent = (
         <BarChart data={data}>
           <defs>
-            <linearGradient id="gradientBar" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#ffc658" stopOpacity={0.8} />
-              <stop offset="95%" stopColor="#ffc658" stopOpacity={0} />
+            <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#34d399" />
+              <stop offset="100%" stopColor="#3b82f6" />
             </linearGradient>
           </defs>
-          <XAxis dataKey="name" />
-          <YAxis />
-          <CartesianGrid strokeDasharray="3 3" />
           <Bar
             dataKey="value"
-            fill="url(#gradientBar)"
+            fill="url(#gradient)"
             radius={[4, 4, 0, 0]}
             isAnimationActive={false}
           />
@@ -312,12 +301,18 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
           isVisible ? 'visible' : ''
         } stats-card`}
       >
-        <h3 className="text-xl font-semibold">{title}</h3>
-        <p className="text-gray-600">{description}</p>
-        <div className="w-full h-[200px] mt-4">
-          <ResponsiveContainer width="100%" height="100%">
-            {ChartComponent}
-          </ResponsiveContainer>
+        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/50 to-blue-500/50 rounded-3xl blur opacity-20 group-hover:opacity-30 transition duration-500"></div>
+        <div className="relative p-4 backdrop-blur-xl bg-gray-900/80 rounded-3xl border border-gray-800/50 transition duration-300 hover:translate-y-[-2px] w-full">
+          <div className="flex flex-col space-y-2 mb-2">
+            <h3 className="font-semibold text-white">{title}</h3>
+            <p className="text-gray-400 text-sm">{description}</p>
+          </div>
+
+          <div className="w-full h-[100px] mt-4">
+            <ResponsiveContainer width="100%" height="100%">
+              {ChartComponent}
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     );
