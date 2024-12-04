@@ -206,17 +206,19 @@ const LandingPage = () => {
         <nav className="sticky top-0 z-50 backdrop-blur-md bg-gray-950/60 border-b border-gray-800/50">
           <div className="w-full mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="relative group">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
-                  <div className="relative bg-gray-900 rounded-xl p-2">
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-400 font-bold text-lg">
-                      <img src="/logo.png" alt="TrackWise Logo" className="w-8 h-8" />
-                    </span>
-                  </div>
-                </div>
-                <span className="text-white font-medium text-xl">TrackWise</span>
-              </div>
+            <div className="w-full mx-auto pb-6 pt-2 relative">
+      <img 
+        src="/logo2.png"
+        alt="TrackWise"
+        className="h-8 w-auto object-contain object-left"
+        style={{ 
+          position: 'absolute',
+          transform: 'scale(4)', 
+          transformOrigin: 'left', 
+          imageRendering: 'auto' 
+        }}
+      />
+    </div>
               {/* Additional Navbar Items (if any) can be added here */}
             </div>
           </div>

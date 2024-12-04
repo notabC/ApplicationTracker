@@ -9,6 +9,7 @@ import { PrivacyPolicy } from './views/Privacy';
 import { Login } from './presentation/components/Login';
 import { PrivateRoute } from './presentation/components/PrivateRoute';
 import LandingPage from './views/LandingPage';
+import NotFound from './views/NotFound';
 
 const App: React.FC = () => {
   return (
@@ -30,6 +31,7 @@ const App: React.FC = () => {
             <Route path='/privacy' element={<PrivacyPolicy />} />
             <Route path='/login' element={<Login />} />
             <Route path='/' element={<LandingPage />} />
+            <Route path="*" element={<NotFound />} />
             {/* Add other routes as needed */}
           </Routes>
         </UnsavedChangesProvider>
