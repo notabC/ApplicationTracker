@@ -6,7 +6,7 @@ import {
   Tag, Search, Calendar, KeyRound, Filter
 } from 'lucide-react';
 import { container } from '../../../di/container';
-import { GmailImportViewModel } from '../../viewModels/GmailImportViewModel';
+import { GmailImportViewModel } from '../../../viewModels/GmailImportViewModel';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 
 // SelectionHeader Component

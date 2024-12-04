@@ -4,7 +4,7 @@ import { WorkflowService } from '@/core/services/WorkflowService';
 import { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import { IApplicationService } from '@/core/interfaces/services';
-import { GmailImportViewModel } from '@/presentation/viewModels/GmailImportViewModel';
+import { GmailImportViewModel } from '@/viewModels/GmailImportViewModel';
 import { GmailService } from '@/core/services/GmailService';
 import { EmailService } from '@/core/services/EmailService';
 import { EmailProcessingViewModel } from '@/viewModels/EmailProcessingViewModel';
@@ -25,6 +25,7 @@ import { IWorkflowService } from '@/domain/interfaces/IWorkflow';
 import { AddApplicationViewModel } from '@/viewModels/AddApplicationViewModel';
 import { ApplicationModalViewModel } from '@/viewModels/ApplicationModalViewModel';
 import { ApplicationModel } from '@/domain/models/ApplicationModel';
+import { GmailImportModel } from '@/domain/models/GmailImportModel';
 
 export const container = new Container();
 
@@ -111,6 +112,10 @@ container.bind<ProtectedFeatureViewModel>(SERVICE_IDENTIFIERS.ProtectedFeatureVi
 
 container.bind<ApplicationModel>(SERVICE_IDENTIFIERS.ApplicationModel)
   .to(ApplicationModel)
+  .inTransientScope();
+
+container.bind<GmailImportModel>(SERVICE_IDENTIFIERS.GmailImportModel)
+  .to(GmailImportModel)
   .inTransientScope();
   
 export { SERVICE_IDENTIFIERS };

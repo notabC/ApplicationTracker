@@ -22,4 +22,5 @@ export const SERVICE_IDENTIFIERS = {
   AuthViewModel: Symbol('AuthViewModel'),
   ProtectedFeatureViewModel: Symbol('ProtectedFeatureViewModel'),
   ApplicationModel: Symbol('ApplicationModel'),
+  GmailImportModel: Symbol('GmailImportModel'),
 };
