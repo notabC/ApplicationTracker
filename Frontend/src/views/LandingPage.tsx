@@ -1,7 +1,60 @@
+// src/pages/LandingPage.tsx
+
 import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, ResponsiveContainer } from 'recharts';
-import { ArrowRight, LayoutDashboard, Mail, Clock } from 'lucide-react';
+import { ArrowRight, LayoutDashboard, Mail, Clock, Loader2 } from 'lucide-react';
 
+// WaitlistModal Component Defined Outside LandingPage
+const WaitlistModal = ({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) => {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-gray-950/60 backdrop-blur-sm"
+        onClick={() => onOpenChange(false)}
+      />
+      
+      {/* Modal Content */}
+      <div className="relative w-full max-w-md transform rounded-2xl bg-gradient-to-b from-gray-900 to-gray-950 p-6 shadow-2xl transition-all">
+        {/* Gradient Border */}
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-blue-500/20 -z-10" />
+        
+        {/* Content */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-white">
+            Thank you for joining!
+          </h2>
+          <p className="text-gray-400 text-sm leading-relaxed">
+            Please check your email/spam folder. You should be notified within 24 hours after requesting access.
+            If you have any issues, join our Discord server at{' '}
+            <a 
+              href="https://discord.gg/bC52tZzQ86" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-emerald-400 hover:text-emerald-300 transition-colors"
+            >
+              discord.gg/bC52tZzQ86
+            </a>
+          </p>
+          
+          {/* Button */}
+          <div className="flex justify-end mt-6">
+            <button
+              onClick={() => onOpenChange(false)}
+              className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-blue-500 text-white text-sm font-medium rounded-lg transition-transform hover:scale-105 active:scale-95"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Custom Hook for Intersection Observer
 const useIntersectionObserver = (options: IntersectionObserverInit) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -26,7 +79,7 @@ const useIntersectionObserver = (options: IntersectionObserverInit) => {
   return [ref, isVisible];
 };
 
-
+// Reusable Input Component
 const Input = ({ className, ...props }: { className?: string; [key: string]: any }) => (
   <input
     {...props}
@@ -34,6 +87,7 @@ const Input = ({ className, ...props }: { className?: string; [key: string]: any
   />
 );
 
+// Reusable Button Component
 const Button = ({ className, ...props }: { className?: string; [key: string]: any }) => (
   <button
     {...props}
@@ -44,6 +98,8 @@ const Button = ({ className, ...props }: { className?: string; [key: string]: an
 const LandingPage = () => {
   const [email, setEmail] = useState('');
   const [animatedData, setAnimatedData] = useState<{ value: number }[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   // Intersection Observer for StatsCard
   const [statsRef, statsVisible] = useIntersectionObserver({
@@ -88,7 +144,7 @@ const LandingPage = () => {
     cursor.classList.add('custom-cursor');
     document.body.appendChild(cursor);
 
-    const moveCursor = (e: { clientX: any; clientY: any; }) => {
+    const moveCursor = (e: { clientX: number; clientY: number; }) => {
       cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
     };
 
@@ -99,6 +155,42 @@ const LandingPage = () => {
       cursor.remove();
     };
   }, []);
+
+  // Handle Waitlist Submission with Discord Webhook Integration
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    
+    setIsLoading(true);
+    
+    try {
+      // Send to Discord webhook
+      const webhookUrl = import.meta.env.VITE_DISCORD_WEBHOOK_URL;
+      
+      if (webhookUrl) {
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            content: `${email}`,
+          })
+        });
+      }
+
+      // Wait additional time if the webhook was fast
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      setIsLoading(false);
+      setShowModal(true);
+      setEmail('');
+    } catch (error) {
+      console.error('Error sending webhook:', error);
+      setIsLoading(false);
+      // Optionally, you can set an error state here to display to the user
+    }
+  };
 
   return (
     <>      
@@ -147,26 +239,37 @@ const LandingPage = () => {
             {/* Waitlist Form with Glassmorphism & Neumorphism */}
             <div className="max-w-md mx-auto relative">
               <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-lg blur opacity-20 clip-path-blob"></div>
-              <div className="relative flex flex-col sm:flex-row gap-2 p-1.5 sm:p-2 backdrop-blur-xl bg-gray-900/80 rounded-md">
+              <form onSubmit={handleWaitlistSubmit} className="relative flex flex-col sm:flex-row gap-2 p-1.5 sm:p-2 backdrop-blur-xl bg-gray-900/80 rounded-md">
                 <Input
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="Enter your google gmail address"
                   value={email}
                   onChange={(e: { target: { value: React.SetStateAction<string>; }; }) => setEmail(e.target.value)}
+                  disabled={isLoading}
                   className="flex-1 h-10 px-3 bg-gray-800/50 border border-gray-700/50 text-gray-300 placeholder:text-gray-500 text-sm rounded-md focus-visible:ring-emerald-500/30"
                 />
-                <Button className="h-10 px-4 sm:w-auto text-sm font-medium bg-gradient-to-r from-emerald-500 to-blue-500 text-white rounded-md transition-all duration-300 hover:scale-105">
+                <Button 
+                  type="submit"
+                  disabled={isLoading}
+                  className="h-10 px-4 sm:w-auto text-sm font-medium bg-gradient-to-r from-emerald-500 to-blue-500 text-white rounded-md transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                >
                   <span className="relative z-10 flex items-center justify-center gap-2">
-                    Join Waitlist
-                    <ArrowRight className="w-4 h-4" />
+                    {isLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        Join Waitlist
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
                   </span>
                 </Button>
-              </div>
+              </form>
             </div>
           </div>
 
           {/* Stats Grid with Different Chart Types */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8 mt-24 mb-24 px-2 sm:px-6 mx-auto w-full max-w-6xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8 mt-24 px-2 sm:px-6 mx-auto w-full max-w-6xl">
             <StatsCard 
               title="Application Trends" 
               description="Real-time view of your application progress"
@@ -214,11 +317,13 @@ const LandingPage = () => {
         <button className="fixed bottom-6 right-6 p-4 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 shadow-lg shadow-emerald-500/20 hover:scale-110 transition-transform">
           <LayoutDashboard className="w-6 h-6 text-white" />
         </button>
+
+        {/* Waitlist Modal */}
+        <WaitlistModal open={showModal} onOpenChange={setShowModal} />
       </div>
     </>
   );
 };
-
 
 // Define the shape of your data points
 interface DataPoint {
