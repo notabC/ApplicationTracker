@@ -78,6 +78,80 @@ const WaitlistModal = ({
   );
 };
 
+const EnhancedFAB = () => {
+  return (
+    <div className="fixed bottom-6 right-6 flex flex-col items-center">
+      {/* Call-to-action label - Moved up and adjusted positioning */}
+      <motion.div
+        className="absolute -top-12 whitespace-nowrap text-sm text-white/80 font-medium px-4 mr-6 py-1.5 rounded-full bg-gray-900/50 backdrop-blur-sm"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ 
+          opacity: [0, 1, 0],
+          y: [10, 0, 10]
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 1
+        }}
+      >
+        Go to Dashboard
+      </motion.div>
+
+      {/* Pulsing background effect */}
+      <motion.div
+        className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 opacity-75 blur-lg"
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.3, 0.5, 0.3]
+        }}
+        transition={{
+          duration: 2,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+      
+      {/* Rotating gradient border */}
+      <motion.div 
+        className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-400/50 via-blue-400/50 to-emerald-400/50"
+        animate={{
+          rotate: [0, 360]
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "linear"
+        }}
+      />
+
+      {/* Main button */}
+      <motion.button
+        onClick={() => window.location.href = '/dashboard'}
+        className="relative p-4 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 shadow-lg"
+        whileHover={{ 
+          scale: 1.1,
+          boxShadow: "0 0 20px rgba(16, 185, 129, 0.4)"
+        }}
+        whileTap={{ scale: 0.95 }}
+        animate={{
+          y: [0, -6, 0]
+        }}
+        transition={{
+          y: {
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }
+        }}
+      >
+        <LayoutDashboard className="w-6 h-6 text-white" />
+      </motion.button>
+    </div>
+  );
+};
+
 // Custom Hook for Intersection Observer
 const useIntersectionObserver = (options: IntersectionObserverInit) => {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -841,14 +915,7 @@ const LandingPage = () => {
         </div>
 
         {/* Floating Action Button */}
-        <motion.button
-          onClick={() => (window.location.href = '/dashboard')}
-          className="fixed bottom-6 right-6 p-4 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 shadow-lg shadow-emerald-500/20 hover:scale-110 transition-transform"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <LayoutDashboard className="w-6 h-6 text-white" />
-        </motion.button>
+        <EnhancedFAB />
 
         {/* Footer */}
         <footer className="mt-24 py-8 border-t border-gray-800/50 backdrop-blur-sm">
