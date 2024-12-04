@@ -1,7 +1,7 @@
 // src/pages/LandingPage.tsx
 
 import React, { useState, useEffect, useRef } from 'react';
-import { LineChart, Line, AreaChart, Area, BarChart, Bar, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, PieChart, Pie, BarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
 import { ArrowRight, LayoutDashboard, Mail, Clock, Loader2 } from 'lucide-react';
 
 // WaitlistModal Component Defined Outside LandingPage
@@ -97,7 +97,9 @@ const Button = ({ className, ...props }: { className?: string; [key: string]: an
 
 const LandingPage = () => {
   const [email, setEmail] = useState('');
-  const [animatedData, setAnimatedData] = useState<{ value: number }[]>([]);
+  const [animatedLineData, setAnimatedLineData] = useState<{ value: number }[]>([]);
+  const [animatedPieData, setAnimatedPieData] = useState<{ name: string; value: number }[]>([]);
+  const [animatedBarData, setAnimatedBarData] = useState<{ value: number }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
@@ -112,9 +114,10 @@ const LandingPage = () => {
     { value: 50 }, { value: 45 }, { value: 60 }
   ];
   
-  const areaData = [
-    { value: 20 }, { value: 45 }, { value: 35 },
-    { value: 55 }, { value: 40 }, { value: 65 }
+  const pieData = [
+    { name: 'Applied', value: 50 },
+    { name: 'Interview', value: 30 },
+    { name: 'Offer', value: 20 }
   ];
   
   const barData = [
@@ -122,19 +125,39 @@ const LandingPage = () => {
     { value: 45 }, { value: 35 }, { value: 55 }
   ];
 
-  // Animation effect for Line Chart data
+  // Animation effect for all chart data
   useEffect(() => {
     const animateData = () => {
-      const newData = lineData.map(item => ({
+      // Update line data
+      const newLineData = lineData.map(item => ({
         value: Math.max(0, Math.min(100, item.value + (Math.random() * 10 - 5)))
       }));
-      setAnimatedData(newData);
+      setAnimatedLineData(newLineData);
+
+      // Update pie data
+      const newPieData = pieData.map(item => ({
+        name: item.name,
+        value: Math.max(0, item.value + (Math.random() * 10 - 5))
+      }));
+      // Normalize pie data to sum to 100
+      const totalPieValue = newPieData.reduce((sum, item) => sum + item.value, 0);
+      const normalizedPieData = newPieData.map(item => ({
+        name: item.name,
+        value: (item.value / totalPieValue) * 100
+      }));
+      setAnimatedPieData(normalizedPieData);
+
+      // Update bar data
+      const newBarData = barData.map(item => ({
+        value: Math.max(0, Math.min(100, item.value + (Math.random() * 10 - 5)))
+      }));
+      setAnimatedBarData(newBarData);
     };
 
     // Initial animation
     animateData();
 
-    const interval = setInterval(animateData, 1500);
+    const interval = setInterval(animateData, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -275,7 +298,7 @@ const LandingPage = () => {
             <StatsCard 
               title="Application Trends" 
               description="Real-time view of your application progress"
-              data={animatedData.length ? animatedData : lineData}
+              data={animatedLineData.length ? animatedLineData : lineData}
               type="line"
               ref={statsRef}
               isVisible={statsVisible}
@@ -283,15 +306,15 @@ const LandingPage = () => {
             <StatsCard 
               title="Success Rate" 
               description="Track your application success over time"
-              data={areaData}
-              type="area"
+              data={animatedPieData.length ? animatedPieData : pieData}
+              type="pie"
               ref={statsRef}
               isVisible={statsVisible}
             />
             <StatsCard 
               title="Weekly Progress" 
               description="Applications submitted per week"
-              data={barData}
+              data={animatedBarData.length ? animatedBarData : barData}
               type="bar"
               ref={statsRef}
               isVisible={statsVisible}
@@ -386,6 +409,7 @@ const LandingPage = () => {
 
 // Define the shape of your data points
 interface DataPoint {
+  name?: string;
   value: number;
 }
 
@@ -394,7 +418,7 @@ interface StatsCardProps {
   title: string;
   description: string;
   data: DataPoint[];
-  type: 'line' | 'area' | 'bar';
+  type: 'line' | 'pie' | 'bar';
   isVisible: boolean;
 }
 
@@ -407,7 +431,7 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
       ChartComponent = (
         <LineChart data={data}>
           <defs>
-            <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="0">
+            <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="#34d399" />
               <stop offset="100%" stopColor="#3b82f6" />
             </linearGradient>
@@ -415,44 +439,55 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
           <Line
             type="monotone"
             dataKey="value"
-            stroke="url(#gradient)"
+            stroke="url(#lineGradient)"
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
           />
         </LineChart>
       );
-    } else if (type === 'area') {
+    } else if (type === 'pie') {
       ChartComponent = (
-        <AreaChart data={data}>
+        <PieChart>
           <defs>
-            <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#34d399" stopOpacity={0.3} />
-              <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+            <linearGradient id="pieGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#34d399" />
+              <stop offset="100%" stopColor="#3b82f6" />
             </linearGradient>
           </defs>
-          <Area
-            type="monotone"
+          <Pie
+            data={data}
             dataKey="value"
-            stroke="url(#gradient)"
-            fill="url(#areaGradient)"
-            strokeWidth={2}
-            isAnimationActive={false}
-          />
-        </AreaChart>
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            innerRadius={25}
+            outerRadius={40}
+            fill="url(#pieGradient)"
+            stroke="none"
+          >
+            {data.map((entry, index) => (
+              <Cell 
+                key={`cell-${index}`} 
+                fill="url(#pieGradient)"
+                fillOpacity={1 - (index * 0.2)} // Creates a slight variation while maintaining the gradient
+              />
+            ))}
+          </Pie>
+        </PieChart>
       );
     } else if (type === 'bar') {
       ChartComponent = (
         <BarChart data={data}>
           <defs>
-            <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="0">
+            <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="#34d399" />
               <stop offset="100%" stopColor="#3b82f6" />
             </linearGradient>
           </defs>
           <Bar
             dataKey="value"
-            fill="url(#gradient)"
+            fill="url(#barGradient)"
             radius={[4, 4, 0, 0]}
             isAnimationActive={false}
           />
