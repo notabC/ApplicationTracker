@@ -118,7 +118,9 @@ const LandingPage = () => {
                 <div className="relative group">
                   <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
                   <div className="relative bg-gray-900 rounded-xl p-2">
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-400 font-bold text-lg">TW</span>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-400 font-bold text-lg">
+                      <img src="/logo.png" alt="TrackWise Logo" className="w-8 h-8" />
+                    </span>
                   </div>
                 </div>
                 <span className="text-white font-medium text-xl">TrackWise</span>
