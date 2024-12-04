@@ -267,31 +267,6 @@ const GridBackground = () => (
   </motion.div>
 );
 
-// Floating Elements Animation
-const FloatingElement = ({
-  children,
-  delay = 0
-}: {
-  children: React.ReactNode;
-  delay?: number;
-}) => (
-  <motion.div
-    animate={{
-      y: [0, -10, 0],
-      scale: [1, 1.02, 1]
-    }}
-    transition={{
-      duration: 5,
-      repeat: Infinity,
-      repeatType: 'reverse',
-      ease: 'easeInOut',
-      delay
-    }}
-  >
-    {children}
-  </motion.div>
-);
-
 // Scroll Progress Indicator
 const ScrollProgress = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
