@@ -61,7 +61,13 @@ export const ApplicationModalHeader = observer(({
           <div className="w-2 h-2 rounded-full bg-blue-400" />
           <span className="text-white font-medium">{updatedApplication.stage}</span>
         </div>
-        <ChevronDown className="h-5 w-5 text-gray-400 group-hover:text-gray-300 transition-colors" />
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-400 group-hover:text-gray-300">
+            Change Status
+          </span>
+          <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-gray-300" />
+        </div>
+        {/* <ChevronDown className="h-5 w-5 text-gray-400 group-hover:text-gray-300 transition-colors" /> */}
       </button>
     </div>
   );

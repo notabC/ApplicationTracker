@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { GripVertical, ChevronDown, Clock } from 'lucide-react';
+import { GripVertical, ChevronDown, Clock, Ellipsis } from 'lucide-react';
 import { Application } from '@/core/domain/models/Application';
 import type { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
 import { StageSelector } from './StageSelector';
@@ -74,7 +74,7 @@ export const ApplicationCard: React.FC<Props> = observer(({ application, viewMod
               setShowStageSelect(true);
             }}
           >
-            <ChevronDown className="h-4 w-4 text-gray-400" />
+            <Ellipsis className="h-4 w-4 text-gray-400" />
           </button>
         </div>
       </div>
