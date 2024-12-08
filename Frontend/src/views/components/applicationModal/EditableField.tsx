@@ -46,7 +46,6 @@ export const EditableField: React.FC<Props> = observer(({
     <div className="relative">
       {isEditing ? (
         <div className="space-y-2 sm:space-y-3">
-          {/* Header */}
           <div className="flex items-center justify-between mb-1 sm:mb-2">
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-medium text-gray-400">
@@ -55,35 +54,46 @@ export const EditableField: React.FC<Props> = observer(({
             </div>
           </div>
 
-          {/* Textarea */}
           <textarea
             value={editedValue}
             onChange={(e) => setEditedValue(e.target.value)}
-            className="w-full bg-[#282c34] text-gray-200 rounded-xl p-3 sm:p-4 
-                     border border-gray-800/50 
-                     focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/30 
-                     transition-all duration-200 min-h-[80px] sm:min-h-[100px] text-sm
-                     placeholder-gray-500"
+            className="
+              w-full bg-[#1a1d24] text-gray-200 rounded-xl p-3 sm:p-4
+              border border-[#232732]/20 
+              shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+              focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/30 
+              transition-all duration-200 min-h-[80px] sm:min-h-[100px] text-sm
+              placeholder-gray-500
+            "
             placeholder={`Enter ${label.toLowerCase()}...`}
           />
 
-          {/* Action buttons */}
           <div className="flex w-full gap-2 sm:gap-3 mt-2 sm:mt-3">
             <button
               onClick={handleCancel}
-              className="flex-1 py-2 sm:py-3 text-sm bg-[#282c34] text-gray-300
-                       hover:bg-gray-800/50 rounded-xl 
-                       transition-all duration-200 flex items-center justify-center gap-2
-                       border border-gray-800/50"
+              className="
+                flex-1 py-2 sm:py-3 text-sm bg-[#1a1d24] text-gray-300
+                hover:bg-gray-800/50 rounded-xl 
+                border border-[#232732]/20
+                shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
+                hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
+                active:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
+                transition-all duration-200 flex items-center justify-center gap-2
+              "
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              className="flex-1 py-2 sm:py-3 text-sm bg-blue-500/10 text-blue-400
-                       hover:bg-blue-500/20 rounded-xl
-                       border border-blue-500/20 hover:border-blue-500/30
-                       transition-all duration-200 flex items-center justify-center gap-2"
+              className="
+                flex-1 py-2 sm:py-3 text-sm bg-blue-500/10 text-blue-400
+                hover:bg-blue-500/20 rounded-xl
+                border border-blue-500/20 hover:border-blue-500/30
+                shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
+                hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
+                active:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
+                transition-all duration-200 flex items-center justify-center gap-2
+              "
             >
               Save
             </button>
@@ -91,7 +101,6 @@ export const EditableField: React.FC<Props> = observer(({
         </div>
       ) : (
         <div className="group">
-          {/* View mode header */}
           <div className="flex items-center justify-between mb-1 sm:mb-2">
             <div className="flex items-center gap-2">
               <Icon className="h-4 w-4 text-gray-400" />
@@ -99,19 +108,27 @@ export const EditableField: React.FC<Props> = observer(({
             </div>
             <button
               onClick={() => setIsEditing(true)}
-              className="p-1.5 sm:p-2 bg-gray-800/50 hover:bg-gray-700/50 
-                       rounded-xl transition-all duration-200 group"
+              className="
+                p-1.5 sm:p-2 bg-[#1a1d24] border border-[#232732]/20
+                rounded-xl 
+                shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
+                hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
+                active:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
+                transition-all duration-200
+              "
             >
               <Pencil className="h-4 w-4 text-gray-400 group-hover:text-gray-300" />
             </button>
           </div>
 
-          {/* Content area */}
           <div 
             onClick={() => setIsEditing(true)}
-            className="bg-[#282c34] rounded-xl p-3 sm:p-4 min-h-[48px] sm:min-h-[60px]
-                     border border-gray-800/50 group-hover:border-gray-700/50
-                     transition-all duration-200 cursor-pointer"
+            className="
+              bg-[#1a1d24] rounded-xl p-3 sm:p-4 min-h-[48px] sm:min-h-[60px]
+              border border-[#232732]/20 group-hover:border-cyan-500/30
+              shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+              transition-all duration-200 cursor-pointer
+            "
           >
             <div className="text-sm text-gray-300 leading-relaxed">
               {value || (

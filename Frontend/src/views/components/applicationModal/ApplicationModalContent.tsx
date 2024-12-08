@@ -1,4 +1,3 @@
-// src/views/components/applicationModal/ApplicationModalContent.tsx
 import { DollarSign, MapPin, ClipboardEdit } from 'lucide-react';
 import type { Application } from '@/core/domain/models/Application';
 import type { ApplicationModalViewModel } from '@/viewModels/ApplicationModalViewModel';
@@ -19,7 +18,7 @@ export const ApplicationModalContent = observer(({
   viewModel
 }: ContentProps) => {
   return (
-    <div className="flex-1 overflow-y-auto px-6 py-4">
+    <div className="flex-1 overflow-y-auto px-6 py-4 bg-gradient-to-br from-[#1e2128] to-[#16181d]">
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">

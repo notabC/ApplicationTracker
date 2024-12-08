@@ -1,4 +1,3 @@
-// src/views/components/applicationModal/ApplicationModal.tsx
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { container } from '@/di/container';
@@ -32,7 +31,15 @@ export const ApplicationModal: React.FC<Props> = observer(({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-[#1a1d24] rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col border border-gray-800/50">
+      <div 
+        className="
+          bg-gradient-to-br from-[#1e2128] to-[#16181d]
+          rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col 
+          border border-[#232732]/10
+          shadow-[8px_8px_16px_#111316,-8px_-8px_16px_#232732]
+          transition-all duration-200
+        "
+      >
         <ApplicationModalHeader 
           application={application}
           updatedApplication={updatedApplication}

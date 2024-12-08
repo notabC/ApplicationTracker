@@ -24,9 +24,13 @@ export const ApplicationModalStatusLog = observer(({
         {updatedApplication.logs.slice().reverse().map((log) => (
           <div 
             key={log.id}
-            className={`bg-[#282c34] rounded-xl border border-gray-800/50
-                      transition-all duration-200 
-                      ${log.emailId ? 'cursor-pointer hover:bg-gray-800/50 hover:border-gray-700/50' : ''}`}
+            className={`
+              bg-[#1a1d24] rounded-xl 
+              border border-[#232732]/20
+              shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
+              transition-all duration-200
+              ${log.emailId ? 'cursor-pointer hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732] hover:border-cyan-500/30' : ''}
+            `}
             onClick={() => log.emailId && viewModel.toggleLogExpansion(log.id)}
           >
             <div className="flex items-start gap-4 p-4">
@@ -53,8 +57,10 @@ export const ApplicationModalStatusLog = observer(({
                   </p>
                   {log.emailId && (
                     <ChevronRight
-                      className={`h-4 w-4 text-gray-400 transform transition-transform duration-200
-                              ${viewModel.expandedLogs.has(log.id) ? 'rotate-90' : ''}`}
+                      className={`
+                        h-4 w-4 text-gray-400 transform transition-transform duration-200
+                        ${viewModel.expandedLogs.has(log.id) ? 'rotate-90' : ''}
+                      `}
                     />
                   )}
                 </div>
@@ -67,8 +73,15 @@ export const ApplicationModalStatusLog = observer(({
             </div>
 
             {log.emailId && viewModel.expandedLogs.has(log.id) && (
-              <div className="px-4 pb-4 border-t border-gray-700/50 mt-2">
-                <div className="bg-[#1a1d24] rounded-lg p-4 mt-3">
+              <div className="px-4 pb-4 border-t border-[#232732]/20 mt-2">
+                <div 
+                  className="
+                    bg-[#1a1d24] rounded-lg p-4 mt-3
+                    border border-[#232732]/20
+                    shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+                    transition-all duration-200
+                  "
+                >
                   <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-line">
                     {log.emailBody}
                   </p>
