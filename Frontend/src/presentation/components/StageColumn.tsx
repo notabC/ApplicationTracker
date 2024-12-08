@@ -56,7 +56,7 @@ export const StageColumn = observer(({ stage, applications, viewModel }: Props) 
               <h3 className="font-medium text-white">{stage.name}</h3>
               <span className="px-2.5 py-0.5 bg-[#282c34] text-gray-400 text-sm rounded-full">
                 {stage.name === 'Unassigned'
-                  ? viewModel.unprocessedEmails.length
+                  ? viewModel.filteredUnprocessedEmails.length
                   : viewModel.getApplicationsByStage(stage.name).length}
               </span>
             </div>
@@ -66,7 +66,7 @@ export const StageColumn = observer(({ stage, applications, viewModel }: Props) 
         {/* Applications List (Scrolls behind the sticky header) */}
         <div className="p-4 pt-3 flex-1 flex flex-col gap-3 overflow-auto">
           {stage.name === 'Unassigned' ? (
-            viewModel.unprocessedEmails.map(email => (
+            viewModel.filteredUnprocessedEmails.map(email => (
               <EmailCard
                 key={email.id}
                 email={email}

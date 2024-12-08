@@ -167,6 +167,13 @@ export class JobTrackerViewModel {
     return this.emails.filter(email => !email.processed);
   }
 
+  get filteredUnprocessedEmails(): Email[] {
+    return this.unprocessedEmails.filter(email => 
+      email.subject.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      email.body.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+  }
+
   selectEmail(email: Email | null): void {
     this.selectedEmail = email;
     if (email) {
