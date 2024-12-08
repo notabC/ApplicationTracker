@@ -79,7 +79,7 @@ export const ApplicationCard: React.FC<Props> = observer(({ application, viewMod
                     shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
                     hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
                     active:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
-                    hover:border-cyan-500/30
+                    border-cyan-500/30
                     group
                     transition-all duration-200"
             onClick={(e) => {

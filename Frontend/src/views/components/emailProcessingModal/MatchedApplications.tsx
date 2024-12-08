@@ -1,4 +1,3 @@
-// src/views/components/EmailProcessingModal/MatchedApplications.tsx
 import React from 'react';
 import { Search } from 'lucide-react';
 import type { Email } from '@/core/interfaces/services/IEmailService';
@@ -32,22 +31,23 @@ export const MatchedApplications: React.FC<MatchedApplicationsProps> = ({
             transition-all duration-200
           "
         >
-          <div className="p-4">
+          <div className="p-3">
             <h3 className="text-lg font-medium text-white mb-1">{app.company}</h3>
             <p className="text-sm text-gray-400 mb-3">{app.position}</p>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="flex flex-col sm:grid sm:grid-cols-2 gap-2">
               {availableStages(app.stage).map(stage => (
                 <button
                   key={stage}
                   onClick={() => onUpdateApplication(app, stage, email)}
                   className="
-                    px-4 py-2 text-sm text-gray-300
+                    px-4 py-2.5 text-sm text-gray-300
                     bg-[#1a1d24] border border-[#232732]/20 rounded-lg
                     shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
                     hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
                     hover:border-cyan-500/30
                     hover:text-gray-200
                     transition-all duration-200
+                    break-words
                   "
                 >
                   Move to {stage}
@@ -58,7 +58,7 @@ export const MatchedApplications: React.FC<MatchedApplicationsProps> = ({
         </div>
       ))
     ) : (
-      <div className="text-center py-8">
+      <div className="text-center py-6 px-4">
         <div 
           className="
             inline-flex p-3 bg-blue-500/10 rounded-xl mb-4
@@ -71,7 +71,8 @@ export const MatchedApplications: React.FC<MatchedApplicationsProps> = ({
         <button
           onClick={() => onCreateNew(email)}
           className="
-            px-6 py-2.5 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20
+            w-full sm:w-auto px-6 py-2.5 bg-blue-500/10 text-blue-400 rounded-xl 
+            border border-blue-500/20
             shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
             hover:bg-blue-500/20 hover:border-blue-500/30
             hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
@@ -85,4 +86,3 @@ export const MatchedApplications: React.FC<MatchedApplicationsProps> = ({
     )}
   </div>
 );
-``
