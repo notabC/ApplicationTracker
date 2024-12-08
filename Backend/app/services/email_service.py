@@ -26,7 +26,7 @@ class EmailService:
         email_dict["_id"] = ObjectId()
         email_dict["user_id"] = user["id"]
         email_dict["user_email"] = user["email"]
-        del email_dict["id"]
+        email_dict["id"]
         await collection.insert_one(email_dict)
         return email
 
