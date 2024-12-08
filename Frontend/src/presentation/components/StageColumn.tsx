@@ -35,12 +35,12 @@ export const StageColumn = observer(({ stage, applications, viewModel }: Props) 
   if (!isVisible) return null;
 
   return (
-    <div className="flex-none w-[280px] sm:w-80 h-screen">
-      {/* The main column container. It will handle vertical scrolling of the applications. */}
+    // Changed from h-screen to h-full so the column height is inherited from the parent container
+    <div className="flex-none w-[280px] sm:w-80 h-full flex flex-col">
       <div
         className={`
           bg-[#1a1d24] rounded-xl border border-gray-800/50
-          transition-all duration-200 ease-in-out flex flex-col
+          transition-all duration-200 ease-in-out flex flex-col h-full
           ${viewModel.dragDropVM.isDraggingOver(stage.id) 
             ? 'bg-[#1e2128] border-blue-500/50 shadow-lg shadow-blue-500/10' 
             : 'hover:border-gray-700/50'}
@@ -64,7 +64,7 @@ export const StageColumn = observer(({ stage, applications, viewModel }: Props) 
         </div>
 
         {/* Applications List (Scrolls behind the sticky header) */}
-        <div className="p-4 pt-3 flex flex-col gap-3 h-full">
+        <div className="p-4 pt-3 flex-1 flex flex-col gap-3 overflow-auto">
           {stage.name === 'Unassigned' ? (
             viewModel.unprocessedEmails.map(email => (
               <EmailCard

@@ -1,4 +1,3 @@
-// src/presentation/views/JobTracker.tsx
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Search, SlidersHorizontal, PlusCircle, Mail, Settings2, Clock, LineChart, MoreVertical, LogOut } from 'lucide-react';
@@ -20,11 +19,11 @@ export const JobTracker: React.FC = observer(() => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="h-screen flex flex-col bg-[#1a1d21]">
-      {/* Top section: Header, actions, search, filters */}
+    // Make sure this container takes the full screen and hides overflow to prevent page-level scrolling
+    <div className="h-screen flex flex-col bg-[#1a1d21] overflow-hidden">
+      {/* Header section */}
       <div className="sticky top-0 z-50 bg-[#1a1d21] p-6">
         <div className="mx-auto max-w-full">
-          {/* Header Section */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
             <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
               Job Application Tracker
@@ -170,10 +169,10 @@ export const JobTracker: React.FC = observer(() => {
       </div>
 
       {/* Kanban Section */}
-      <div className="flex-1 overflow-auto p-6">
-        <div className="mx-auto max-w-full">
-          {/* Kanban Board */}
-          <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-6 -mx-3 px-3 sm:mx-0 sm:px-0">
+      {/* Set a proper layout so that columns have a defined space (h-full) */}
+      <div className="flex-1 p-6 flex overflow-hidden">
+        <div className="flex-1 h-full overflow-x-auto">
+          <div className="flex gap-4 sm:gap-6 pb-6 -mx-3 px-3 sm:mx-0 sm:px-0 h-full">
             {viewModel.workflowStages.map(stage => (
               <StageColumn
                 key={stage.id}
