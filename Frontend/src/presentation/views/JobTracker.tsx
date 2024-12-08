@@ -5,7 +5,7 @@ import { container } from '@/di/container';
 import { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import { StageColumn } from '../components/StageColumn';
-import { AuthViewModel } from '../viewModels/AuthViewModel';
+import { AuthViewModel } from '../../viewModels/AuthViewModel';
 import { WorkflowEditorModal } from '@/views/components/workflow/WorkflowEditorModal';
 import { ActivityHistoryModal } from '@/views/components/activityHistory/ActivityHistoryModal';
 import AddApplicationModal from '@/views/components/addapplication/AddApplicationModal';

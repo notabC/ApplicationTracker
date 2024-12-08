@@ -16,7 +16,7 @@ import { IAnalyticsService } from '@/core/interfaces/services/IAnalyticsService'
 import { AnalyticsService } from '@/core/services/AnalyticsService';
 import { AnalyticsViewModel } from '@/presentation/viewModels/AnalyticsViewModel';
 import { RootStore } from '@/presentation/viewModels/RootStore';
-import { AuthViewModel } from '@/presentation/viewModels/AuthViewModel';
+import { AuthViewModel } from '@/viewModels/AuthViewModel';
 import { AuthService } from '@/core/services/AuthService';
 import { WorkflowEditorViewModel } from '@/viewModels/WorkflowEditorViewModel';
 import { ActivityHistoryViewModel } from '@/viewModels/ActivityHistoryViewModel';

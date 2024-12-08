@@ -6,7 +6,7 @@ import { ContainerProvider } from '@/di/ContainerProvider';
 import { UnsavedChangesProvider } from './presentation/providers/UnsavedChangesProvider';
 import { JobTracker } from './presentation/views/JobTracker';
 import { PrivacyPolicy } from './views/Privacy';
-import { Login } from './presentation/components/Login';
+import { Login } from './views/Login';
 import { PrivateRoute } from './presentation/components/PrivateRoute';
 import LandingPage from './views/LandingPage';
 import NotFound from './views/NotFound';

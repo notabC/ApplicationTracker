@@ -1,24 +1,22 @@
-// src/presentation/viewModels/AuthViewModel.ts
-import { inject, injectable } from 'inversify';
+// src/domain/models/AuthModel.ts
 import { makeAutoObservable } from 'mobx';
-import type { IAuthService } from '../../core/interfaces/auth/IAuthService';
-import { SERVICE_IDENTIFIERS } from '@/di/container';
+import type { IAuthService } from '@/core/interfaces/auth/IAuthService';
 
-@injectable()
-export class AuthViewModel {
+export class AuthModel {
   isLoading = false;
   error: string | null = null;
 
-  constructor(
-    @inject(SERVICE_IDENTIFIERS.AuthService) private authService: IAuthService
-  ) {
+  constructor(private authService: IAuthService) {
     makeAutoObservable(this);
   }
 
-  async authenticate() {
+  get isAuthenticated(): boolean {
+    return this.authService.isAuthenticated;
+  }
+
+  async authenticate(): Promise<void> {
     this.isLoading = true;
     this.error = null;
-
     try {
       const success = await this.authService.authenticate();
       if (!success) {
@@ -31,14 +29,11 @@ export class AuthViewModel {
     }
   }
 
-  get isAuthenticated() {
-    return this.authService.isAuthenticated;
-  }
-
-  async signOut() {
+  async signOut(): Promise<void> {
     this.isLoading = true;
+    this.error = null;
     try {
-      this.authService.signOut();
+      await this.authService.signOut();
     } catch {
       this.error = 'An error occurred during sign out';
     } finally {

@@ -1,19 +1,12 @@
-import { useState } from 'react';
+// src/presentation/views/Login.tsx
+import { observer } from "mobx-react-lite";
 import { container, SERVICE_IDENTIFIERS } from "@/di/container";
 import { Loader2, LogOut, Shield } from "lucide-react";
-import { observer } from "mobx-react-lite";
 import { AuthViewModel } from "../viewModels/AuthViewModel";
 import { Link } from 'react-router-dom';
 
 export const Login = observer(() => {
   const authViewModel = container.get<AuthViewModel>(SERVICE_IDENTIFIERS.AuthViewModel);
-  const [privacyAccepted, setPrivacyAccepted] = useState(false);
-
-  const handleSignIn = () => {
-    if (privacyAccepted) {
-      authViewModel.authenticate();
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1e2128] to-[#16181d] flex items-center justify-center p-4">
@@ -32,7 +25,6 @@ export const Login = observer(() => {
         </div>
 
         <div className="space-y-6">
-          {/* Modern Privacy Notice */}
           <div className="
             relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500/5 to-purple-500/5 backdrop-blur-xl border border-white/5 p-4
             shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
@@ -56,8 +48,8 @@ export const Login = observer(() => {
             <input
               type="checkbox"
               id="privacy-consent"
-              checked={privacyAccepted}
-              onChange={(e) => setPrivacyAccepted(e.target.checked)}
+              checked={authViewModel.privacyAccepted}
+              onChange={(e) => authViewModel.setPrivacyAccepted(e.target.checked)}
               className="
                 w-4 h-4 rounded bg-[#1e2227] border-gray-600 text-blue-500
                 focus:ring-blue-500/30 transition-all duration-200
@@ -68,10 +60,9 @@ export const Login = observer(() => {
             </label>
           </div>
 
-          {/* Enhanced Sign In Button */}
           <button
-            onClick={handleSignIn}
-            disabled={authViewModel.isLoading || !privacyAccepted}
+            onClick={() => authViewModel.authenticate()}
+            disabled={!authViewModel.canSignIn}
             className="
               w-full flex items-center justify-center gap-3 px-6 py-4
               bg-gradient-to-r from-blue-500/10 to-purple-500/10
