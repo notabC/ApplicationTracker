@@ -35,35 +35,56 @@ export const StageColumn = observer(({ stage, applications, viewModel }: Props) 
   if (!isVisible) return null;
 
   return (
-    // Changed from h-screen to h-full so the column height is inherited from the parent container
     <div className="flex-none w-[280px] sm:w-80 h-full flex flex-col">
       <div
         className={`
-          bg-[#1a1d24] rounded-xl border border-gray-800/50
-          transition-all duration-200 ease-in-out flex flex-col h-full
+          bg-[#1a1d24] rounded-2xl
+          shadow-[16px_16px_32px_#111316,-16px_-16px_32px_#232732]
+          hover:shadow-[20px_20px_40px_#111316,-20px_-20px_40px_#232732]
+          flex flex-col h-full
+          transition-all duration-300 ease-in-out
           ${viewModel.dragDropVM.isDraggingOver(stage.id) 
-            ? 'bg-[#1e2128] border-blue-500/50 shadow-lg shadow-blue-500/10' 
-            : 'hover:border-gray-700/50'}
+            ? 'shadow-[inset_12px_12px_24px_#111316,inset_-12px_-12px_24px_#232732]' 
+            : ''}
         `}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        {/* Sticky Header inside the same scroll container */}
-        <div className="sticky top-0 z-10 bg-[#1a1d24] p-4 rounded-t-xl">
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-10 p-4 rounded-t-2xl bg-[#1a1d24]">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <h3 className="font-medium text-white">{stage.name}</h3>
-              <span className="px-2.5 py-0.5 bg-[#282c34] text-gray-400 text-sm rounded-full">
+              <span className="px-3 py-1 rounded-full text-sm text-cyan-400 
+                           bg-[#1a1d24] 
+                           shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
+                           border border-[#232732]/20">
                 {stage.name === 'Unassigned'
                   ? viewModel.filteredUnprocessedEmails.length
                   : viewModel.getApplicationsByStage(stage.name).length}
               </span>
             </div>
+
+            {stage.name !== 'Unassigned' && (
+              <button
+                onClick={() => viewModel.setShowAddModal(true)}
+                className="p-2 rounded-lg
+                         bg-[#1a1d24] border border-[#232732]/20
+                         shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
+                         hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
+                         active:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
+                         hover:border-cyan-500/30
+                         group
+                         transition-all duration-200"
+              >
+                <PlusCircle className="h-4 w-4 text-cyan-400 group-hover:text-cyan-300 transition-colors" />
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Applications List (Scrolls behind the sticky header) */}
+        {/* Applications List */}
         <div className="p-4 pt-3 flex-1 flex flex-col gap-3 overflow-auto">
           {stage.name === 'Unassigned' ? (
             viewModel.filteredUnprocessedEmails.map(email => (
@@ -82,21 +103,10 @@ export const StageColumn = observer(({ stage, applications, viewModel }: Props) 
               />
             ))
           )}
-
-          {stage.name !== 'Unassigned' && (
-            <button
-              onClick={() => viewModel.setShowAddModal(true)}
-              className="w-full flex items-center justify-center gap-2 py-2.5
-                         text-gray-400 bg-[#282c34] rounded-lg
-                         hover:text-gray-200 hover:bg-gray-800
-                         transition-all duration-200 group mt-3"
-            >
-              <PlusCircle className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
-              <span className="text-sm">Add Application</span>
-            </button>
-          )}
         </div>
       </div>
     </div>
   );
 });
+
+export default StageColumn;
