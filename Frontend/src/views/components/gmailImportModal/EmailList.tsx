@@ -9,7 +9,7 @@ interface EmailListProps {
 }
 
 const EmailList: React.FC<EmailListProps> = observer(({ viewModel }) => (
-  <div className="flex-1 overflow-y-auto p-4 space-y-6 relative">
+  <div className="flex-1 overflow-y-auto p-4 space-y-6 relative bg-gradient-to-br from-[#1e2128] to-[#16181d]">
     <div
       className={
         viewModel.loadingState.isLoading

@@ -13,9 +13,13 @@ interface EmailItemProps {
 const EmailItem: React.FC<EmailItemProps> = observer(({ email, viewModel }) => (
   <div
     key={email.id}
-    className="bg-[#282c34] rounded-xl border border-gray-800/50
-               hover:border-gray-700/50 transition-all duration-200
-               mb-4"
+    className="
+      bg-[#1a1d24] rounded-xl border border-[#232732]/20 mb-4
+      shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
+      hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
+      hover:border-cyan-500/30
+      transition-all duration-200
+    "
   >
     <div className="p-4">
       <div className="flex items-start gap-4">
@@ -23,23 +27,33 @@ const EmailItem: React.FC<EmailItemProps> = observer(({ email, viewModel }) => (
           type="checkbox"
           checked={viewModel.selectedEmails.has(email.id)}
           onChange={() => viewModel.toggleEmailSelection(email.id)}
-          className="mt-1.5 w-5 h-5 rounded-lg border-gray-700 text-blue-500 
-                   focus:ring-blue-500/30 bg-gray-800"
+          className="
+            mt-1.5 w-5 h-5 rounded-lg border-[#232732]/20 text-blue-500 
+            focus:ring-blue-500/30 bg-[#1a1d24]
+            shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+            transition-all duration-200
+          "
         />
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-start gap-3">
-            <h4 className="text-sm font-medium text-white leading-snug">
-              {email.subject}
-            </h4>
+            <h4 className="text-sm font-medium text-white leading-snug">{email.subject}</h4>
             <button
               onClick={() => viewModel.toggleEmailExpansion(email.id)}
-              className="p-2 hover:bg-gray-700/50 rounded-lg shrink-0"
+              className="
+                p-2 rounded-lg
+                bg-[#1a1d24] border border-[#232732]/20
+                shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
+                hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
+                active:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
+                hover:border-cyan-500/30
+                transition-all duration-200 shrink-0
+              "
             >
               <ChevronRight
-                className={`h-5 w-5 text-gray-400 transform transition-transform
-                duration-200 ${
-                  viewModel.expandedEmails.has(email.id) ? 'rotate-90' : ''
-                }`}
+                className={`
+                  h-5 w-5 text-gray-400 transform transition-transform duration-200
+                  ${viewModel.expandedEmails.has(email.id) ? 'rotate-90' : ''}
+                `}
               />
             </button>
           </div>
@@ -55,8 +69,13 @@ const EmailItem: React.FC<EmailItemProps> = observer(({ email, viewModel }) => (
     </div>
 
     {viewModel.expandedEmails.has(email.id) && (
-      <div className="px-4 pb-4 border-t border-gray-800/50 mt-2">
-        <div className="bg-[#1a1d24] rounded-xl p-4 mt-4">
+      <div className="px-4 pb-4 border-t border-[#232732]/20 mt-2">
+        <div className="
+          bg-[#1a1d24] rounded-xl p-4 mt-4
+          border border-[#232732]/20
+          shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+          transition-all duration-200
+        ">
           <p className="text-sm text-gray-300 whitespace-pre-line break-words leading-relaxed">
             {email.body}
           </p>
