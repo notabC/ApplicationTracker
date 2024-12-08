@@ -44,7 +44,12 @@ export class WorkflowEditorViewModel {
   // UI Event Handlers
   @action
   setExpandedStage = (stageId: string | null): void => {
-    this.expandedStageId = stageId;
+    if (this.expandedStageId === stageId) {
+      this.expandedStageId = null;
+    }
+    else {
+      this.expandedStageId = stageId;
+    }
   }
 
   @action

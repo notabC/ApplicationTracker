@@ -28,10 +28,17 @@ export const StageCard: React.FC<StageCardProps> = observer(({
           e.preventDefault();
           onDrop(stage.id);
         }}
-        className={`bg-[#282c34] border border-gray-800/50 rounded-xl overflow-hidden 
-                   transition-all duration-200 
-                   ${!isMobile ? 'hover:border-gray-700/50' : ''} 
-                   ${isExpanded ? 'ring-1 ring-blue-500/20' : ''}`}
+        className={`
+          bg-[#1a1d24] 
+          border border-[#232732]/20 
+          rounded-xl overflow-hidden
+          shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
+          hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
+          transition-all duration-200
+          ${!isMobile ? 'hover:border-cyan-500/30' : ''} 
+          ${isExpanded ? 'ring-1 ring-blue-500/20' : ''}
+          cursor-grab active:cursor-grabbing
+        `}
       >
         <StageCardHeader
           stage={stage}

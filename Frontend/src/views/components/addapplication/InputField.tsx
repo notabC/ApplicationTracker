@@ -1,3 +1,4 @@
+// InputField.tsx
 import React from 'react';
 import { AlertCircle } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
@@ -26,8 +27,8 @@ const InputField: React.FC<InputFieldProps> = observer(({
   placeholder,
   error = '',
 }) => (
-  <div className="relative" id={id}>
-    <div className="flex items-center justify-between mb-2">
+  <div className="relative space-y-2" id={id}>
+    <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
         <Icon className={`h-4 w-4 ${error ? 'text-red-400' : 'text-gray-400'}`} />
         <label className="text-sm font-medium text-gray-400">
@@ -42,14 +43,15 @@ const InputField: React.FC<InputFieldProps> = observer(({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className={`w-full px-4 py-3 bg-[#282c34] rounded-xl text-white
-                  border ${error 
-                    ? 'border-red-500/50 focus:ring-red-500/30 focus:border-red-500/30' 
-                    : 'border-gray-800/50 focus:ring-blue-500/30 focus:border-blue-500/30'
-                  }
-                  transition-all duration-200
-                  placeholder:text-gray-500
-                  ${error ? 'pr-10' : ''}`}
+        className={`
+          w-full px-4 py-3 rounded-xl text-white
+          bg-[#1a1d24] border transition-all duration-200 placeholder:text-gray-500
+          shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+          ${error 
+            ? 'border-red-500/50 focus:ring-red-500/30 focus:border-red-500/30 pr-10' 
+            : 'border-[#232732]/20 focus:ring-blue-500/30 focus:border-blue-500/30'
+          }
+        `}
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : undefined}
       />
@@ -60,9 +62,12 @@ const InputField: React.FC<InputFieldProps> = observer(({
       )}
     </div>
     {error && (
-      <div className="absolute -bottom-6 left-0 right-0">
+      <div className="-mt-1">
         <p 
-          className="text-xs text-red-400 bg-red-500/10 px-3 py-1 rounded-lg inline-block"
+          className="
+            text-xs text-red-400 bg-red-500/10 px-3 py-1 rounded-lg inline-block
+            shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+          "
           id={`${id}-error`}
           role="alert"
         >
