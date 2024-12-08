@@ -31,7 +31,7 @@ export const JobTracker: React.FC = observer(() => {
   ];
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-[#1e2128] to-[#16181d]">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-[#1e2128] to-[#16181d] overflow-none">
       {/* Header Section with spacing and sticky behavior */}
       <div className="
         sticky top-0 z-50 p-4 space-y-4
