@@ -66,7 +66,7 @@ export const JobTracker: React.FC = observer(() => {
                             bg-[#1a1d24] border border-[#232732]/20 
                             rounded-xl shadow-[8px_8px_16px_#111316,-8px_-8px_16px_#232732]
                             divide-y divide-[#232732]/20">
-                  {menuItems.map(({ icon: Icon, label, color, onClick }) => (
+                  {menuItems.map(({ icon: Icon, label, onClick }) => (
                     <button 
                       key={label}
                       onClick={() => {

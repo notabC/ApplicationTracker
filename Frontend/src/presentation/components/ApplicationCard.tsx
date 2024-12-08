@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { GripVertical, ChevronDown, Clock, Ellipsis } from 'lucide-react';
+import { GripVertical, Clock, Ellipsis } from 'lucide-react';
 import { Application } from '@/core/domain/models/Application';
 import type { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
 import { StageSelector } from './StageSelector';
