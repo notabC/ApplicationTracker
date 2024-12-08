@@ -3,7 +3,7 @@ import type { Application } from '@/core/domain/models/Application';
 import type { ApplicationModalViewModel } from '@/viewModels/ApplicationModalViewModel';
 import { ApplicationModalStatusLog } from './ApplicationModalStatusLog';
 import { EditableField } from '@/views/components/applicationModal/EditableField';
-import { TagManager } from '@/presentation/components/TagManager';
+import { TagManager } from '@/views/components/applicationModal/TagManager';
 import { observer } from 'mobx-react-lite';
 
 interface ContentProps {

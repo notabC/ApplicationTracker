@@ -1,4 +1,4 @@
-// src/views/components/activityHistory/ActivityLogItem.tsx
+// src/views/components/activityHistory/ActivityHistoryLogItem.tsx
 import React from 'react';
 import { ChevronDown, ChevronRight, Building2, Clock } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
@@ -9,15 +9,27 @@ export const ActivityHistoryLogItem: React.FC<ActivityHistoryLogItemProps> = obs
   const isExpanded = viewModel.isLogExpanded(log.id);
 
   return (
-    <div className="bg-[#282c34] rounded-xl border border-gray-800/50
-                   hover:border-gray-700/50 transition-all duration-200">
+    <div className="
+      bg-[#1a1d24] rounded-xl border border-[#232732]/20
+      shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
+      hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
+      hover:border-cyan-500/30
+      transition-all duration-200
+    ">
       <div 
-        className="p-4 cursor-pointer"
+        className="
+          p-4 cursor-pointer
+          bg-gradient-to-br from-[#1e2128] to-[#16181d]
+        "
         onClick={() => viewModel.toggleLogExpansion(log.id)}
       >
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3 min-w-0">
-            <div className="flex-shrink-0 p-2 bg-gray-800/50 rounded-lg mt-1">
+            <div className="
+              flex-shrink-0 p-2 rounded-lg mt-1
+              bg-[#1a1d24] border border-[#232732]/20
+              shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+            ">
               {isExpanded 
                 ? <ChevronDown className="h-4 w-4 text-gray-400" />
                 : <ChevronRight className="h-4 w-4 text-gray-400" />
@@ -43,7 +55,11 @@ export const ActivityHistoryLogItem: React.FC<ActivityHistoryLogItemProps> = obs
       </div>
       
       {isExpanded && (
-        <div className="px-4 py-3 border-t border-gray-800/50">
+        <div className="
+          px-4 py-3 border-t border-[#232732]/20
+          bg-[#1a1d24] transition-all duration-200
+          shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+        ">
           <div className="space-y-2">
             {Object.entries(log.metadata).map(([key, value]) => (
               value && (
@@ -59,9 +75,9 @@ export const ActivityHistoryLogItem: React.FC<ActivityHistoryLogItemProps> = obs
             <p className="mt-4 text-gray-400 text-sm leading-relaxed">
               {log.description}
             </p>
-            )}
+          )}
         </div>
-    )}
+      )}
     </div>
-    );
+  );
 });

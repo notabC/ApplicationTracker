@@ -26,7 +26,13 @@ export const SearchFields: React.FC<SearchFieldsProps> = ({
         value={companyValue}
         onChange={(e) => onCompanyChange(e.target.value)}
         placeholder="e.g., TechCorp"
-        className="w-full px-4 py-3 bg-[#20242b] border border-gray-800/50 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/30 transition-all duration-200"
+        className="
+          w-full px-4 py-3 bg-[#1a1d24] 
+          border border-[#232732]/20 rounded-xl text-white placeholder-gray-500 
+          focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/30 
+          transition-all duration-200
+          shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+        "
       />
     </div>
     <div>
@@ -39,7 +45,13 @@ export const SearchFields: React.FC<SearchFieldsProps> = ({
         value={positionValue}
         onChange={(e) => onPositionChange(e.target.value)}
         placeholder="e.g., Frontend Developer"
-        className="w-full px-4 py-3 bg-[#20242b] border border-gray-800/50 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/30 transition-all duration-200"
+        className="
+          w-full px-4 py-3 bg-[#1a1d24] 
+          border border-[#232732]/20 rounded-xl text-white placeholder-gray-500 
+          focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/30 
+          transition-all duration-200
+          shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+        "
       />
     </div>
   </div>

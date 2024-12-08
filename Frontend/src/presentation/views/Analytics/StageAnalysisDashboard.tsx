@@ -1,3 +1,5 @@
+// src/presentation/views/Analytics/StageAnalysisDashboard.tsx
+
 import { AnalyticsViewModel } from '@/presentation/viewModels/AnalyticsViewModel';
 import { ReactNode } from 'react';
 import {
@@ -5,19 +7,14 @@ import {
   LineChart, Line, Legend,
 } from 'recharts';
 
-
 interface ChartContainerProps {
   children: React.ReactNode;
-  minWidth?: number; // Optional minimum width in pixels
+  minWidth?: number;
 }
 
-const ChartContainer: React.FC<ChartContainerProps> = ({ 
-  children, 
-}) => (
+const ChartContainer: React.FC<ChartContainerProps> = ({ children }) => (
   <div className="w-full overflow-x-auto">
-    <div 
-      className="h-52 md:h-full min-w-[500px]" // Fixed height and minimum width
-    >
+    <div className="h-52 md:h-full min-w-[500px]">
       {children}
     </div>
   </div>
@@ -31,15 +28,14 @@ interface CardProps {
 const Card = ({ children, className = '' }: CardProps) => (
   <div className={`
     relative overflow-hidden
-    bg-gradient-to-br from-slate-800/95 to-slate-800/75
-    backdrop-blur-xl
-    border border-slate-700/20
+    bg-[#1a1d24]
+    border border-[#232732]/20
     rounded-2xl
-    shadow-xl shadow-slate-900/20
+    shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
     p-6
     ${className}
+    transition-all duration-200
   `}>
-    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5" />
     <div className="relative">{children}</div>
   </div>
 );
@@ -56,22 +52,22 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 
   return (
     <div className="
-      bg-slate-800/90 
+      bg-[#1a1d24]/90 
       backdrop-blur-md 
-      border border-slate-700/30 
+      border border-[#232732]/20 
       p-4 
       rounded-lg 
       shadow-lg
     ">
-      <p className="text-sm font-medium text-slate-300 mb-2">{label}</p>
+      <p className="text-sm font-medium text-gray-300 mb-2">{label}</p>
       {payload.map((entry, index) => (
         <div key={index} className="flex items-center gap-2 text-sm">
           <div 
             className="w-2 h-2 rounded-full" 
             style={{ backgroundColor: entry.color }}
           />
-          <span className="text-slate-400">{entry.name}:</span>
-          <span className="text-slate-200 font-medium">
+          <span className="text-gray-400">{entry.name}:</span>
+          <span className="text-gray-200 font-medium">
             {entry.value.toLocaleString()}
             {entry.payload.rate && ` (${entry.payload.rate})`}
           </span>
@@ -81,17 +77,16 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   );
 };
 
-// Application Funnel Analysis
+// StageFunnelMetrics
 interface StageFunnelMetricsProps {
   data: { stage: string; count: number }[];
 }
-
 const StageFunnelMetrics = ({ data }: StageFunnelMetricsProps) => (
   <ChartContainer minWidth={400}>
     <Card>
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-white">Application Funnel Analysis</h3>
-        <p className="text-sm text-slate-400 mt-1">Conversion rates by stage</p>
+        <p className="text-sm text-gray-400 mt-1">Conversion rates by stage</p>
       </div>
       
       <div className="h-[400px]">
@@ -134,7 +129,7 @@ const StageFunnelMetrics = ({ data }: StageFunnelMetricsProps) => (
   </ChartContainer>
 );
 
-// Stage Transition Times
+// StageTransitionTime
 interface StageTransitionTimeProps {
   data: { stage: string; avgDays: number }[];
 }
@@ -144,7 +139,7 @@ const StageTransitionTime = ({ data }: StageTransitionTimeProps) => (
     <Card>
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-white">Stage Transition Times</h3>
-        <p className="text-sm text-slate-400 mt-1">Average days per stage</p>
+        <p className="text-sm text-gray-400 mt-1">Average days per stage</p>
       </div>
       
       <div className="h-[400px]">
@@ -199,7 +194,7 @@ const StageTransitionTime = ({ data }: StageTransitionTimeProps) => (
   </ChartContainer>
 );
 
-// Stage Outcomes Analysis
+// StageOutcomes
 interface StageOutcomesProps {
   data: { stage: string; passed: number; failed: number }[];
 }
@@ -209,7 +204,7 @@ const StageOutcomes = ({ data }: StageOutcomesProps) => (
     <Card>
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-white">Stage Outcomes Analysis</h3>
-        <p className="text-sm text-slate-400 mt-1">Results by stage</p>
+        <p className="text-sm text-gray-400 mt-1">Results by stage</p>
       </div>
       
       <div className="h-[400px]">
@@ -244,6 +239,7 @@ const StageOutcomes = ({ data }: StageOutcomesProps) => (
               wrapperStyle={{
                 paddingTop: '20px'
               }}
+              formatter={(value) => <span style={{ color: '#94A3B8', fontSize: '12px' }}>{value}</span>}
             />
             <Bar
               dataKey="passed"
@@ -267,7 +263,6 @@ const StageOutcomes = ({ data }: StageOutcomesProps) => (
     </Card>
   </ChartContainer>
 );
-
 
 const StageAnalysisDashboard = ({ viewModel }: { viewModel: AnalyticsViewModel }) => {
   return (
