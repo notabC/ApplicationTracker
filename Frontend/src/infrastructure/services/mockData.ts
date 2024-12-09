@@ -1,5 +1,5 @@
 // File: src/core/services/mockData.ts
-import { Application } from '../domain/models/Application';
+import { Application } from '../../domain/interfaces/IApplication';
 
 export const mockApplications: Application[] = [
   {

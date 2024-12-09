@@ -7,7 +7,7 @@ import {
   Loader, AlertCircle
 } from 'lucide-react';
 import { container } from '@/di/container';
-import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
+import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
 import InputField from './InputField';
 import TextArea from './TextArea';
 import { AddApplicationViewModel } from '@/viewModels/AddApplicationViewModel';

@@ -1,6 +1,6 @@
 // src/presentation/viewModels/PrivateRouteViewModel.ts
 import { makeAutoObservable, runInAction } from 'mobx';
-import { AuthService } from '@/core/services/AuthService';
+import { AuthService } from '@/infrastructure/services/AuthService';
 import { inject, injectable } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '@/di/container';
 

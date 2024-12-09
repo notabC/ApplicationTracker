@@ -1,5 +1,5 @@
 import { DollarSign, MapPin, ClipboardEdit } from 'lucide-react';
-import type { Application } from '@/core/domain/models/Application';
+import type { Application } from '@/domain/interfaces/IApplication';
 import type { ApplicationModalViewModel } from '@/viewModels/ApplicationModalViewModel';
 import { ApplicationModalStatusLog } from './ApplicationModalStatusLog';
 import { EditableField } from '@/views/components/applicationModal/EditableField';

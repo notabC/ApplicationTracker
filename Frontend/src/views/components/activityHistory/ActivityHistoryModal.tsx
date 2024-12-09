@@ -2,7 +2,7 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { container } from '@/di/container';
-import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
+import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
 import { ActivityHistoryHeader } from './ActivityHistoryHeader';
 import { ActivityHistoryFilters } from './ActivityHistoryFilters';
 import { ActivityHistoryTimeline } from './ActivityHistoryTimeline';

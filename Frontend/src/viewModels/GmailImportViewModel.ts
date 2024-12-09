@@ -1,8 +1,8 @@
 // src/presentation/viewModels/GmailImportViewModel.ts
 import { computed, observable, action, makeObservable } from 'mobx';
 import { inject, injectable } from 'inversify';
-import { SERVICE_IDENTIFIERS } from '../core/constants/identifiers';
-import type { IGmailEmail, IGmailImportOptions } from '../core/interfaces/services/IGmailService';
+import { SERVICE_IDENTIFIERS } from '../di/identifiers';
+import type { IGmailEmail, IGmailImportOptions } from '../domain/interfaces/IGmailService';
 import GmailImportModel from '@/domain/models/GmailImportModel';
 
 @injectable()

@@ -1,10 +1,10 @@
 // src/domain/models/GmailImportModel.ts
 import { makeAutoObservable, runInAction } from 'mobx';
-import type { IAuthService } from '@/core/interfaces/auth/IAuthService';
-import { Email } from '@/core/interfaces/services/IEmailService';
+import type { IAuthService } from '@/domain/interfaces/IAuthService';
+import { Email } from '@/domain/interfaces/IEmailService';
 import { injectable, inject } from 'inversify';
 import { JobTrackerViewModel } from '@/viewModels/JobTrackerViewModel';
-import type { IGmailEmail, IGmailImportOptions, IGmailService } from '@/core/interfaces/services/IGmailService';
+import type { IGmailEmail, IGmailImportOptions, IGmailService } from '@/domain/interfaces/IGmailService';
 import { SERVICE_IDENTIFIERS } from '@/di/container';
 
 export type ImportStep = 'filters' | 'processing' | 'selection';

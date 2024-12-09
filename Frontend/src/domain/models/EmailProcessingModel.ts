@@ -1,8 +1,8 @@
 // src/core/domain/models/EmailProcessingModel.ts
 import { makeAutoObservable } from 'mobx';
-import type { Application } from '@/core/domain/models/Application';
-import type { Email } from '@/core/interfaces/services/IEmailService';
-import { IGmailEmail } from '@/core/interfaces/services/IGmailService';
+import type { Application } from '@/domain/interfaces/IApplication';
+import type { Email } from '@/domain/interfaces/IEmailService';
+import { IGmailEmail } from '@/domain/interfaces/IGmailService';
 import { WorkflowEditorViewModel } from '@/viewModels/WorkflowEditorViewModel';
 import { JobTrackerViewModel } from '@/viewModels/JobTrackerViewModel';
 import { RootStore } from '@/presentation/viewModels/RootStore';

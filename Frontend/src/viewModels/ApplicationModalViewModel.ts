@@ -1,9 +1,9 @@
 // src/presentation/viewModels/ApplicationModalViewModel.ts
 import { makeAutoObservable, computed, action, observable } from 'mobx';
 import { inject, injectable } from 'inversify';
-import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
-import type { Application } from '@/core/domain/models/Application';
-import type { IViewModelUpdateField } from '@/core/interfaces/services';
+import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
+import type { Application } from '@/domain/interfaces/IApplication';
+import type { IViewModelUpdateField } from '@/domain/interfaces';
 import { ApplicationModel } from '@/domain/models/ApplicationModel';
 import { UnsavedChangesViewModel } from '@/presentation/viewModels/UnsavedChangesViewModel';
 

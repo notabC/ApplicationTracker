@@ -1,5 +1,5 @@
 import { X, ChevronDown, Building2 } from 'lucide-react';
-import type { Application } from '@/core/domain/models/Application';
+import type { Application } from '@/domain/interfaces/IApplication';
 import type { ApplicationModalViewModel } from '@/viewModels/ApplicationModalViewModel';
 import { observer } from 'mobx-react-lite';
 

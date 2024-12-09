@@ -1,9 +1,9 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { container } from '@/di/container';
-import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
+import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
 import { ApplicationModalViewModel } from '@/viewModels/ApplicationModalViewModel';
-import type { Application } from '@/core/domain/models/Application';
+import type { Application } from '@/domain/interfaces/IApplication';
 import { RootStore } from '@/presentation/viewModels/RootStore';
 import { ApplicationModalHeader } from './ApplicationModalHeader';
 import { ApplicationModalContent } from './ApplicationModalContent';

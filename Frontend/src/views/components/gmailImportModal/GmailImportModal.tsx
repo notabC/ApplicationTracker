@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { Mail, X } from 'lucide-react';
 import { container } from '../../../di/container';
 import { GmailImportViewModel } from '../../../viewModels/GmailImportViewModel';
-import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
+import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
 
 import SelectionHeader from './SelectionHeader';
 import SelectionFooter from './SelectionFooter';

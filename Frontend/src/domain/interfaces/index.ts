@@ -1,4 +1,4 @@
-import { Application } from '@/core/domain/models/Application';
+import { Application } from '@/domain/interfaces/IApplication';
 
 export interface IApplicationService {
   getApplications(): Promise<Application[]>;

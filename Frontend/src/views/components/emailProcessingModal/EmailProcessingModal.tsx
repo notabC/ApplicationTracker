@@ -2,13 +2,13 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { container } from '@/di/container';
-import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
+import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
 import { EmailProcessingViewModel } from '@/viewModels/EmailProcessingViewModel';
 import { EmailProcessingModalHeader } from './EmailProcessingModalHeader';
 import { EmailContent } from './EmailContent';
 import { SearchFields } from './SearchFields';
 import { MatchedApplications } from './MatchedApplications';
-import { Email } from '@/core/interfaces/services/IEmailService';
+import { Email } from '@/domain/interfaces/IEmailService';
 
 export interface EmailProcessingModalProps {
     email: Email;

@@ -1,5 +1,5 @@
 import { makeAutoObservable, observable, action, computed } from 'mobx';
-import { Application } from '@/core/domain/models/Application';
+import { Application } from '@/domain/interfaces/IApplication';
 import { RootStore } from '@/presentation/viewModels/RootStore';
 
 export class AddApplicationModel {

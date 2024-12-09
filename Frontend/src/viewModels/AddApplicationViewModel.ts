@@ -1,6 +1,6 @@
 import { injectable, inject } from 'inversify';
 import { makeAutoObservable, observable, action, computed } from 'mobx';
-import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
+import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
 import { AddApplicationModel } from '@/domain/models/AddApplicationModel';
 import { RootStore } from '@/presentation/viewModels/RootStore';
 

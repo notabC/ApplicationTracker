@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Pencil } from 'lucide-react';
-import { Application } from '@/core/domain/models/Application';
-import { IApplicationService } from '@/core/interfaces/services';
+import { Application } from '@/domain/interfaces/IApplication';
+import { IApplicationService } from '@/domain/interfaces';
 import { container, SERVICE_IDENTIFIERS } from '@/di/container';
 
 interface Props {

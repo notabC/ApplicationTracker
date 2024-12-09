@@ -1,6 +1,6 @@
 // src/domain/models/AuthModel.ts
 import { makeAutoObservable } from 'mobx';
-import type { IAuthService } from '@/core/interfaces/auth/IAuthService';
+import type { IAuthService } from '@/domain/interfaces/IAuthService';
 
 export class AuthModel {
   isLoading = false;

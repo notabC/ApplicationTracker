@@ -1,12 +1,12 @@
 // src/core/services/ApplicationService.ts
 import { injectable, inject } from 'inversify';
 import { makeObservable, observable, action } from 'mobx';
-import type { Application, ApplicationCreate } from '../domain/models/Application';
-import { IApplicationService } from '../interfaces/services';
-import type { IAuthService } from '../interfaces/auth/IAuthService';
+import type { Application, ApplicationCreate } from '../../domain/interfaces/IApplication';
+import { IApplicationService } from '../../domain/interfaces';
+import type { IAuthService } from '../../domain/interfaces/IAuthService';
 import { ApiClient } from '../api/apiClient';
 import { API_ENDPOINTS } from '../api/endpoints';
-import { SERVICE_IDENTIFIERS } from '../constants/identifiers';
+import { SERVICE_IDENTIFIERS } from '../../di/identifiers';
 
 @injectable()
 export class ApplicationService implements IApplicationService {

@@ -1,6 +1,6 @@
 // src/core/services/EmailService.ts
 import { injectable } from "inversify";
-import { Email, IEmailService } from "../interfaces/services/IEmailService";
+import { Email, IEmailService } from "../../domain/interfaces/IEmailService";
 import { makeObservable, observable, action } from 'mobx';
 import { ApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/endpoints";

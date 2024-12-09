@@ -11,10 +11,10 @@ import {
   StageFunnelMetric,
   StageTransition,
   StageOutcome
-} from '../interfaces/services/IAnalyticsService';
-import { SERVICE_IDENTIFIERS } from '../constants/identifiers';
+} from '../../domain/interfaces/IAnalyticsService';
+import { SERVICE_IDENTIFIERS } from '../../di/identifiers';
 import type { IApplicationRepository } from '@/domain/repositories/ApplicationRepository';
-import { Application } from '../domain/models/Application';
+import { Application } from '../../domain/interfaces/IApplication';
 import { MockWorkflowRepository } from '@/domain/repositories/MockWorkflowRepository';
 
 @injectable()

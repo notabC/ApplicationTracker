@@ -2,7 +2,7 @@
 
 import { injectable, inject } from 'inversify';
 import { makeAutoObservable, action, computed, runInAction } from 'mobx';
-import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
+import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
 import type {
   IAnalyticsService,
   StageMetric,
@@ -13,7 +13,7 @@ import type {
   StageFunnelMetric,
   StageTransition,
   StageOutcome
-} from '@/core/interfaces/services/IAnalyticsService';
+} from '@/domain/interfaces/IAnalyticsService';
 
 type DateRangeOption = '1d' | '7d' | '1m' | '3m' | 'all' | 'custom';
 

@@ -1,7 +1,7 @@
 // src/presentation/viewModels/UnsavedChangesViewModel.ts
 import { makeAutoObservable, runInAction } from 'mobx';
-import { IViewModelUpdateField } from '@/core/interfaces/services';
-import { Application } from '@/core/domain/models/Application';
+import { IViewModelUpdateField } from '@/domain/interfaces';
+import { Application } from '@/domain/interfaces/IApplication';
 import { UnsavedChangesModel } from '@/domain/models/UnsavedChangesModel';
 import { RootStore } from '@/presentation/viewModels/RootStore';
 import { inject } from 'inversify';

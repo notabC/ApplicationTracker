@@ -3,7 +3,7 @@ import { injectable } from 'inversify';
 import { makeObservable, observable, action, runInAction } from 'mobx';
 import { ApiClient } from '../api/apiClient';
 import { API_ENDPOINTS } from '../api/endpoints';
-import { IAuthService } from '../interfaces/auth/IAuthService';
+import { IAuthService } from '../../domain/interfaces/IAuthService';
 
 const USER_ID_KEY = 'gmail_user_id';
 const AUTH_STATE_KEY = 'gmail_auth_state';

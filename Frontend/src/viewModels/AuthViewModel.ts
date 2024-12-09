@@ -2,7 +2,7 @@
 import { makeAutoObservable } from 'mobx';
 import { inject, injectable } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '@/di/container';
-import type { IAuthService } from '@/core/interfaces/auth/IAuthService';
+import type { IAuthService } from '@/domain/interfaces/IAuthService';
 import { AuthModel } from '@/domain/models/AuthModel';
 
 @injectable()

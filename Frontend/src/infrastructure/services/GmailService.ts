@@ -1,6 +1,6 @@
 // src/core/services/GmailService.ts
 import { injectable } from 'inversify';
-import type { IGmailService, IGmailImportOptions, IGmailResponse } from '../interfaces/services/IGmailService';
+import type { IGmailService, IGmailImportOptions, IGmailResponse } from '../../domain/interfaces/IGmailService';
 import { makeObservable, observable, action, runInAction } from 'mobx';
 import { ApiClient } from '../api/apiClient';
 import { API_ENDPOINTS } from '../api/endpoints';

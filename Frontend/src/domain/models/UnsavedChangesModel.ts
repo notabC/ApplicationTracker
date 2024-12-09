@@ -1,6 +1,6 @@
 // src/core/services/UnsavedChangesModel.ts
-import { Application } from '@/core/domain/models/Application';
-import { IViewModelUpdateField } from '@/core/interfaces/services';
+import { Application } from '@/domain/interfaces/IApplication';
+import { IViewModelUpdateField } from '@/domain/interfaces';
 import { RootStore } from '@/presentation/viewModels/RootStore';
 
 interface Change {
@@ -51,7 +51,7 @@ export class UnsavedChangesModel {
       return acc;
     }, {});
 
-    for (const [id, updatedApp] of Object.entries(changesById)) {
+    for (const [, updatedApp] of Object.entries(changesById)) {
       await this.rootStore.updateApplication(updatedApp);
     }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { Mail, Clock } from 'lucide-react';
-import { Email } from '@/core/interfaces/services/IEmailService';
+import { Email } from '@/domain/interfaces/IEmailService';
 import { JobTrackerViewModel } from '../../../viewModels/JobTrackerViewModel';
 
 interface Props {

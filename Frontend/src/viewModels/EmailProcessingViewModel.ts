@@ -1,10 +1,10 @@
 // src/presentation/viewModels/EmailProcessingViewModel.ts
 import { injectable, inject } from 'inversify';
 import { computed, makeObservable } from 'mobx';
-import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
-import { Application } from '@/core/domain/models/Application';
-import { Email } from '@/core/interfaces/services/IEmailService';
-import { IGmailEmail } from '@/core/interfaces/services/IGmailService';
+import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
+import { Application } from '@/domain/interfaces/IApplication';
+import { Email } from '@/domain/interfaces/IEmailService';
+import { IGmailEmail } from '@/domain/interfaces/IGmailService';
 import { EmailProcessingModel } from '@/domain/models/EmailProcessingModel';
 import { WorkflowEditorViewModel } from '@/viewModels/WorkflowEditorViewModel';
 import { JobTrackerViewModel } from './JobTrackerViewModel';

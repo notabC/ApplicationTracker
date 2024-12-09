@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { container } from '@/di/container';
 import { JobTrackerViewModel } from '@/viewModels/JobTrackerViewModel';
-import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
+import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
 
 import { AuthViewModel } from '@/viewModels/AuthViewModel';
 import { ActivityHistoryModal } from '@/views/components/activityHistory/ActivityHistoryModal';

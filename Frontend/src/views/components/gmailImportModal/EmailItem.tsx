@@ -2,7 +2,7 @@
 import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
-import { IGmailEmail } from '@/core/interfaces/services/IGmailService';
+import { IGmailEmail } from '@/domain/interfaces/IGmailService';
 import { GmailImportViewModel } from '../../../viewModels/GmailImportViewModel';
 
 interface EmailItemProps {

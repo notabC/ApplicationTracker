@@ -1,7 +1,7 @@
 import React from 'react';
 import { Search } from 'lucide-react';
-import type { Email } from '@/core/interfaces/services/IEmailService';
-import { Application } from '@/core/domain/models/Application';
+import type { Email } from '@/domain/interfaces/IEmailService';
+import { Application } from '@/domain/interfaces/IApplication';
 
 interface MatchedApplicationsProps {
   applications: Application[];

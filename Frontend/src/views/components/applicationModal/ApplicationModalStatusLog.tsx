@@ -1,7 +1,7 @@
 // src/views/components/applicationModal/StatusLog.tsx
 import { Calendar, ChevronRight } from 'lucide-react';
 import type { ApplicationModalViewModel } from '@/viewModels/ApplicationModalViewModel';
-import { Application } from '@/core/domain/models/Application';
+import { Application } from '@/domain/interfaces/IApplication';
 import { observer } from 'mobx-react-lite';
 
 interface ApplicationModalStatusLogProps {

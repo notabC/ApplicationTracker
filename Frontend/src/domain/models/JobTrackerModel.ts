@@ -1,7 +1,7 @@
 // src/domain/models/JobTrackerModel.ts
 import { makeAutoObservable } from 'mobx';
-import type { Application } from '@/core/domain/models/Application';
-import type { Email, IEmailService } from '@/core/interfaces/services/IEmailService';
+import type { Application } from '@/domain/interfaces/IApplication';
+import type { Email, IEmailService } from '@/domain/interfaces/IEmailService';
 import type { RootStore } from '@/presentation/viewModels/RootStore';
 
 type AppTypeColorMap = Record<string, string>;

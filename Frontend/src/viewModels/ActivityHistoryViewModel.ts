@@ -1,8 +1,8 @@
 // src/presentation/viewModels/ActivityHistoryViewModel.ts
 import { makeAutoObservable, reaction } from 'mobx';
 import { inject, injectable } from 'inversify';
-import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
-import type { Application } from '@/core/domain/models/Application';
+import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
+import type { Application } from '@/domain/interfaces/IApplication';
 import { ActivityHistoryModel } from '@/domain/models/ActivityHistoryModel';
 import { RootStore } from '@/presentation/viewModels/RootStore';
 import { ActivityLog } from '@/domain/interfaces/IActivityHistory';
