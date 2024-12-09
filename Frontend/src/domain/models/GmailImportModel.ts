@@ -3,7 +3,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import type { IAuthService } from '@/core/interfaces/auth/IAuthService';
 import { Email } from '@/core/interfaces/services/IEmailService';
 import { injectable, inject } from 'inversify';
-import { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
+import { JobTrackerViewModel } from '@/viewModels/JobTrackerViewModel';
 import type { IGmailEmail, IGmailImportOptions, IGmailService } from '@/core/interfaces/services/IGmailService';
 import { SERVICE_IDENTIFIERS } from '@/di/container';
 

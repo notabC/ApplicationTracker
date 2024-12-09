@@ -5,7 +5,7 @@ import {
   Search, SlidersHorizontal, PlusCircle, Mail, Settings2, Clock, LineChart, MoreVertical, LogOut
 } from 'lucide-react';
 import { container } from '@/di/container';
-import { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
+import { JobTrackerViewModel } from '@/viewModels/JobTrackerViewModel';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 
 import { AuthViewModel } from '@/viewModels/AuthViewModel';

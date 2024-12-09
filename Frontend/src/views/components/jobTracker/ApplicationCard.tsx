@@ -3,8 +3,8 @@ import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { GripVertical, Clock, Ellipsis } from 'lucide-react';
 import { Application } from '@/core/domain/models/Application';
-import { StageSelector } from '../../../presentation/components/StageSelector';
-import type { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
+import { StageSelector } from '../StageSelector';
+import type { JobTrackerViewModel } from '@/viewModels/JobTrackerViewModel';
 
 interface Props {
   application: Application;

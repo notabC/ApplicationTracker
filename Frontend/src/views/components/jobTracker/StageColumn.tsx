@@ -1,7 +1,7 @@
 // src/presentation/views/components/StageColumn.tsx
 import { observer } from 'mobx-react-lite';
 import type { Application } from '@/core/domain/models/Application';
-import type { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
+import type { JobTrackerViewModel } from '@/viewModels/JobTrackerViewModel';
 import { DragEvent } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { EmailCard } from './EmailCard';

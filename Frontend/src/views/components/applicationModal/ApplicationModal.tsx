@@ -8,7 +8,7 @@ import { RootStore } from '@/presentation/viewModels/RootStore';
 import { ApplicationModalHeader } from './ApplicationModalHeader';
 import { ApplicationModalContent } from './ApplicationModalContent';
 import { ApplicationModalFooter } from './ApplicationModalFooter';
-import { StageSelector } from '@/presentation/components/StageSelector';
+import { StageSelector } from '@/views/components/StageSelector';
 
 interface Props {
   application: Application;

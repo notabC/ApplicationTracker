@@ -1,15 +1,13 @@
 import { Container } from 'inversify';
 import { ApplicationService } from '@/core/services/ApplicationService';
 import { WorkflowService } from '@/core/services/WorkflowService';
-import { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
+import { JobTrackerViewModel } from '@/viewModels/JobTrackerViewModel';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import { IApplicationService } from '@/core/interfaces/services';
 import { GmailImportViewModel } from '@/viewModels/GmailImportViewModel';
 import { GmailService } from '@/core/services/GmailService';
 import { EmailService } from '@/core/services/EmailService';
 import { EmailProcessingViewModel } from '@/viewModels/EmailProcessingViewModel';
-import { DragDropViewModel } from '@/presentation/viewModels/DragDropViewModel';
-import { UnsavedChangesViewModel } from '@/presentation/viewModels/UnsavedChangesViewModel';
 import { IApplicationRepository } from '@/domain/repositories/ApplicationRepository';
 import { MockApplicationRepository } from '@/domain/repositories/MockApplicationRepository';
 import { IAnalyticsService } from '@/core/interfaces/services/IAnalyticsService';
@@ -25,6 +23,8 @@ import { AddApplicationViewModel } from '@/viewModels/AddApplicationViewModel';
 import { ApplicationModalViewModel } from '@/viewModels/ApplicationModalViewModel';
 import { ApplicationModel } from '@/domain/models/ApplicationModel';
 import { GmailImportModel } from '@/domain/models/GmailImportModel';
+import { PrivateRouteViewModel } from '@/viewModels/PrivateRouteViewModel';
+import { UnsavedChangesViewModel } from '@/viewModels/UnsavedChangesViewModel';
 
 export const container = new Container();
 
@@ -63,10 +63,6 @@ container.bind<EmailProcessingViewModel>(SERVICE_IDENTIFIERS.EmailProcessingView
 
 container.bind<ApplicationModalViewModel>(SERVICE_IDENTIFIERS.ApplicationModalViewModel)
   .to(ApplicationModalViewModel)
-  .inSingletonScope();
-
-container.bind<DragDropViewModel>(SERVICE_IDENTIFIERS.DragDropViewModel)
-  .to(DragDropViewModel)
   .inSingletonScope();
 
 container.bind<UnsavedChangesViewModel>(SERVICE_IDENTIFIERS.UnsavedChangesViewModel)
@@ -112,5 +108,9 @@ container.bind<ApplicationModel>(SERVICE_IDENTIFIERS.ApplicationModel)
 container.bind<GmailImportModel>(SERVICE_IDENTIFIERS.GmailImportModel)
   .to(GmailImportModel)
   .inTransientScope();
+
+container.bind<PrivateRouteViewModel>(SERVICE_IDENTIFIERS.PrivateRouteViewModel)
+  .to(PrivateRouteViewModel)
+  .inSingletonScope();
   
 export { SERVICE_IDENTIFIERS };

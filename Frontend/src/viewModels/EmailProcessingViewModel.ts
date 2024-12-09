@@ -7,7 +7,7 @@ import { Email } from '@/core/interfaces/services/IEmailService';
 import { IGmailEmail } from '@/core/interfaces/services/IGmailService';
 import { EmailProcessingModel } from '@/domain/models/EmailProcessingModel';
 import { WorkflowEditorViewModel } from '@/viewModels/WorkflowEditorViewModel';
-import { JobTrackerViewModel } from '../presentation/viewModels/JobTrackerViewModel';
+import { JobTrackerViewModel } from './JobTrackerViewModel';
 import { RootStore } from '../presentation/viewModels/RootStore';
 
 @injectable()

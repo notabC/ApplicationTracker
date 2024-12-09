@@ -4,7 +4,7 @@ import type { Application } from '@/core/domain/models/Application';
 import type { Email } from '@/core/interfaces/services/IEmailService';
 import { IGmailEmail } from '@/core/interfaces/services/IGmailService';
 import { WorkflowEditorViewModel } from '@/viewModels/WorkflowEditorViewModel';
-import { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
+import { JobTrackerViewModel } from '@/viewModels/JobTrackerViewModel';
 import { RootStore } from '@/presentation/viewModels/RootStore';
 
 export class EmailProcessingModel {

@@ -1,50 +1,30 @@
 // src/presentation/components/PrivateRoute.tsx
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { container, SERVICE_IDENTIFIERS } from '@/di/container';
-import { AuthService } from '@/core/services/AuthService';
-import { runInAction } from 'mobx';
 import { Loader2 } from 'lucide-react';
+import { PrivateRouteViewModel } from '@/viewModels/PrivateRouteViewModel';
 
 interface PrivateRouteProps {
   children: React.ReactNode;
 }
 
 export const PrivateRoute: FC<PrivateRouteProps> = observer(({ children }) => {
-  const authService = container.get<AuthService>(SERVICE_IDENTIFIERS.AuthService);
+  // Get the ViewModel instance from the container
+  const viewModel = container.get<PrivateRouteViewModel>(
+    SERVICE_IDENTIFIERS.PrivateRouteViewModel
+  );
+
   const location = useLocation();
-  const [isLoading, setIsLoading] = useState(true);
-  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        setIsLoading(true);
-        await authService.checkAuthentication();
-        runInAction(() => {
-          setAuthChecked(true);
-        });
-      } catch (error) {
-        console.error('Authentication check failed:', error);
-        runInAction(() => {
-          authService.isAuthenticated = false;
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    viewModel.initialize();
+  }, [viewModel]);
 
-    if (!authChecked) {
-      checkAuth();
-    }
-  }, [authService, authChecked]);
-
-  // Show loading state while checking authentication
-  if (isLoading ) {
+  if (viewModel.isLoading) {
     return (
       <>
-        {/* Original children with subtle blur */}
         <div className="blur-sm brightness-75">
           {children}
         </div>
@@ -85,11 +65,9 @@ export const PrivateRoute: FC<PrivateRouteProps> = observer(({ children }) => {
     );
   }
 
-  // Redirect to login if not authenticated
-  if (!authService.isAuthenticated) {
+  if (!viewModel.isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Render protected content if authenticated
   return <>{children}</>;
 });

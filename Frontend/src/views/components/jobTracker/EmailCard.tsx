@@ -2,7 +2,7 @@ import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { Mail, Clock } from 'lucide-react';
 import { Email } from '@/core/interfaces/services/IEmailService';
-import { JobTrackerViewModel } from '../../../presentation/viewModels/JobTrackerViewModel';
+import { JobTrackerViewModel } from '../../../viewModels/JobTrackerViewModel';
 
 interface Props {
   email: Email;

@@ -4,7 +4,7 @@ import { makeAutoObservable } from 'mobx';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { Application } from '@/core/domain/models/Application';
 import type { IEmailService } from '@/core/interfaces/services/IEmailService';
-import { RootStore } from './RootStore';
+import { RootStore } from '../presentation/viewModels/RootStore';
 import { WorkflowEditorViewModel } from "@/viewModels/WorkflowEditorViewModel";
 import { JobTrackerModel, ApplicationViewData } from '@/domain/models/JobTrackerModel';
 import type { Email } from '@/core/interfaces/services/IEmailService';
