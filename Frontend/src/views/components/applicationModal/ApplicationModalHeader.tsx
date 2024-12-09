@@ -76,7 +76,7 @@ export const ApplicationModalHeader = observer(({
           shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
           hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
           active:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
-          transition-all duration-200 group
+          transition-all duration-200 group 
         "
       >
         <div className="flex items-center gap-3">
@@ -84,9 +84,6 @@ export const ApplicationModalHeader = observer(({
           <span className="text-white font-medium">{updatedApplication.stage}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-400 group-hover:text-gray-300">
-            Change Status
-          </span>
           <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-gray-300" />
         </div>
       </button>
