@@ -2,13 +2,15 @@ import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { Mail, Clock } from 'lucide-react';
 import { Email } from '@/core/interfaces/services/IEmailService';
+import { JobTrackerViewModel } from '../../../presentation/viewModels/JobTrackerViewModel';
 
 interface Props {
   email: Email;
   onClick: () => void;
+  viewModel: JobTrackerViewModel;
 }
 
-export const EmailCard: React.FC<Props> = observer(({ email, onClick }) => {
+export const EmailCard: React.FC<Props> = observer(({ email, onClick, viewModel }) => {
   return (
     <div
       onClick={onClick}
@@ -39,25 +41,7 @@ export const EmailCard: React.FC<Props> = observer(({ email, onClick }) => {
       <div className="flex justify-end items-center">
         <div className="flex items-center text-xs text-gray-500 group-hover:text-gray-400 transition-colors">
           <Clock className="h-3 w-3 mr-1" />
-           {(() => {
-              const seconds = Math.floor((new Date().getTime() - new Date(email.date).getTime()) / 1000);
-              const intervals = [
-              { label: 'year', seconds: 31536000 },
-              { label: 'month', seconds: 2592000 },
-              { label: 'day', seconds: 86400 },
-              { label: 'hour', seconds: 3600 },
-              { label: 'minute', seconds: 60 },
-              { label: 'second', seconds: 1 },
-              ];
-
-              for (const interval of intervals) {
-              const count = Math.floor(seconds / interval.seconds);
-              if (count > 0) {
-                return `${count} ${interval.label}${count !== 1 ? 's' : ''} ago`;
-              }
-              }
-              return 'just now';
-            })()}
+           {viewModel.formatRelativeTime(email.date)}
         </div>
       </div>
     </div>

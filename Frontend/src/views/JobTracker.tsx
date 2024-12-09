@@ -1,6 +1,5 @@
 // src/presentation/views/JobTracker.tsx
-
-import React, { useState } from 'react';
+import React from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   Search, SlidersHorizontal, PlusCircle, Mail, Settings2, Clock, LineChart, MoreVertical, LogOut
@@ -8,45 +7,39 @@ import {
 import { container } from '@/di/container';
 import { JobTrackerViewModel } from '@/presentation/viewModels/JobTrackerViewModel';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
-import { StageColumn } from '../components/StageColumn';
-import { WorkflowEditorModal } from '@/views/components/workflow/WorkflowEditorModal';
+
+import { AuthViewModel } from '@/viewModels/AuthViewModel';
 import { ActivityHistoryModal } from '@/views/components/activityHistory/ActivityHistoryModal';
 import AddApplicationModal from '@/views/components/addapplication/AddApplicationModal';
 import { ApplicationModal } from '@/views/components/applicationModal/ApplicationModal';
 import { EmailProcessingModal } from '@/views/components/emailProcessingModal/EmailProcessingModal';
 import GmailImportModal from '@/views/components/gmailImportModal/GmailImportModal';
-import { AuthViewModel } from '../viewModels/AuthViewModel';
+import { WorkflowEditorModal } from '@/views/components/workflow/WorkflowEditorModal';
+import { StageColumn } from './components/jobTracker/StageColumn';
 
 export const JobTracker: React.FC = observer(() => {
   const viewModel = container.get<JobTrackerViewModel>(SERVICE_IDENTIFIERS.JobTrackerViewModel);
   const authViewModel = container.get<AuthViewModel>(SERVICE_IDENTIFIERS.AuthViewModel);
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const menuItems = [
-    { icon: Mail, label: "Import from Gmail", color: "blue", onClick: () => viewModel.setIsGmailModalOpen(true) },
-    { icon: Settings2, label: "Edit Workflow", color: "rose", onClick: () => viewModel.showEditWorkflowModal() },
-    { icon: Clock, label: "Activity History", color: "amber", onClick: () => viewModel.setShowHistory(true) },
-    { icon: LineChart, label: "View Analytics", color: "purple", onClick: () => window.location.href = '/analytics' },
-    { icon: LogOut, label: "Sign Out", color: "red", onClick: () => authViewModel.signOut() }
+    { icon: Mail, label: "Import from Gmail", onClick: () => viewModel.setIsGmailModalOpen(true) },
+    { icon: Settings2, label: "Edit Workflow", onClick: () => viewModel.setShowWorkflowModal(true) },
+    { icon: Clock, label: "Activity History", onClick: () => viewModel.setShowHistory(true) },
+    { icon: LineChart, label: "View Analytics", onClick: () => { window.location.href = '/analytics'; } },
+    { icon: LogOut, label: "Sign Out", onClick: () => authViewModel.signOut() }
   ];
 
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-[#1e2128] to-[#16181d] overflow-hidden">
-      {/* Header Section with spacing and sticky behavior */}
       <div className="
         sticky top-0 z-50 p-4 space-y-4
         bg-[#1a1d24] border-b border-[#232732]/20
         shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
         transition-all duration-200
       ">
-        {/* Title and Top Actions Row */}
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-white/90">
-            Application Tracker
-          </h1>
-
+          <h1 className="text-2xl font-bold text-white/90">Application Tracker</h1>
           <div className="flex items-center gap-2">
-            {/* "Add" button (desktop & mobile common) */}
             <button 
               onClick={() => viewModel.setShowAddModal(true)}
               className="
@@ -61,10 +54,9 @@ export const JobTracker: React.FC = observer(() => {
               <span className="text-sm font-medium text-cyan-400 group-hover:text-cyan-300">Add</span>
             </button>
 
-            {/* Overflow Menu */}
             <div className="relative">
               <button 
-                onClick={() => setMenuOpen(!menuOpen)}
+                onClick={() => viewModel.toggleMenu()}
                 className="
                   p-2 rounded-xl bg-[#1a1d24]
                   border border-[#232732]/20
@@ -76,7 +68,7 @@ export const JobTracker: React.FC = observer(() => {
                 <MoreVertical className="h-4 w-4 text-gray-400" />
               </button>
 
-              {menuOpen && (
+              {viewModel.menuOpen && (
                 <div className="
                   absolute right-0 mt-2 w-48 overflow-hidden z-50
                   bg-[#1a1d24] border border-[#232732]/20 
@@ -88,7 +80,7 @@ export const JobTracker: React.FC = observer(() => {
                       key={label}
                       onClick={() => {
                         onClick();
-                        setMenuOpen(false);
+                        viewModel.toggleMenu();
                       }}
                       className="
                         flex items-center gap-2 w-full px-4 py-2.5
@@ -107,7 +99,6 @@ export const JobTracker: React.FC = observer(() => {
           </div>
         </div>
 
-        {/* Search Bar */}
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
@@ -126,14 +117,12 @@ export const JobTracker: React.FC = observer(() => {
           />
         </div>
 
-        {/* Stats and Filters Row */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-3 flex-1">
             <div className="
               px-4 py-2 bg-[#1a1d24] rounded-xl
               border border-[#232732]/20
               shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
-              hover:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
               transition-all duration-200
             ">
               <span className="text-gray-400 text-sm">Total:</span>
@@ -146,7 +135,6 @@ export const JobTracker: React.FC = observer(() => {
               px-4 py-2 bg-[#1a1d24] rounded-xl
               border border-[#232732]/20
               shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
-              hover:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
               transition-all duration-200
             ">
               <span className="text-gray-400 text-sm">Active:</span>
@@ -175,11 +163,11 @@ export const JobTracker: React.FC = observer(() => {
         </div>
       </div>
 
-      {/* Kanban Section */}
       <div className="flex-1 p-6 flex overflow-hidden">
         <div className="flex-1 h-full overflow-x-auto">
           <div className="flex gap-6 pb-6 h-full">
-            {viewModel.workflowStages.map(stage => (
+            {/* The VM provides everything needed, we don't compute logic here */}
+            {viewModel.workflowStages.filter(s => viewModel.isStageVisible(s.id, s.visible ?? true)).map(stage => (
               <StageColumn
                 key={stage.id}
                 stage={stage}
@@ -191,7 +179,6 @@ export const JobTracker: React.FC = observer(() => {
         </div>
       </div>
 
-      {/* Modals */}
       <AddApplicationModal
         isOpen={viewModel.showAddModal}
         onClose={() => viewModel.setShowAddModal(false)}
@@ -212,7 +199,7 @@ export const JobTracker: React.FC = observer(() => {
       {viewModel.selectedApplication && (
         <ApplicationModal
           application={viewModel.selectedApplication}
-          onClose={() => viewModel.clearSelectedApplication()}
+          onClose={() => viewModel.setSelectedApplicationById(null)}
           onNavigate={(direction) => viewModel.navigateApplications(direction)}
           totalApplications={viewModel.totalApplicationsInCurrentStage}
           currentIndex={viewModel.currentApplicationIndex}

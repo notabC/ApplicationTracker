@@ -1,124 +1,92 @@
 // src/presentation/viewModels/JobTrackerViewModel.ts
 import { injectable, inject } from "inversify";
-import { action, makeAutoObservable } from 'mobx';
+import { makeAutoObservable } from 'mobx';
 import { SERVICE_IDENTIFIERS } from '@/core/constants/identifiers';
 import type { Application } from '@/core/domain/models/Application';
-import { DragDropViewModel } from './DragDropViewModel';
+import type { IEmailService } from '@/core/interfaces/services/IEmailService';
 import { RootStore } from './RootStore';
-import type { Email, IEmailService } from '@/core/interfaces/services/IEmailService';
-import { container } from "@/di/container";
 import { WorkflowEditorViewModel } from "@/viewModels/WorkflowEditorViewModel";
+import { JobTrackerModel, ApplicationViewData } from '@/domain/models/JobTrackerModel';
+import type { Email } from '@/core/interfaces/services/IEmailService';
+import { ApplicationModel } from "@/domain/models/ApplicationModel";
 
 @injectable()
 export class JobTrackerViewModel {
-  searchTerm: string = '';
-  activeFilters: string[] = [];
   isFilterExpanded: boolean = false;
-  selectedApplication: Application | null = null;
+  selectedApplicationId: string | null = null;
   showAddModal: boolean = false;
   showImportModal: boolean = false;
   showWorkflowModal: boolean = false;
   isGmailModalOpen: boolean = false;
-  emails: Email[] = [];
-  selectedEmail: Email | null = null;
+  selectedEmailId: string | null = null;
   showEmailProcessingModal: boolean = false;
   showHistory: boolean = false;
-  isLoading: boolean = false;
-  error: string | null = null;
+  menuOpen: boolean = false;
+
+  public model: JobTrackerModel;
 
   constructor(
     @inject(SERVICE_IDENTIFIERS.WorkflowEditorViewModel) private workflowEditorViewModel: WorkflowEditorViewModel,
-    @inject(SERVICE_IDENTIFIERS.DragDropViewModel) private dragDropViewModel: DragDropViewModel,
     @inject(SERVICE_IDENTIFIERS.RootStore) private rootStore: RootStore,
     @inject(SERVICE_IDENTIFIERS.EmailService) private emailService: IEmailService,
+    @inject(SERVICE_IDENTIFIERS.ApplicationModel) private applicationModel: ApplicationModel,
   ) {
+    this.model = new JobTrackerModel(this.rootStore, this.emailService);
     makeAutoObservable(this);
-    this.loadEmails();
   }
 
-  // Computed Properties
+  get isLoading(): boolean {
+    return this.model.isLoading;
+  }
+
+  get error(): string | null {
+    return this.model.error;
+  }
+
+  get searchTerm(): string {
+    return this.model.searchTerm;
+  }
+
+  getAvailableStages(currentStage: string): string[] {
+    return this.applicationModel.getAvailableStages(currentStage);
+  }
+
+  setSearchTerm(term: string): void {
+    this.model.setSearchTerm(term);
+  }
+
+  get activeFilters(): string[] {
+    return this.model.activeFilters;
+  }
+
+  toggleFilter(filter: string) {
+    this.model.toggleFilter(filter);
+  }
+
   get workflowStages() {
     return this.workflowEditorViewModel.stages;
   }
 
-  get stageOrder() {
-    return this.workflowEditorViewModel.stageOrder;
-  }
-  
-  get applications(): Application[] {
-    return this.rootStore.applications;
-  }
-
   get filteredApplications(): Application[] {
-    return this.applications.filter(app => 
-      (app.company.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-       app.position.toLowerCase().includes(this.searchTerm.toLowerCase())) &&
-      (this.activeFilters.length === 0 || this.activeFilters.some(filter => app.tags.includes(filter)))
-    );
+    return this.model.filteredApplications;
   }
 
   getApplicationsByStage(stageName: string): Application[] {
-    return this.filteredApplications.filter(app => app.stage === stageName);
-  }
-
-  // Actions
-
-  setSearchTerm(term: string) {
-    this.searchTerm = term;
-  }
-
-  toggleFilter(filter: string) {
-    if (this.activeFilters.includes(filter)) {
-      this.activeFilters = this.activeFilters.filter(f => f !== filter);
-    } else {
-      this.activeFilters.push(filter);
-    }
-  }
-
-  toggleFilterExpanded() {
-    this.isFilterExpanded = !this.isFilterExpanded;
+    return this.model.getApplicationsByStage(stageName);
   }
 
   async handleStageChange(application: Application, newStage: string) {
-    const newLog = {
-      id: crypto.randomUUID(),
-      date: new Date().toISOString().split('T')[0],
-      fromStage: application.stage,
-      toStage: newStage,
-      message: `Status updated from ${application.stage} to ${newStage}`,
-      source: 'manual',
-    };
-
-    const updatedApplication: Application = {
-      ...application,
-      stage: newStage,
-      lastUpdated: new Date().toISOString().split('T')[0],
-      logs: [...application.logs, newLog],
-    };
-
-    try {
-      await this.rootStore.updateApplication(updatedApplication);
-      this.error = null;
-    } catch (error) {
-      this.error = 'Failed to update application stage';
-      console.error('Failed to update application stage:', error);
-    }
+    await this.model.handleStageChange(application, newStage);
   }
 
-  selectApplication(application: Application) {
-    this.selectedApplication = application;
+  setSelectedApplicationById(id: string | null) {
+    this.selectedApplicationId = id;
   }
 
-  clearSelectedApplication() {
-    this.selectedApplication = null;
-  }
-
-  showAddApplicationModal() {
-    this.showAddModal = true;
-  }
-
-  showImportGmailModal() {
-    this.showImportModal = true;
+  get selectedApplication(): Application | null {
+    return this.selectedApplicationId
+      ? this.filteredApplications.find(app => app.id === this.selectedApplicationId) || null
+      : null;
   }
 
   setShowAddModal(show: boolean) {
@@ -133,125 +101,132 @@ export class JobTrackerViewModel {
     this.isGmailModalOpen = show;
   }
 
-  private async loadEmails(): Promise<void> {
-    try {
-      const fetchedEmails = await this.emailService.getEmails();
-      this.emails = fetchedEmails;
-    } catch (error) {
-      this.error = 'Failed to load emails';
-      console.error('Failed to load emails:', error);
+  setShowWorkflowModal(show: boolean) {
+    if (!show) {
+      this.workflowEditorViewModel.closeModal();
+    } else {
+      this.workflowEditorViewModel.openModal();
     }
+    this.showWorkflowModal = show;
   }
 
-  addEmails(newEmails: Email[]): void {
-    try {
-      this.emailService.addEmails(newEmails);
-      this.loadEmails();
-    } catch (error) {
-      this.error = 'Failed to add emails';
-      console.error('Failed to add emails:', error);
-    }
+  get unprocessedEmails() {
+    return this.model.unprocessedEmails;
   }
 
-  markEmailsAsProcessed(emailIds: string[]): void {
-    try {
-      this.emailService.markAsProcessed(emailIds);
-      this.loadEmails();
-    } catch (error) {
-      this.error = 'Failed to mark emails as processed';
-      console.error('Failed to mark emails as processed:', error);
-    }
+  get filteredUnprocessedEmails() {
+    return this.model.filteredUnprocessedEmails;
   }
 
-  get unprocessedEmails(): Email[] {
-    return this.emails.filter(email => !email.processed);
+  setSelectedEmailId(id: string | null): void {
+    this.selectedEmailId = id;
+    this.showEmailProcessingModal = !!id;
   }
 
-  get filteredUnprocessedEmails(): Email[] {
-    return this.unprocessedEmails.filter(email => 
-      email.subject.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      email.body.toLowerCase().includes(this.searchTerm.toLowerCase())
-    );
+  get emails(): Email[] {
+    return this.model.emails;
   }
 
-  selectEmail(email: Email | null): void {
-    this.selectedEmail = email;
-    if (email) {
-      this.showEmailProcessingModal = true;
-    }
+  get selectedEmail() {
+    return this.selectedEmailId
+      ? this.emails.find(email => email.id === this.selectedEmailId) || null
+      : null;
   }
 
   closeEmailProcessingModal(): void {
     this.showEmailProcessingModal = false;
-    this.selectedEmail = null;
+    this.selectedEmailId = null;
   }
 
   async processEmail(emailId: string): Promise<void> {
-    try {
-      // Mark email as processed
-      await this.emailService.markAsProcessed([emailId]);
-
-      // Refresh emails
-      this.loadEmails();
-
-      // Close modal
-      this.closeEmailProcessingModal();
-      this.error = null;
-    } catch (error) {
-      this.error = 'Failed to process email';
-      console.error('Failed to process email:', error);
-    }
+    await this.model.processEmail(emailId);
+    this.closeEmailProcessingModal();
   }
 
-  navigateApplications(direction: 'prev' | 'next'): void {
-    if (!this.selectedApplication) return;
-
-    const stageApps = this.getApplicationsByStage(this.selectedApplication.stage);
-    if (stageApps.length === 0) return;
-
-    const currentIndex = stageApps.findIndex(app => app.id === this.selectedApplication?.id);
-    const newIndex = direction === 'next'
-      ? (currentIndex + 1) % stageApps.length
-      : (currentIndex - 1 + stageApps.length) % stageApps.length;
-
-    this.selectedApplication = stageApps[newIndex];
+  addEmails(newEmails: Email[]): void {
+    this.model.addEmails(newEmails);
   }
 
-  get currentApplicationIndex(): number {
-    if (!this.selectedApplication) return -1;
-    const stageApps = this.getApplicationsByStage(this.selectedApplication.stage);
-    return stageApps.findIndex(app => app.id === this.selectedApplication?.id);
-  }
-
-  get totalApplicationsInCurrentStage(): number {
-    if (!this.selectedApplication) return 0;
-    return this.getApplicationsByStage(this.selectedApplication.stage).length;
-  }
-
-  // Expose DragDropViewModel for components
-  get dragDropVM(): DragDropViewModel {
-    return this.dragDropViewModel;
+  markEmailsAsProcessed(emailIds: string[]): void {
+    this.model.markEmailsAsProcessed(emailIds);
   }
 
   setShowHistory(show: boolean): void {
     this.showHistory = show;
   }
 
-  @action
-  showEditWorkflowModal(): void {
-    const workflowViewModel = container.get<WorkflowEditorViewModel>(
-      SERVICE_IDENTIFIERS.WorkflowEditorViewModel
-    );
-    workflowViewModel.openModal();
+  toggleFilterExpanded() {
+    this.isFilterExpanded = !this.isFilterExpanded;
   }
 
-  @action
-  setShowWorkflowModal(show: boolean): void {
-    const workflowViewModel = container.get<WorkflowEditorViewModel>(
-      SERVICE_IDENTIFIERS.WorkflowEditorViewModel
-    );
-    if (!show) {
-      workflowViewModel.closeModal();
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
+  }
+
+  navigateApplications(direction: 'prev' | 'next'): void {
+    if (!this.selectedApplicationId) return;
+    const nextAppId = this.model.getNextApplicationId(this.selectedApplicationId, direction);
+    if (nextAppId) {
+      this.selectedApplicationId = nextAppId;
     }
+  }
+
+  get currentApplicationIndex(): number {
+    if (!this.selectedApplicationId) return -1;
+    return this.model.getCurrentApplicationIndex(this.selectedApplicationId);
+  }
+
+  get totalApplicationsInCurrentStage(): number {
+    if (!this.selectedApplicationId) return 0;
+    return this.model.getTotalApplicationsInStage(this.selectedApplicationId);
+  }
+
+  // Drag and Drop
+  beginDrag(application: Application) {
+    this.model.beginDrag(application);
+  }
+
+  endDrag() {
+    this.model.endDrag();
+  }
+
+  dragOverStage(stageId: string) {
+    this.model.dragOverStage(stageId);
+  }
+
+  leaveStage() {
+    this.model.leaveStage();
+  }
+
+  async dropOnStage(stageName: string): Promise<void> {
+    await this.model.dropOnStage(stageName);
+  }
+
+  isStageVisible(stageId: string, fallbackVisible: boolean): boolean {
+    return this.model.isStageVisible(stageId, this.workflowStages, fallbackVisible);
+  }
+
+  // Stage selector UI methods
+  openStageSelectorForApplication(applicationId: string) {
+    this.model.openStageSelectorForApplication(applicationId);
+  }
+
+  closeStageSelector() {
+    this.model.closeStageSelector();
+  }
+
+  isStageSelectorOpenForApplication(applicationId: string): boolean {
+    return this.model.isStageSelectorOpen(applicationId);
+  }
+
+  // Retrieve precomputed data for the application
+  getApplicationViewData(applicationId: string): ApplicationViewData | null {
+    const app = this.filteredApplications.find(a => a.id === applicationId);
+    if (!app) return null;
+    return this.model.getApplicationViewData(app);
+  }
+
+  formatRelativeTime(time: string): string {
+    return this.model.formatRelativeTime(time);
   }
 }

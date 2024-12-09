@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AnalyticsView } from '@/presentation/views/Analytics/AnalyticsView';
 import { ContainerProvider } from '@/di/ContainerProvider';
 import { UnsavedChangesProvider } from './presentation/providers/UnsavedChangesProvider';
-import { JobTracker } from './presentation/views/JobTracker';
+import { JobTracker } from './views/JobTracker';
 import { PrivacyPolicy } from './views/Privacy';
 import { Login } from './views/Login';
 import { PrivateRoute } from './presentation/components/PrivateRoute';
