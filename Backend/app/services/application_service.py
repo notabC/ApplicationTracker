@@ -38,8 +38,10 @@ class ApplicationService:
         application_dict["user_id"] = user["id"]
         application_dict["user_email"] = user["email"]
         del application_dict["id"]
-        await collection.insert_one(application_dict)
+        result = await collection.insert_one(application_dict)
+        application.id = str(result.inserted_id)
         return application
+
 
     async def update(self, application_id: str, application: Application, user_email: str) -> Optional[Application]:
         collection = await self.get_collection()

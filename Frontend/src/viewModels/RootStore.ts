@@ -49,9 +49,9 @@ export class RootStore {
   async addApplication(application: Application): Promise<void> {
     this.isLoading = true;
     try {
-      await this.applicationService.addApplication(application);
+      const newApplication = await this.applicationService.addApplication(application);
       runInAction(() => {
-        this.applications.push(application);
+        this.applications.push(newApplication);
         this.error = null;
       });
     } catch (error) {
