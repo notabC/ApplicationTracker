@@ -5,7 +5,7 @@ import type { Email } from '@/domain/interfaces/IEmailService';
 import { IGmailEmail } from '@/domain/interfaces/IGmailService';
 import { WorkflowEditorViewModel } from '@/viewModels/WorkflowEditorViewModel';
 import { JobTrackerViewModel } from '@/viewModels/JobTrackerViewModel';
-import { RootStore } from '@/presentation/viewModels/RootStore';
+import { RootStore } from '@/viewModels/RootStore';
 
 export class EmailProcessingModel {
   searchInput = {

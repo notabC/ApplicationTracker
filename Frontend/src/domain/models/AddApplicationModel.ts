@@ -1,6 +1,6 @@
 import { makeAutoObservable, observable, action, computed } from 'mobx';
 import { Application } from '@/domain/interfaces/IApplication';
-import { RootStore } from '@/presentation/viewModels/RootStore';
+import { RootStore } from '@/viewModels/RootStore';
 
 export class AddApplicationModel {
   @observable company: string = '';

@@ -3,7 +3,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import { IViewModelUpdateField } from '@/domain/interfaces';
 import { Application } from '@/domain/interfaces/IApplication';
 import { UnsavedChangesModel } from '@/domain/models/UnsavedChangesModel';
-import { RootStore } from '@/presentation/viewModels/RootStore';
+import { RootStore } from '@/viewModels/RootStore';
 import { inject } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '@/di/container';
 

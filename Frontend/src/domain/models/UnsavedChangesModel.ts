@@ -1,7 +1,7 @@
 // src/core/services/UnsavedChangesModel.ts
 import { Application } from '@/domain/interfaces/IApplication';
 import { IViewModelUpdateField } from '@/domain/interfaces';
-import { RootStore } from '@/presentation/viewModels/RootStore';
+import { RootStore } from '@/viewModels/RootStore';
 
 interface Change {
   id: string;

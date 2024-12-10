@@ -4,7 +4,7 @@ import { container } from '@/di/container';
 import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
 import { ApplicationModalViewModel } from '@/viewModels/ApplicationModalViewModel';
 import type { Application } from '@/domain/interfaces/IApplication';
-import { RootStore } from '@/presentation/viewModels/RootStore';
+import { RootStore } from '@/viewModels/RootStore';
 import { ApplicationModalHeader } from './ApplicationModalHeader';
 import { ApplicationModalContent } from './ApplicationModalContent';
 import { ApplicationModalFooter } from './ApplicationModalFooter';

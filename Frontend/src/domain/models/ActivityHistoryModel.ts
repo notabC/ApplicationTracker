@@ -3,7 +3,7 @@ import { makeAutoObservable } from 'mobx';
 import { inject, injectable } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
 import type { Application } from '@/domain/interfaces/IApplication';
-import type { RootStore } from '@/presentation/viewModels/RootStore';
+import type { RootStore } from '@/viewModels/RootStore';
 import { ActivityLog } from '../interfaces/IActivityHistory';
 
 @injectable()

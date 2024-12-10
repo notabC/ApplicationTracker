@@ -5,7 +5,7 @@ import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
 import type { Application } from '@/domain/interfaces/IApplication';
 import type { IViewModelUpdateField } from '@/domain/interfaces';
 import { ApplicationModel } from '@/domain/models/ApplicationModel';
-import { UnsavedChangesViewModel } from '@/presentation/viewModels/UnsavedChangesViewModel';
+import { UnsavedChangesViewModel } from './UnsavedChangesViewModel';
 
 @injectable()
 export class ApplicationModalViewModel implements IViewModelUpdateField {

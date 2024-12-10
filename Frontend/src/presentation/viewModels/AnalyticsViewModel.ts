@@ -1,8 +1,8 @@
-// src/presentation/viewModels/AnalyticsViewModel.ts
-
+import { useMemo } from 'react';
+import { container } from '@/di/container';
+import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
 import { injectable, inject } from 'inversify';
 import { makeAutoObservable, action, computed, runInAction } from 'mobx';
-import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
 import type {
   IAnalyticsService,
   StageMetric,
@@ -15,6 +15,7 @@ import type {
   StageOutcome
 } from '@/domain/interfaces/IAnalyticsService';
 
+// The type for date range options
 type DateRangeOption = '1d' | '7d' | '1m' | '3m' | 'all' | 'custom';
 
 @injectable()
@@ -135,3 +136,10 @@ export class AnalyticsViewModel {
     return this.selectedDateRangeOption === 'custom';
   }
 }
+
+export const useAnalyticsViewModel = (): AnalyticsViewModel => {
+  return useMemo(
+    () => container.get<AnalyticsViewModel>(SERVICE_IDENTIFIERS.AnalyticsViewModel),
+    []
+  );
+};

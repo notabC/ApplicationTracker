@@ -8,7 +8,7 @@ import { IGmailEmail } from '@/domain/interfaces/IGmailService';
 import { EmailProcessingModel } from '@/domain/models/EmailProcessingModel';
 import { WorkflowEditorViewModel } from '@/viewModels/WorkflowEditorViewModel';
 import { JobTrackerViewModel } from './JobTrackerViewModel';
-import { RootStore } from '../presentation/viewModels/RootStore';
+import { RootStore } from './RootStore';
 
 @injectable()
 export class EmailProcessingViewModel {

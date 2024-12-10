@@ -2,7 +2,7 @@
 import { makeAutoObservable } from 'mobx';
 import type { Application } from '@/domain/interfaces/IApplication';
 import type { Email, IEmailService } from '@/domain/interfaces/IEmailService';
-import type { RootStore } from '@/presentation/viewModels/RootStore';
+import type { RootStore } from '@/viewModels/RootStore';
 
 type AppTypeColorMap = Record<string, string>;
 

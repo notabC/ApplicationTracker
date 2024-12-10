@@ -4,7 +4,7 @@ import { inject, injectable } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
 import type { Application } from '@/domain/interfaces/IApplication';
 import { ActivityHistoryModel } from '@/domain/models/ActivityHistoryModel';
-import { RootStore } from '@/presentation/viewModels/RootStore';
+import { RootStore } from '@/viewModels/RootStore';
 import { ActivityLog } from '@/domain/interfaces/IActivityHistory';
 
 interface UIState {

@@ -13,7 +13,7 @@ import { MockApplicationRepository } from '@/domain/repositories/MockApplication
 import { IAnalyticsService } from '@/domain/interfaces/IAnalyticsService';
 import { AnalyticsService } from '@/infrastructure/services/AnalyticsService';
 import { AnalyticsViewModel } from '@/presentation/viewModels/AnalyticsViewModel';
-import { RootStore } from '@/presentation/viewModels/RootStore';
+import { RootStore } from '@/viewModels/RootStore';
 import { AuthViewModel } from '@/viewModels/AuthViewModel';
 import { AuthService } from '@/infrastructure/services/AuthService';
 import { WorkflowEditorViewModel } from '@/viewModels/WorkflowEditorViewModel';
