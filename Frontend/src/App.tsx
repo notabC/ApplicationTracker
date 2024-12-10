@@ -1,7 +1,6 @@
 // src/App.tsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AnalyticsView } from '@/presentation/views/Analytics/AnalyticsView';
 import { ContainerProvider } from '@/di/ContainerProvider';
 import { JobTracker } from './views/JobTracker';
 import { PrivacyPolicy } from './views/Privacy';
@@ -12,6 +11,7 @@ import NotFound from './views/NotFound';
 import { UnsavedChangesNotification } from './views/components/UnsavedChangesNotification';
 import { container, SERVICE_IDENTIFIERS } from './di/container';
 import { UnsavedChangesViewModel } from './viewModels/UnsavedChangesViewModel';
+import AnalyticsDashboard from './views/AnalyticsDashboard';
 
 const unsavedChangesViewModel = container.get<UnsavedChangesViewModel>(SERVICE_IDENTIFIERS.UnsavedChangesViewModel);
 
@@ -29,7 +29,7 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
-          <Route path="/analytics" element={<AnalyticsView />} />
+          <Route path="/analytics" element={<AnalyticsDashboard />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<LandingPage />} />

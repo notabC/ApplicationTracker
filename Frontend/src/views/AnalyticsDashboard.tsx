@@ -23,8 +23,8 @@ import {
   TrendingUp,
   ChevronDown,
 } from 'lucide-react';
-import { AnalyticsViewModel } from '@/presentation/viewModels/AnalyticsViewModel';
-import StageAnalysisDashboard from './StageAnalysisDashboard';
+import { AnalyticsViewModel, useAnalyticsViewModel } from '@/viewModels/AnalyticsViewModel';
+import StageAnalysisDashboard from './components/StageAnalysisDashboard';
 
 // Utility colors for charts
 const colors = ['#3B82F6', '#10B981', '#F59E0B', '#F87171', '#A78BFA'];
@@ -411,13 +411,9 @@ const Dashboard: React.FC<{ viewModel: AnalyticsViewModel }> = ({
   );
 };
 
-// Main AnalyticsDashboard Component
-interface AnalyticsDashboardProps {
-  viewModel: AnalyticsViewModel;
-}
 
-const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = observer(
-  ({ viewModel }) => {
+const AnalyticsDashboard: React.FC = observer(() => {
+    const viewModel = useAnalyticsViewModel();
     const handleDateRangeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
       const value = e.target.value as any;
       viewModel.setSelectedDateRangeOption(value);

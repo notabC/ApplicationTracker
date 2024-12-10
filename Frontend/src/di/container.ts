@@ -12,7 +12,7 @@ import { IApplicationRepository } from '@/domain/repositories/ApplicationReposit
 import { MockApplicationRepository } from '@/domain/repositories/MockApplicationRepository';
 import { IAnalyticsService } from '@/domain/interfaces/IAnalyticsService';
 import { AnalyticsService } from '@/infrastructure/services/AnalyticsService';
-import { AnalyticsViewModel } from '@/presentation/viewModels/AnalyticsViewModel';
+import { AnalyticsViewModel } from '@/viewModels/AnalyticsViewModel';
 import { RootStore } from '@/viewModels/RootStore';
 import { AuthViewModel } from '@/viewModels/AuthViewModel';
 import { AuthService } from '@/infrastructure/services/AuthService';

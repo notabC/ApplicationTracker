@@ -1,6 +1,6 @@
 // src/presentation/views/Analytics/StageAnalysisDashboard.tsx
 
-import { AnalyticsViewModel } from '@/presentation/viewModels/AnalyticsViewModel';
+import { AnalyticsViewModel } from '@/viewModels/AnalyticsViewModel';
 import { ReactNode } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
