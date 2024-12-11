@@ -26,33 +26,26 @@ export class AuthService implements IAuthService {
     makeObservable(this);
     ApiClient.setAuthService(this);
 
-    // If a JWT token was previously stored, set it
     const storedToken = localStorage.getItem('jwt_token');
     if (storedToken) {
       ApiClient.setAuthorizationToken(storedToken);
     }
 
-    // Attempt to verify authentication status on initialization
     this.checkAuthentication();
   }
 
   @action
   async checkAuthentication() {
-    // First, check if we just returned from OAuth with a token in the URL
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
 
     if (token) {
-      // Store the JWT token and update the ApiClient authorization header
       localStorage.setItem('jwt_token', token);
       ApiClient.setAuthorizationToken(token);
-
-      // Remove the token parameter from the URL so it doesn't get processed again
       const newUrl = window.location.origin + window.location.pathname;
       window.history.replaceState({}, document.title, newUrl);
     }
 
-    // Now, proceed with the normal auth check using whatever token we have in localStorage
     const storedToken = localStorage.getItem('jwt_token');
     if (!storedToken) {
       runInAction(() => {
@@ -88,7 +81,7 @@ export class AuthService implements IAuthService {
   @action
   async signOut() {
     try {
-      await ApiClient.post(API_ENDPOINTS.GMAIL.LOGOUT);
+      await ApiClient.post(API_ENDPOINTS.AUTH.LOGOUT);
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -99,6 +92,35 @@ export class AuthService implements IAuthService {
       this.userEmail = null;
       this.userName = null;
     });
+
+    window.location.reload();
+  }
+
+  @action
+  async login(email: string, password: string): Promise<boolean> {
+    try {
+      const response = await ApiClient.post<{access_token: string, token_type: string}>(API_ENDPOINTS.AUTH.LOGIN, { email, password });
+      const token = response.access_token;
+      localStorage.setItem('jwt_token', token);
+      ApiClient.setAuthorizationToken(token);
+      await this.checkAuthentication();
+      return this.isAuthenticated;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
+    }
+  }
+
+  @action
+  async register(email: string, password: string, name: string): Promise<boolean> {
+    try {
+      await ApiClient.post(API_ENDPOINTS.AUTH.REGISTER, { email, password, name });
+      // Registration successful
+      return true;
+    } catch (error) {
+      console.error('Register error:', error);
+      return false;
+    }
   }
 
   @action
@@ -108,10 +130,9 @@ export class AuthService implements IAuthService {
         this.isAuthenticating = true;
       });
 
-      // Start the OAuth flow if no token is in the URL
       const response = await ApiClient.get<{ url: string }>(API_ENDPOINTS.GMAIL.AUTH_URL);
       window.location.href = response.url;
-      return false; // The user will be redirected, so no immediate boolean needed.
+      return false; 
     } catch (error) {
       console.error('Auth error:', error);
       return false;

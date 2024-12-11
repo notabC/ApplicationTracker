@@ -1,22 +1,26 @@
 // src/presentation/components/PrivateRoute.tsx
-import { FC, useEffect } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { FC, useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { container, SERVICE_IDENTIFIERS } from '@/di/container';
 import { Loader2 } from 'lucide-react';
 import { PrivateRouteViewModel } from '@/viewModels/PrivateRouteViewModel';
+import { AuthService } from '@/infrastructure/services/AuthService';
 
 interface PrivateRouteProps {
   children: React.ReactNode;
 }
 
 export const PrivateRoute: FC<PrivateRouteProps> = observer(({ children }) => {
-  // Get the ViewModel instance from the container
-  const viewModel = container.get<PrivateRouteViewModel>(
-    SERVICE_IDENTIFIERS.PrivateRouteViewModel
-  );
+  const viewModel = container.get<PrivateRouteViewModel>(SERVICE_IDENTIFIERS.PrivateRouteViewModel);
+  const authService = container.get<AuthService>(SERVICE_IDENTIFIERS.AuthService);
 
-  const location = useLocation();
+  const [showRegister, setShowRegister] = useState(false);
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+
+  const [registerName, setRegisterName] = useState('');
+  const [registerEmail, setRegisterEmail] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
 
   useEffect(() => {
     viewModel.initialize();
@@ -66,7 +70,87 @@ export const PrivateRoute: FC<PrivateRouteProps> = observer(({ children }) => {
   }
 
   if (!viewModel.isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    // Show inline login/register form
+    const handleLogin = async () => {
+      const success = await authService.login(loginEmail, loginPassword);
+      if (success) {
+        await authService.checkAuthentication();
+        window.location.reload();
+      } else {
+        alert("Login failed");
+      }
+    };
+
+    const handleRegister = async () => {
+      const success = await authService.register(registerEmail, registerPassword, registerName);
+      if (success) {
+        // After successful registration, we can automatically login or let the user login
+        const loginSuccess = await authService.login(registerEmail, registerPassword);
+        if (loginSuccess) {
+          await authService.checkAuthentication();
+        } else {
+          alert("Auto-login after registration failed.");
+        }
+      } else {
+        alert("Registration failed");
+      }
+    };
+
+    return (
+      <div className="p-4">
+        <h1 className="text-2xl font-bold mb-4">You must be logged in to access this page.</h1>
+        
+        {!showRegister ? (
+          <div className="max-w-sm mx-auto p-4 border rounded">
+            <h2 className="text-xl font-medium mb-2">Login</h2>
+            <input 
+              className="w-full p-2 border mb-2"
+              placeholder="Email"
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+            />
+            <input 
+              className="w-full p-2 border mb-2"
+              placeholder="Password"
+              type="password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+            />
+            <button className="btn btn-blue w-full" onClick={handleLogin}>Login</button>
+            <div className="mt-2 text-sm">
+              Don't have an account? <button onClick={() => setShowRegister(true)} className="text-blue-500 underline">Register</button>
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-sm mx-auto p-4 border rounded">
+            <h2 className="text-xl font-medium mb-2">Register</h2>
+            <input 
+              className="w-full p-2 border mb-2"
+              placeholder="Name"
+              value={registerName}
+              onChange={(e) => setRegisterName(e.target.value)}
+            />
+            <input 
+              className="w-full p-2 border mb-2"
+              placeholder="Email"
+              value={registerEmail}
+              onChange={(e) => setRegisterEmail(e.target.value)}
+            />
+            <input 
+              className="w-full p-2 border mb-2"
+              placeholder="Password"
+              type="password"
+              value={registerPassword}
+              onChange={(e) => setRegisterPassword(e.target.value)}
+            />
+            <button className="btn btn-blue w-full" onClick={handleRegister}>Register</button>
+            <div className="mt-2 text-sm">
+              Already have an account? <button onClick={() => setShowRegister(false)} className="text-blue-500 underline">Login</button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
   }
 
   return <>{children}</>;
