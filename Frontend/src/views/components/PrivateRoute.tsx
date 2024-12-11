@@ -1,10 +1,9 @@
 // src/presentation/components/PrivateRoute.tsx
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { container, SERVICE_IDENTIFIERS } from '@/di/container';
 import { Loader2 } from 'lucide-react';
 import { PrivateRouteViewModel } from '@/viewModels/PrivateRouteViewModel';
-import { AuthService } from '@/infrastructure/services/AuthService';
 
 interface PrivateRouteProps {
   children: React.ReactNode;
@@ -12,15 +11,6 @@ interface PrivateRouteProps {
 
 export const PrivateRoute: FC<PrivateRouteProps> = observer(({ children }) => {
   const viewModel = container.get<PrivateRouteViewModel>(SERVICE_IDENTIFIERS.PrivateRouteViewModel);
-  const authService = container.get<AuthService>(SERVICE_IDENTIFIERS.AuthService);
-
-  const [showRegister, setShowRegister] = useState(false);
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-
-  const [registerName, setRegisterName] = useState('');
-  const [registerEmail, setRegisterEmail] = useState('');
-  const [registerPassword, setRegisterPassword] = useState('');
 
   useEffect(() => {
     viewModel.initialize();
@@ -70,87 +60,180 @@ export const PrivateRoute: FC<PrivateRouteProps> = observer(({ children }) => {
   }
 
   if (!viewModel.isAuthenticated) {
-    // Show inline login/register form
-    const handleLogin = async () => {
-      const success = await authService.login(loginEmail, loginPassword);
-      if (success) {
-        await authService.checkAuthentication();
-        window.location.reload();
-      } else {
-        alert("Login failed");
-      }
-    };
-
-    const handleRegister = async () => {
-      const success = await authService.register(registerEmail, registerPassword, registerName);
-      if (success) {
-        // After successful registration, we can automatically login or let the user login
-        const loginSuccess = await authService.login(registerEmail, registerPassword);
-        if (loginSuccess) {
-          await authService.checkAuthentication();
-        } else {
-          alert("Auto-login after registration failed.");
-        }
-      } else {
-        alert("Registration failed");
-      }
-    };
-
     return (
-      <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4">You must be logged in to access this page.</h1>
+      <div className="p-4 min-h-screen bg-gradient-to-br from-[#1e2128] to-[#16181d] flex flex-col items-center justify-center">
+        <h1 className="text-2xl font-bold text-white/90 mb-6">You must be logged in to access this page.</h1>
         
-        {!showRegister ? (
-          <div className="max-w-sm mx-auto p-4 border rounded">
-            <h2 className="text-xl font-medium mb-2">Login</h2>
+        {!viewModel.showRegister ? (
+          <div className="
+            max-w-sm w-full
+            bg-[#1a1d24]
+            border border-[#232732]/20 
+            rounded-2xl 
+            shadow-[8px_8px_16px_#111316,-8px_-8px_16px_#232732]
+            p-6
+            transition-all duration-200
+          ">
+            <h2 className="text-xl font-medium text-white mb-4">Login</h2>
+    
             <input 
-              className="w-full p-2 border mb-2"
+              className="
+                w-full px-4 py-3 mb-3 
+                bg-[#1a1d24] border border-[#232732]/20 rounded-xl
+                text-white placeholder-gray-400
+                shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+                focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500/30
+                transition-all duration-200 text-sm
+              "
               placeholder="Email"
-              value={loginEmail}
-              onChange={(e) => setLoginEmail(e.target.value)}
+              value={viewModel.loginEmail}
+              onChange={(e) => viewModel.setLoginEmail(e.target.value)}
             />
+    
             <input 
-              className="w-full p-2 border mb-2"
+              className="
+                w-full px-4 py-3 mb-4
+                bg-[#1a1d24] border border-[#232732]/20 rounded-xl
+                text-white placeholder-gray-400
+                shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+                focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500/30
+                transition-all duration-200 text-sm
+              "
               placeholder="Password"
               type="password"
-              value={loginPassword}
-              onChange={(e) => setLoginPassword(e.target.value)}
+              value={viewModel.loginPassword}
+              onChange={(e) => viewModel.setLoginPassword(e.target.value)}
             />
-            <button className="btn btn-blue w-full" onClick={handleLogin}>Login</button>
-            <div className="mt-2 text-sm">
-              Don't have an account? <button onClick={() => setShowRegister(true)} className="text-blue-500 underline">Register</button>
+    
+            <button
+              className="
+                w-full px-4 py-3 rounded-xl
+                bg-gradient-to-r from-cyan-500/10 to-cyan-500/5
+                border border-cyan-500/20 
+                text-cyan-400 font-medium text-sm
+                shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
+                hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
+                hover:bg-cyan-500/20 hover:border-cyan-500/30
+                active:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
+                transition-all duration-200 mb-3
+              "
+              onClick={async () => {
+                const success = await viewModel.login();
+                if (success) {
+                  window.location.reload();
+                } else {
+                  alert("Login failed");
+                }
+              }}
+            >
+              Login
+            </button>
+    
+            <div className="mt-2 text-sm text-gray-400">
+              Don't have an account?{" "}
+              <button 
+                onClick={() => viewModel.setShowRegister(true)} 
+                className="text-cyan-400 hover:text-cyan-300 underline transition-colors duration-200"
+              >
+                Register
+              </button>
             </div>
           </div>
         ) : (
-          <div className="max-w-sm mx-auto p-4 border rounded">
-            <h2 className="text-xl font-medium mb-2">Register</h2>
-            <input 
-              className="w-full p-2 border mb-2"
+          <div className="
+            max-w-sm w-full
+            bg-[#1a1d24]
+            border border-[#232732]/20 
+            rounded-2xl
+            shadow-[8px_8px_16px_#111316,-8px_-8px_16px_#232732]
+            p-6
+            transition-all duration-200
+          ">
+            <h2 className="text-xl font-medium text-white mb-4">Register</h2>
+    
+            <input
+              className="
+                w-full px-4 py-3 mb-3
+                bg-[#1a1d24] border border-[#232732]/20 rounded-xl
+                text-white placeholder-gray-400
+                shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+                focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500/30
+                transition-all duration-200 text-sm
+              "
               placeholder="Name"
-              value={registerName}
-              onChange={(e) => setRegisterName(e.target.value)}
+              value={viewModel.registerName}
+              onChange={(e) => viewModel.setRegisterName(e.target.value)}
             />
-            <input 
-              className="w-full p-2 border mb-2"
+    
+            <input
+              className="
+                w-full px-4 py-3 mb-3
+                bg-[#1a1d24] border border-[#232732]/20 rounded-xl
+                text-white placeholder-gray-400
+                shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+                focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500/30
+                transition-all duration-200 text-sm
+              "
               placeholder="Email"
-              value={registerEmail}
-              onChange={(e) => setRegisterEmail(e.target.value)}
+              value={viewModel.registerEmail}
+              onChange={(e) => viewModel.setRegisterEmail(e.target.value)}
             />
-            <input 
-              className="w-full p-2 border mb-2"
+    
+            <input
+              className="
+                w-full px-4 py-3 mb-4
+                bg-[#1a1d24] border border-[#232732]/20 rounded-xl
+                text-white placeholder-gray-400
+                shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+                focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500/30
+                transition-all duration-200 text-sm
+              "
               placeholder="Password"
               type="password"
-              value={registerPassword}
-              onChange={(e) => setRegisterPassword(e.target.value)}
+              value={viewModel.registerPassword}
+              onChange={(e) => viewModel.setRegisterPassword(e.target.value)}
             />
-            <button className="btn btn-blue w-full" onClick={handleRegister}>Register</button>
-            <div className="mt-2 text-sm">
-              Already have an account? <button onClick={() => setShowRegister(false)} className="text-blue-500 underline">Login</button>
+    
+            <button
+              className="
+                w-full px-4 py-3 rounded-xl
+                bg-gradient-to-r from-cyan-500/10 to-cyan-500/5
+                border border-cyan-500/20 
+                text-cyan-400 font-medium text-sm
+                shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
+                hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
+                hover:bg-cyan-500/20 hover:border-cyan-500/30
+                active:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
+                transition-all duration-200 mb-3
+              "
+              onClick={async () => {
+                const success = await viewModel.register();
+                if (success) {
+                  const loginSuccess = await viewModel.login();
+                  if (!loginSuccess) {
+                    alert("Auto-login after registration failed.");
+                  }
+                } else {
+                  alert("Registration failed");
+                }
+              }}
+            >
+              Register
+            </button>
+    
+            <div className="mt-2 text-sm text-gray-400">
+              Already have an account?{" "}
+              <button 
+                onClick={() => viewModel.setShowRegister(false)} 
+                className="text-cyan-400 hover:text-cyan-300 underline transition-colors duration-200"
+              >
+                Login
+              </button>
             </div>
           </div>
         )}
       </div>
-    );
+    );    
   }
 
   return <>{children}</>;
