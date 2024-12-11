@@ -5,9 +5,6 @@ import { ApiClient } from '../api/apiClient';
 import { API_ENDPOINTS } from '../api/endpoints';
 import { IAuthService } from '../../domain/interfaces/IAuthService';
 
-const USER_ID_KEY = 'gmail_user_id';
-const AUTH_STATE_KEY = 'gmail_auth_state';
-
 interface AuthResponse {
   isAuthenticated: boolean;
   email: string;
@@ -28,55 +25,75 @@ export class AuthService implements IAuthService {
   constructor() {
     makeObservable(this);
     ApiClient.setAuthService(this);
+
+    // If a JWT token was previously stored, set it
+    const storedToken = localStorage.getItem('jwt_token');
+    if (storedToken) {
+      ApiClient.setAuthorizationToken(storedToken);
+    }
+
+    // Attempt to verify authentication status on initialization
     this.checkAuthentication();
   }
 
   @action
   async checkAuthentication() {
-    const userId = localStorage.getItem('gmail_user_id');
-    if (!userId) {
-      this.isAuthenticated = false;
-      return;
+    // First, check if we just returned from OAuth with a token in the URL
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    if (token) {
+      // Store the JWT token and update the ApiClient authorization header
+      localStorage.setItem('jwt_token', token);
+      ApiClient.setAuthorizationToken(token);
+
+      // Remove the token parameter from the URL so it doesn't get processed again
+      const newUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
     }
 
-    try {
-      const response = await ApiClient.get<AuthResponse>(
-        `${API_ENDPOINTS.GMAIL.CHECK_AUTH}?user_id=${userId}`
-      );
-      
-      runInAction(() => {
-        this.isAuthenticated = response.isAuthenticated;
-        this.userEmail = response.user?.email || null;
-        this.userName = response.user?.name || null;
-      });
-      
-      if (!response.isAuthenticated) {
-        localStorage.removeItem('gmail_user_id');
-      }
-    } catch {
+    // Now, proceed with the normal auth check using whatever token we have in localStorage
+    const storedToken = localStorage.getItem('jwt_token');
+    if (!storedToken) {
       runInAction(() => {
         this.isAuthenticated = false;
         this.userEmail = null;
         this.userName = null;
       });
-      localStorage.removeItem('gmail_user_id');
+      return;
+    }
+
+    try {
+      const response = await ApiClient.get<AuthResponse>(API_ENDPOINTS.GMAIL.CHECK_AUTH);
+      runInAction(() => {
+        this.isAuthenticated = response.isAuthenticated;
+        this.userEmail = response.user?.email || null;
+        this.userName = response.user?.name || null;
+      });
+
+      if (!response.isAuthenticated) {
+        localStorage.removeItem('jwt_token');
+      }
+    } catch (e) {
+      console.error('Auth check error:', e);
+      runInAction(() => {
+        this.isAuthenticated = false;
+        this.userEmail = null;
+        this.userName = null;
+      });
+      localStorage.removeItem('jwt_token');
     }
   }
 
   @action
   async signOut() {
-    const userId = localStorage.getItem('gmail_user_id');
-    if (userId) {
-      try {
-        await ApiClient.post(`/api/gmail/logout/${userId}`);
-      } catch (error) {
-        console.error('Logout error:', error);
-      }
+    try {
+      await ApiClient.post(API_ENDPOINTS.GMAIL.LOGOUT);
+    } catch (error) {
+      console.error('Logout error:', error);
     }
-    
-    localStorage.removeItem('gmail_user_id');
-    localStorage.removeItem('gmail_auth_state');
-    
+
+    localStorage.removeItem('jwt_token');
     runInAction(() => {
       this.isAuthenticated = false;
       this.userEmail = null;
@@ -91,20 +108,10 @@ export class AuthService implements IAuthService {
         this.isAuthenticating = true;
       });
 
-      const userId = crypto.randomUUID();
-      const state = crypto.randomUUID();
-      
-      localStorage.setItem(USER_ID_KEY, userId);
-      localStorage.setItem(AUTH_STATE_KEY, state);
-      
-      const response = await ApiClient.get<{ url: string }>(
-        API_ENDPOINTS.GMAIL.AUTH_URL,
-        { user_id: userId, state }
-      );
-
-      // Redirect to auth URL instead of opening popup
+      // Start the OAuth flow if no token is in the URL
+      const response = await ApiClient.get<{ url: string }>(API_ENDPOINTS.GMAIL.AUTH_URL);
       window.location.href = response.url;
-      return true;
+      return false; // The user will be redirected, so no immediate boolean needed.
     } catch (error) {
       console.error('Auth error:', error);
       return false;

@@ -40,68 +40,50 @@ class GmailService:
         user_info = service.userinfo().get().execute()
         return user_info.get("email"), user_info.get("name")
 
-    async def store_credentials(self, user_id: str, flow: Flow, code: str) -> Tuple[GmailCredentials, User]:
-        """
-        Store Gmail credentials and create/update user account
-        Returns tuple of (credentials, user)
-        """
-        # Exchange authorization code for tokens
+    async def store_credentials(self, flow: Flow, code: str) -> Tuple[GmailCredentials, User]:
+        # Exchange authorization code
         flow.fetch_token(code=code)
         creds = flow.credentials
-        
-        # Get user info from Google
         email, name = await self._get_user_info(creds)
-        
+
         db = await get_database()
-        
-        # Create or update Gmail credentials with session ID
+
+        # Find user by email instead of user_id
+        existing_user = await db[self.users_collection].find_one({"email": email})
+        if not existing_user:
+            raise ValueError("User does not exist. Please register before linking Gmail account.")
+
+        # Update Gmail credentials keyed by email instead of user_id
         credentials = GmailCredentials(
-            user_id=user_id,  # Still keep session ID for credentials
+            user_id=existing_user["id"],  # We can still store it if needed, but not as the primary key
             access_token=creds.token,
             refresh_token=creds.refresh_token,
             token_expiry=creds.expiry,
             email=email
         )
-        
+        # Instead of {"user_id": user_id}, we use {"email": email} as our unique query
         await db[self.credentials_collection].update_one(
-            {"user_id": user_id},
+            {"email": email},
             {"$set": credentials.model_dump()},
             upsert=True
         )
-        
-        # First check if user exists
-        existing_user = await db[self.users_collection].find_one({"email": email})
-        
-        # Create or update user account based on email
+
+        # Update user's last_login and name by email
         now = datetime.utcnow()
-        user = User(
-            id=user_id,  # Use existing ID or generate new one
-            email=email,
-            name=name,
-            created_at=existing_user["created_at"] if existing_user else now,
-            last_login=now,
-            is_active=True
-        )
-        
-        # Use email as the unique identifier but save all user fields
         await db[self.users_collection].update_one(
             {"email": email},
             {
                 "$set": {
-                    "id": user.id,
                     "name": name,
                     "last_login": now,
-                    "is_active": True,
                     "email": email
-                },
-                "$setOnInsert": {
-                    "created_at": now
                 }
-            },
-            upsert=True
+            }
         )
-        
-        return credentials, user
+
+        updated_user = await db[self.users_collection].find_one({"email": email})
+        return credentials, User(**updated_user)
+
     async def logout(self, user_id: str) -> None:
         """
         Handle user logout by removing credentials but keeping user account
@@ -140,10 +122,7 @@ class GmailService:
             } if user else None
         }
     
-    def create_auth_url(self, user_id: str) -> str:
-        """
-        Create the Google OAuth2 authorization URL
-        """
+    def create_auth_url(self) -> str:
         flow = Flow.from_client_config(
             self.client_config,
             scopes=[
@@ -155,11 +134,13 @@ class GmailService:
             redirect_uri=self.client_config["web"]["redirect_uris"][0]
         )
 
+        # You can still use state if desired for CSRF protection
+        state = str(uuid.uuid4())
         auth_url, state = flow.authorization_url(
             access_type='offline',
             include_granted_scopes='true',
             prompt='consent',
-            state=user_id
+            state=state
         )
         return auth_url
 

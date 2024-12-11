@@ -5,6 +5,7 @@ import { AuthService } from '../services/AuthService';
 export class ApiClient {
   private static instance: AxiosInstance;
   public static authService: AuthService;
+  private static authToken: string | null = null;
 
   private static getInstance(): AxiosInstance {
     if (!ApiClient.instance) {
@@ -19,9 +20,9 @@ export class ApiClient {
       // Request interceptor
       ApiClient.instance.interceptors.request.use(
         (config) => {
-          const userId = localStorage.getItem('gmail_user_id');
-          if (userId) {
-            config.headers.Authorization = userId;
+          const token = ApiClient.authToken || localStorage.getItem('jwt_token');
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
           }
           return config;
         },
@@ -34,6 +35,15 @@ export class ApiClient {
 
   static setAuthService(authService: AuthService) {
     ApiClient.authService = authService;
+  }
+
+  static setAuthorizationToken(token: string | null) {
+    ApiClient.authToken = token;
+    if (token) {
+      localStorage.setItem('jwt_token', token);
+    } else {
+      localStorage.removeItem('jwt_token');
+    }
   }
 
   static async get<T>(url: string, params?: object): Promise<T> {
