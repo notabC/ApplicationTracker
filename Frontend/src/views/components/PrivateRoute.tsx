@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { container, SERVICE_IDENTIFIERS } from '@/di/container';
 import { Loader2 } from 'lucide-react';
 import { PrivateRouteViewModel } from '@/viewModels/PrivateRouteViewModel';
+import { Link } from 'react-router-dom'; // Assuming you have React Router installed
 
 interface PrivateRouteProps {
   children: React.ReactNode;
@@ -62,8 +63,6 @@ export const PrivateRoute: FC<PrivateRouteProps> = observer(({ children }) => {
   if (!viewModel.isAuthenticated) {
     return (
       <div className="p-4 min-h-screen bg-gradient-to-br from-[#1e2128] to-[#16181d] flex flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold text-white/90 mb-6">You must be logged in to access this page.</h1>
-        
         {!viewModel.showRegister ? (
           <div className="
             max-w-sm w-full
@@ -193,9 +192,24 @@ export const PrivateRoute: FC<PrivateRouteProps> = observer(({ children }) => {
               value={viewModel.registerPassword}
               onChange={(e) => viewModel.setRegisterPassword(e.target.value)}
             />
-    
+
+            <div className="flex items-center mb-4">
+              <input
+                type="checkbox"
+                checked={viewModel.acceptedPrivacy}
+                onChange={(e) => viewModel.setAcceptedPrivacy(e.target.checked)}
+                className="mr-2"
+              />
+              <span className="text-sm text-gray-400">
+                I agree to the{" "}
+                <Link to="/privacy" className="text-cyan-400 hover:text-cyan-300 underline">
+                  Privacy Policy
+                </Link>
+              </span>
+            </div>
+
             <button
-              className="
+              className={`
                 w-full px-4 py-3 rounded-xl
                 bg-gradient-to-r from-cyan-500/10 to-cyan-500/5
                 border border-cyan-500/20 
@@ -205,8 +219,10 @@ export const PrivateRoute: FC<PrivateRouteProps> = observer(({ children }) => {
                 hover:bg-cyan-500/20 hover:border-cyan-500/30
                 active:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
                 transition-all duration-200 mb-3
-              "
+                ${viewModel.acceptedPrivacy ? '' : 'opacity-50 cursor-not-allowed'}
+              `}
               onClick={async () => {
+                if (!viewModel.acceptedPrivacy) return;
                 const success = await viewModel.register();
                 if (success) {
                   const loginSuccess = await viewModel.login();
@@ -217,6 +233,7 @@ export const PrivateRoute: FC<PrivateRouteProps> = observer(({ children }) => {
                   alert("Registration failed");
                 }
               }}
+              disabled={!viewModel.acceptedPrivacy}
             >
               Register
             </button>

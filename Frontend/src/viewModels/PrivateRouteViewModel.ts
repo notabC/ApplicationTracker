@@ -10,13 +10,15 @@ export class PrivateRouteViewModel {
   isAuthenticated = false;
   private authChecked = false;
 
-  // Form fields moved into VM
   showRegister = false;
   loginEmail = '';
   loginPassword = '';
   registerName = '';
   registerEmail = '';
   registerPassword = '';
+
+  // New field for privacy acceptance
+  acceptedPrivacy = false;
 
   constructor(
     @inject(SERVICE_IDENTIFIERS.AuthService) private authService: AuthService,
@@ -51,7 +53,6 @@ export class PrivateRouteViewModel {
     }
   }
 
-  // Methods for toggling and setting form fields
   setShowRegister(value: boolean) {
     this.showRegister = value;
   }
@@ -74,6 +75,11 @@ export class PrivateRouteViewModel {
 
   setRegisterPassword(value: string) {
     this.registerPassword = value;
+  }
+
+  // New setter for acceptedPrivacy
+  setAcceptedPrivacy(value: boolean) {
+    this.acceptedPrivacy = value;
   }
 
   async login(): Promise<boolean> {
@@ -99,12 +105,12 @@ export class PrivateRouteViewModel {
     });
   }
 
-  // Optionally a method to reset form fields after successful actions
   resetFormFields() {
     this.loginEmail = '';
     this.loginPassword = '';
     this.registerName = '';
     this.registerEmail = '';
     this.registerPassword = '';
+    this.acceptedPrivacy = false;
   }
 }
