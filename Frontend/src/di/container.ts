@@ -25,6 +25,7 @@ import { ApplicationModel } from '@/domain/models/ApplicationModel';
 import { GmailImportModel } from '@/domain/models/GmailImportModel';
 import { PrivateRouteViewModel } from '@/viewModels/PrivateRouteViewModel';
 import { UnsavedChangesViewModel } from '@/viewModels/UnsavedChangesViewModel';
+import { ResetPasswordViewModel } from '@/viewModels/ResetPasswordViewModel';
 
 export const container = new Container();
 
@@ -113,4 +114,7 @@ container.bind<PrivateRouteViewModel>(SERVICE_IDENTIFIERS.PrivateRouteViewModel)
   .to(PrivateRouteViewModel)
   .inSingletonScope();
   
+container.bind<ResetPasswordViewModel>(SERVICE_IDENTIFIERS.ResetPasswordViewModel)
+  .to(ResetPasswordViewModel)
+  .inSingletonScope();
 export { SERVICE_IDENTIFIERS };

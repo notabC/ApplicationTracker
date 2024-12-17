@@ -12,6 +12,7 @@ import { UnsavedChangesNotification } from './views/components/UnsavedChangesNot
 import { container, SERVICE_IDENTIFIERS } from './di/container';
 import { UnsavedChangesViewModel } from './viewModels/UnsavedChangesViewModel';
 import AnalyticsDashboard from './views/AnalyticsDashboard';
+import ResetPassword from './views/ResetPassword';
 
 const unsavedChangesViewModel = container.get<UnsavedChangesViewModel>(SERVICE_IDENTIFIERS.UnsavedChangesViewModel);
 
@@ -32,6 +33,7 @@ const App: React.FC = () => {
           <Route path="/analytics" element={<AnalyticsDashboard />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/" element={<LandingPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

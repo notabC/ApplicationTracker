@@ -16,9 +16,14 @@ export class PrivateRouteViewModel {
   registerName = '';
   registerEmail = '';
   registerPassword = '';
-
-  // New field for privacy acceptance
   acceptedPrivacy = false;
+
+  // Forgot password state
+  showForgotPassword = false;
+  forgotPasswordEmail = '';
+  forgotPasswordMessage = '';
+  forgotPasswordError = '';
+  isForgotPasswordLoading = false;
 
   constructor(
     @inject(SERVICE_IDENTIFIERS.AuthService) private authService: AuthService,
@@ -77,7 +82,6 @@ export class PrivateRouteViewModel {
     this.registerPassword = value;
   }
 
-  // New setter for acceptedPrivacy
   setAcceptedPrivacy(value: boolean) {
     this.acceptedPrivacy = value;
   }
@@ -112,5 +116,35 @@ export class PrivateRouteViewModel {
     this.registerEmail = '';
     this.registerPassword = '';
     this.acceptedPrivacy = false;
+  }
+
+  // Forgot password methods
+  toggleForgotPassword() {
+    this.showForgotPassword = !this.showForgotPassword;
+    if (!this.showForgotPassword) {
+      // Reset forgot password state if closed
+      this.forgotPasswordEmail = '';
+      this.forgotPasswordMessage = '';
+      this.forgotPasswordError = '';
+    }
+  }
+
+  setForgotPasswordEmail(value: string) {
+    this.forgotPasswordEmail = value;
+  }
+
+  async submitForgotPassword() {
+    this.isForgotPasswordLoading = true;
+    this.forgotPasswordMessage = '';
+    this.forgotPasswordError = '';
+    const success = await this.authService.forgotPassword(this.forgotPasswordEmail);
+    runInAction(() => {
+      this.isForgotPasswordLoading = false;
+      if (success) {
+        this.forgotPasswordMessage = 'If that email is registered, a password reset link has been sent.';
+      } else {
+        this.forgotPasswordError = 'Unable to request password reset. Please try again.';
+      }
+    });
   }
 }

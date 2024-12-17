@@ -1,5 +1,5 @@
 # app/middleware/auth.py
-from fastapi import Request, HTTPException, Depends
+from fastapi import Request, HTTPException
 import jwt
 import os
 from app.database import get_database
@@ -22,6 +22,7 @@ async def get_current_user(request: Request):
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         user_id = payload.get("sub")
+        token_version = payload.get("token_version", 0)
         if not user_id:
             raise HTTPException(status_code=401, detail="Invalid token")
     except jwt.ExpiredSignatureError:
@@ -37,7 +38,14 @@ async def get_current_user(request: Request):
     if not user.get("is_active", True):
         raise HTTPException(status_code=403, detail="User account is inactive")
 
-    # Return user dict (already in MongoDB dict format)
+    # Compare token_version in token with user's token_version in DB
+    user_token_version = user.get("token_version", 0)
+    if user_token_version != token_version:
+        # This means the user has reset their password or something else changed
+        # that invalidated old tokens.
+        raise HTTPException(status_code=401, detail="Token invalid due to password reset.")
+
+    # Return user dict
     return {
         "id": user["id"],
         "name": user.get("name"),

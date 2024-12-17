@@ -142,4 +142,27 @@ export class AuthService implements IAuthService {
       });
     }
   }
+
+  // New methods for password reset flow
+  @action
+  async forgotPassword(email: string): Promise<boolean> {
+    try {
+      await ApiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
+      return true;
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      return false;
+    }
+  }
+
+  @action
+  async resetPassword(token: string, newPassword: string): Promise<boolean> {
+    try {
+      await ApiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, { token, new_password: newPassword });
+      return true;
+    } catch (error) {
+      console.error('Reset password error:', error);
+      return false;
+    }
+  }
 }

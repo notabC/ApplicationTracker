@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { container, SERVICE_IDENTIFIERS } from '@/di/container';
 import { Loader2 } from 'lucide-react';
 import { PrivateRouteViewModel } from '@/viewModels/PrivateRouteViewModel';
-import { Link } from 'react-router-dom'; // Assuming you have React Router installed
+import { Link } from 'react-router-dom';
 
 interface PrivateRouteProps {
   children: React.ReactNode;
@@ -75,68 +75,132 @@ export const PrivateRoute: FC<PrivateRouteProps> = observer(({ children }) => {
           ">
             <h2 className="text-xl font-medium text-white mb-4">Login</h2>
     
-            <input 
-              className="
-                w-full px-4 py-3 mb-3 
-                bg-[#1a1d24] border border-[#232732]/20 rounded-xl
-                text-white placeholder-gray-400
-                shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
-                focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500/30
-                transition-all duration-200 text-sm
-              "
-              placeholder="Email"
-              value={viewModel.loginEmail}
-              onChange={(e) => viewModel.setLoginEmail(e.target.value)}
-            />
-    
-            <input 
-              className="
-                w-full px-4 py-3 mb-4
-                bg-[#1a1d24] border border-[#232732]/20 rounded-xl
-                text-white placeholder-gray-400
-                shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
-                focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500/30
-                transition-all duration-200 text-sm
-              "
-              placeholder="Password"
-              type="password"
-              value={viewModel.loginPassword}
-              onChange={(e) => viewModel.setLoginPassword(e.target.value)}
-            />
-    
-            <button
-              className="
-                w-full px-4 py-3 rounded-xl
-                bg-gradient-to-r from-cyan-500/10 to-cyan-500/5
-                border border-cyan-500/20 
-                text-cyan-400 font-medium text-sm
-                shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
-                hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
-                hover:bg-cyan-500/20 hover:border-cyan-500/30
-                active:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
-                transition-all duration-200 mb-3
-              "
-              onClick={async () => {
-                const success = await viewModel.login();
-                if (success) {
-                  window.location.reload();
-                } else {
-                  alert("Login failed");
-                }
-              }}
-            >
-              Login
-            </button>
-    
-            <div className="mt-2 text-sm text-gray-400">
-              Don't have an account?{" "}
-              <button 
-                onClick={() => viewModel.setShowRegister(true)} 
-                className="text-cyan-400 hover:text-cyan-300 underline transition-colors duration-200"
-              >
-                Register
-              </button>
-            </div>
+            {!viewModel.showForgotPassword && (
+              <>
+                <input 
+                  className="
+                    w-full px-4 py-3 mb-3 
+                    bg-[#1a1d24] border border-[#232732]/20 rounded-xl
+                    text-white placeholder-gray-400
+                    shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+                    focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500/30
+                    transition-all duration-200 text-sm
+                  "
+                  placeholder="Email"
+                  value={viewModel.loginEmail}
+                  onChange={(e) => viewModel.setLoginEmail(e.target.value)}
+                />
+        
+                <input 
+                  className="
+                    w-full px-4 py-3 mb-2
+                    bg-[#1a1d24] border border-[#232732]/20 rounded-xl
+                    text-white placeholder-gray-400
+                    shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+                    focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500/30
+                    transition-all duration-200 text-sm
+                  "
+                  placeholder="Password"
+                  type="password"
+                  value={viewModel.loginPassword}
+                  onChange={(e) => viewModel.setLoginPassword(e.target.value)}
+                />
+
+                <div className="flex justify-between items-center mb-4">
+                  <button
+                    className="
+                      text-sm text-cyan-400 hover:text-cyan-300 underline transition-colors duration-200
+                    "
+                    type="button"
+                    onClick={() => viewModel.toggleForgotPassword()}
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+
+                <button
+                  className="
+                    w-full px-4 py-3 rounded-xl
+                    bg-gradient-to-r from-cyan-500/10 to-cyan-500/5
+                    border border-cyan-500/20 
+                    text-cyan-400 font-medium text-sm
+                    shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
+                    hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
+                    hover:bg-cyan-500/20 hover:border-cyan-500/30
+                    active:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
+                    transition-all duration-200 mb-3
+                  "
+                  onClick={async () => {
+                    const success = await viewModel.login();
+                    if (success) {
+                      window.location.reload();
+                    } else {
+                      alert("Login failed");
+                    }
+                  }}
+                >
+                  Login
+                </button>
+              </>
+            )}
+
+            {viewModel.showForgotPassword && (
+              <div className="mb-4">
+                <input
+                  className="
+                    w-full px-4 py-3 mb-2
+                    bg-[#1a1d24] border border-[#232732]/20 rounded-xl
+                    text-white placeholder-gray-400
+                    shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+                    focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500/30
+                    transition-all duration-200 text-sm
+                  "
+                  placeholder="Enter your email for password reset"
+                  value={viewModel.forgotPasswordEmail}
+                  onChange={(e) => viewModel.setForgotPasswordEmail(e.target.value)}
+                />
+                <button
+                  className="
+                    w-full px-4 py-3 rounded-xl
+                    bg-gradient-to-r from-cyan-500/10 to-cyan-500/5
+                    border border-cyan-500/20
+                    text-cyan-400 font-medium text-sm
+                    shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
+                    hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
+                    hover:bg-cyan-500/20 hover:border-cyan-500/30
+                    active:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
+                    transition-all duration-200 mb-2
+                  "
+                  onClick={async () => {
+                    await viewModel.submitForgotPassword();
+                  }}
+                  disabled={viewModel.isForgotPasswordLoading || !viewModel.forgotPasswordEmail}
+                >
+                  {viewModel.isForgotPasswordLoading ? 'Sending...' : 'Send Reset Link'}
+                </button>
+                {viewModel.forgotPasswordMessage && <div className="text-green-500 text-sm">{viewModel.forgotPasswordMessage}</div>}
+                {viewModel.forgotPasswordError && <div className="text-red-500 text-sm">{viewModel.forgotPasswordError}</div>}
+
+                <button
+                  className="text-sm text-cyan-400 hover:text-cyan-300 underline transition-colors duration-200 mt-2"
+                  onClick={() => viewModel.toggleForgotPassword()}
+                >
+                  Back to Login
+                </button>
+              </div>
+            )}
+
+            {!viewModel.showForgotPassword && (
+              <div className="mt-2 text-sm text-gray-400">
+                Don't have an account?{" "}
+                <button 
+                  onClick={() => viewModel.setShowRegister(true)} 
+                  className="text-cyan-400 hover:text-cyan-300 underline transition-colors duration-200"
+                >
+                  Register
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="

@@ -24,4 +24,5 @@ export const SERVICE_IDENTIFIERS = {
   ApplicationModel: Symbol('ApplicationModel'),
   GmailImportModel: Symbol('GmailImportModel'),
   PrivateRouteViewModel: Symbol('PrivateRouteViewModel'),
+  ResetPasswordViewModel: Symbol('ResetPasswordViewModel'),
 };
