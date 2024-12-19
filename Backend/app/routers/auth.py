@@ -1,5 +1,6 @@
 # app/routers/auth.py
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from app.middleware.auth import get_current_user
 from app.models.auth import LoginRequest, RegisterRequest
 from app.services.auth_service import AuthService
 from pydantic import BaseModel
@@ -32,3 +33,7 @@ async def forgot_password(data: PasswordResetRequest):
 @router.post("/reset-password")
 async def reset_password(data: FinishResetPasswordRequest):
     return await AuthService.reset_password(data.token, data.new_password)
+
+@router.get("/check-auth")
+async def check_auth(current_user: dict = Depends(get_current_user)):
+    return {"isAuthenticated": True, "user": current_user}

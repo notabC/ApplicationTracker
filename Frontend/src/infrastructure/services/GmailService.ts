@@ -97,10 +97,6 @@ export class GmailService implements IGmailService {
 
   @action
   async fetchEmails(options: IGmailImportOptions): Promise<IGmailResponse> {
-      if (!this.isAuthenticated) {
-          throw new Error('Not authenticated');
-      }
-
       try {
           const queryParams = new URLSearchParams();
           

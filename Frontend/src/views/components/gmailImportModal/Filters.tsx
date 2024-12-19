@@ -1,7 +1,7 @@
 // src/views/components/gmailImportModal/Filters.tsx
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import { Tag, Search, KeyRound, Calendar, Loader, Filter, X } from 'lucide-react';
+import { Tag, Search, KeyRound, Calendar, X } from 'lucide-react';
 import { GmailImportViewModel } from '../../../viewModels/GmailImportViewModel';
 
 interface FiltersProps {
@@ -163,28 +163,6 @@ const Filters: React.FC<FiltersProps> = observer(({ viewModel }) => (
       ))}
     </div>
 
-    <button
-      onClick={() => viewModel.fetchEmails()}
-      disabled={viewModel.loadingState.isLoading}
-      className="
-        w-full flex items-center justify-center gap-3 px-6 py-3
-        bg-blue-500/10 text-blue-400 rounded-xl
-        border border-blue-500/20 hover:border-blue-500/30
-        hover:bg-blue-500/20
-        disabled:opacity-50 disabled:cursor-not-allowed
-        shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
-        hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
-        active:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
-        transition-all duration-200
-      "
-    >
-      {viewModel.loadingState.isLoading ? (
-        <Loader className="h-5 w-5 animate-spin" />
-      ) : (
-        <Filter className="h-5 w-5" />
-      )}
-      <span className="text-base">Import Emails</span>
-    </button>
   </div>
 ));
 

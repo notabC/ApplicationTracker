@@ -57,7 +57,7 @@ export class AuthService implements IAuthService {
     }
 
     try {
-      const response = await ApiClient.get<AuthResponse>(API_ENDPOINTS.GMAIL.CHECK_AUTH);
+      const response = await ApiClient.get<AuthResponse>(API_ENDPOINTS.AUTH.CHECK_AUTH);
       runInAction(() => {
         this.isAuthenticated = response.isAuthenticated;
         this.userEmail = response.user?.email || null;

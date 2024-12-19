@@ -12,7 +12,8 @@ class User(BaseModel):
     created_at: datetime
     last_login: datetime
     is_active: bool = True
-    hashed_password: Optional[str] = None  # New field for password storage
+    hashed_password: Optional[str] = None
+    token_version: int = 0
 
     class Config:
         orm_mode = True

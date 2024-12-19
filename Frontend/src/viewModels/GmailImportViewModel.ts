@@ -1,22 +1,25 @@
 // src/presentation/viewModels/GmailImportViewModel.ts
-import { computed, observable, action, makeObservable } from 'mobx';
+import { computed, observable, action, makeObservable, runInAction } from 'mobx';
 import { inject, injectable } from 'inversify';
 import { SERVICE_IDENTIFIERS } from '../di/identifiers';
 import type { IGmailEmail, IGmailImportOptions } from '../domain/interfaces/IGmailService';
 import GmailImportModel from '@/domain/models/GmailImportModel';
+import { ApiClient } from '@/infrastructure/api/apiClient';
 
 @injectable()
 export class GmailImportViewModel {
   @observable
   public newLabel: string = '';
 
+  @observable
+  private _isGmailLinked: boolean = false; // Tracks if Gmail is linked
+
   constructor(
     @inject(SERVICE_IDENTIFIERS.GmailImportModel) private model: GmailImportModel
   ) {
     makeObservable(this);
+    this.checkGmailLinked();
   }
-
-  /** Observable and Computed Properties **/
 
   @computed
   get step(): GmailImportModel['step'] {
@@ -83,7 +86,10 @@ export class GmailImportViewModel {
     return this.model.isCurrentPageAllSelected;
   }
 
-  /** Actions **/
+  @computed
+  get isGmailLinked(): boolean {
+    return this._isGmailLinked;
+  }
 
   @action.bound
   addLabel(): void {
@@ -142,7 +148,16 @@ export class GmailImportViewModel {
     this.model.selectAllCurrentPage(selected);
   }
 
-  /** Delegated Methods **/
+  @action.bound
+  async handleMainButtonClick(): Promise<void> {
+    if (!this._isGmailLinked) {
+      // Link Gmail Account
+      await this.startGmailLinking();
+    } else {
+      // Import from Gmail
+      await this.proceedWithImport();
+    }
+  }
 
   async importSelected(): Promise<void> {
     return this.model.importSelected();
@@ -159,6 +174,59 @@ export class GmailImportViewModel {
   async fetchEmails(pageToken?: string, targetPage: number = 1): Promise<void> {
     return this.model.fetchEmails(pageToken, targetPage);
   }
-}
 
-export default GmailImportViewModel;
+  /**
+   * Check if Gmail is linked by calling /api/gmail/check-auth
+   * If isAuthenticated = true, Gmail is linked. Otherwise not linked.
+   */
+  @action.bound
+  async checkGmailLinked(): Promise<void> {
+    try {
+      const response = await ApiClient.get<{isAuthenticated: boolean, user?: any}>('/api/gmail/check-auth');
+      runInAction(() => {
+        this._isGmailLinked = response.isAuthenticated;
+      });
+    } catch (error) {
+      console.error('Error checking Gmail linked status:', error);
+      runInAction(() => {
+        this._isGmailLinked = false;
+      });
+    }
+  }
+
+  /**
+   * Start Gmail linking flow
+   * Checks if user_id is in localStorage, else redirect to /login
+   * If present, call /api/gmail/auth/url?state={user_id}, then redirect
+   */
+  @action.bound
+  async startGmailLinking(): Promise<void> {
+    const userId = localStorage.getItem('gmail_user_id');
+    if (!userId) {
+      // User not logged in or no user_id stored, redirect to /login
+      window.location.href = '/login';
+      return;
+    }
+
+    try {
+      const response = await ApiClient.get<{ url: string }>('/api/gmail/auth/url', { state: userId });
+      // Redirect to Google's OAuth URL
+      window.location.href = response.url;
+    } catch (error) {
+      console.error('Error fetching Gmail auth URL:', error);
+      // optionally set an error message
+      // this.model.setError('Unable to start Gmail linking process.');
+    }
+  }
+
+  /**
+   * Called when user chooses to proceed with importing if Gmail is already linked
+   * e.g., move to selection step or fetch emails
+   */
+  @action.bound
+  async proceedWithImport(): Promise<void> {
+    // For example, fetch emails and move to selection step:
+    await this.fetchEmails();
+    this.model.step = 'selection'; // if the model supports changing step directly
+  }
+}

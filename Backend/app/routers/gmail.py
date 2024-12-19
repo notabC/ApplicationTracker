@@ -57,7 +57,8 @@ async def logout(current_user: dict = Depends(get_current_user)):
 
 @router.get("/check-auth")
 async def check_auth(current_user: dict = Depends(get_current_user)):
-    return {"isAuthenticated": True, "user": current_user}
+    result = await gmail_service.check_auth(current_user["id"])
+    return result
 
 @router.get("/emails")
 async def get_gmail_emails(

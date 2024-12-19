@@ -1,7 +1,7 @@
 // src/views/components/gmailImportModal/GmailImportModal.tsx
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import { Mail, X } from 'lucide-react';
+import { Mail, X, Loader } from 'lucide-react';
 import { container } from '../../../di/container';
 import { GmailImportViewModel } from '../../../viewModels/GmailImportViewModel';
 import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
@@ -52,7 +52,11 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
       );
     }
 
-    return null;
+    return (
+      <div className="flex flex-col items-center justify-center p-8">
+        <p className="text-gray-400 text-sm">No step selected. Please start linking Gmail.</p>
+      </div>
+    );
   };
 
   return (
@@ -117,7 +121,37 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
           </div>
         )}
 
-        {/* Selection Footer */}
+        {/* Footer Logic */}
+        {viewModel.step === 'filters' && (
+          <div className="
+            p-6 bg-[#1a1d24] border-t border-[#232732]/20
+            flex justify-end gap-3
+          ">
+            <button
+              onClick={viewModel.handleMainButtonClick}
+              disabled={viewModel.loadingState.isLoading}
+              className="
+                px-4 py-3 rounded-xl
+                bg-gradient-to-r from-cyan-500/10 to-cyan-500/5
+                border border-cyan-500/20
+                text-cyan-400 font-medium text-sm
+                shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
+                hover:shadow-[6px_6px_12px_#111316,-6px_-6px_12px_#232732]
+                hover:bg-cyan-500/20 hover:border-cyan-500/30
+                active:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
+                transition-all duration-200
+                disabled:opacity-50 disabled:cursor-not-allowed
+              "
+            >
+              {viewModel.loadingState.isLoading ? (
+                <Loader className="h-5 w-5 animate-spin text-cyan-400" />
+              ) : (
+                viewModel.isGmailLinked ? 'Import from Gmail' : 'Link Gmail Account'
+              )}
+            </button>
+          </div>
+        )}
+
         {viewModel.step === 'selection' && (
           <SelectionFooter
             selectedCount={viewModel.selectedEmails.size}
