@@ -12,11 +12,9 @@ import {
   Cell
 } from 'recharts';
 import {
-  ArrowRight,
   LayoutDashboard,
   Mail,
   Clock,
-  Loader2,
   CheckCircle
 } from 'lucide-react';
 import { motion, MotionProps } from 'framer-motion';
@@ -212,34 +210,6 @@ const useIntersectionObserver = (options: IntersectionObserverInit) => {
 
   return [ref, isVisible];
 };
-
-// Reusable Input Component
-const Input = ({
-  className,
-  ...props
-}: {
-  className?: string;
-  [key: string]: any;
-}) => (
-  <input
-    {...props}
-    className={`p-2.5 sm:p-3 bg-gray-800/50 border border-gray-700/50 text-gray-300 placeholder-gray-500 text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500/30 ${className}`}
-  />
-);
-
-// Reusable Button Component
-const Button = ({
-  className,
-  ...props
-}: {
-  className?: string;
-  [key: string]: any;
-}) => (
-  <button
-    {...props}
-    className={`px-3 sm:px-4 py-2.5 text-sm font-medium rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500/30 ${className}`}
-  />
-);
 
 // Updated AnimatedCheckItem Component
 const AnimatedCheckItem = ({ children }: { children: React.ReactNode }) => {
@@ -711,7 +681,6 @@ StatsCard.displayName = 'StatsCard';
 
 // Main LandingPage Component
 const LandingPage = () => {
-  const [email, setEmail] = useState('');
   const [animatedLineData, setAnimatedLineData] = useState<{ value: number }[]>(
     []
   );
@@ -721,7 +690,6 @@ const LandingPage = () => {
   const [animatedBarData, setAnimatedBarData] = useState<{ value: number }[]>(
     []
   );
-  const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
   // Intersection Observer for StatsCard
@@ -814,42 +782,6 @@ const LandingPage = () => {
     };
   }, []);
 
-  // Handle Waitlist Submission with Discord Webhook Integration
-  const handleWaitlistSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-
-    setIsLoading(true);
-
-    try {
-      // Send to Discord webhook
-      const webhookUrl = import.meta.env.VITE_DISCORD_WEBHOOK_URL;
-
-      if (webhookUrl) {
-        await fetch(webhookUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            content: `${email}`
-          })
-        });
-      }
-
-      // Wait additional time if the webhook was fast
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      setIsLoading(false);
-      setShowModal(true);
-      setEmail('');
-    } catch (error) {
-      console.error('Error sending webhook:', error);
-      setIsLoading(false);
-      // Optionally, you can set an error state here to display to the user
-    }
-  };
-
   return (
     <>
       {/* Scroll Progress Indicator */}
@@ -905,45 +837,19 @@ const LandingPage = () => {
               faster
             </motion.p>
 
-            {/* Waitlist Form with Glassmorphism & Neumorphism */}
+            {/* Simple 'Get Started' Button */}
             <motion.div
-              className="max-w-md mx-auto relative"
+              className="max-w-md mx-auto text-center"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7, duration: 0.8 }}
             >
-              <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-lg blur opacity-20 clip-path-blob"></div>
-              <form
-                onSubmit={handleWaitlistSubmit}
-                className="relative flex flex-col sm:flex-row gap-2 p-1.5 sm:p-2 backdrop-blur-xl bg-gray-900/80 rounded-md"
+              <button
+                onClick={() => (window.location.href = '/dashboard')}
+                className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-blue-500 text-white font-medium rounded-md transition-transform hover:scale-105 active:scale-95"
               >
-                <Input
-                  type="email"
-                  placeholder="Enter your Google Gmail address"
-                  value={email}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setEmail(e.target.value)
-                  }
-                  disabled={isLoading}
-                  className="flex-1 h-10 px-3 bg-gray-800/50 border border-gray-700/50 text-gray-300 placeholder:text-gray-500 text-sm rounded-md focus-visible:ring-emerald-500/30"
-                />
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="h-10 px-4 sm:w-auto text-sm font-medium bg-gradient-to-r from-emerald-500 to-blue-500 text-white rounded-md transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                >
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                    {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <>
-                        Join Waitlist
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </span>
-                </Button>
-              </form>
+                Get Started
+              </button>
             </motion.div>
           </StaggerContainer>
 

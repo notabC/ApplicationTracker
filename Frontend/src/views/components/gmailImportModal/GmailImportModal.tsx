@@ -1,7 +1,6 @@
-// src/views/components/gmailImportModal/GmailImportModal.tsx
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import { Mail, X, Loader } from 'lucide-react';
+import { Loader, Mail, X } from 'lucide-react';
 import { container } from '../../../di/container';
 import { GmailImportViewModel } from '../../../viewModels/GmailImportViewModel';
 import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
@@ -11,6 +10,8 @@ import SelectionFooter from './SelectionFooter';
 import EmailList from './EmailList';
 import Filters from './Filters';
 import Processing from './Processing';
+import Waitlist from '@/views/components/Waitlist';
+import { WaitlistViewModel } from '@/viewModels/WaitlistViewModel';
 
 interface Props {
   isOpen: boolean;
@@ -19,7 +20,8 @@ interface Props {
 
 export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) => {
   const viewModel = container.get<GmailImportViewModel>(SERVICE_IDENTIFIERS.GmailImportViewModel);
-
+  const waitlistViewModel = new WaitlistViewModel();
+  
   if (!isOpen) return null;
 
   const handleClose = () => {
@@ -61,15 +63,13 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
-      <div
-        className="
-          bg-gradient-to-br from-[#1e2128] to-[#16181d]
-          w-full h-[100dvh] sm:h-auto sm:rounded-2xl sm:max-w-2xl sm:max-h-[85vh] 
-          overflow-hidden flex flex-col border-t sm:border border-[#232732]/10
-          shadow-[8px_8px_16px_#111316,-8px_-8px_16px_#232732]
-          transition-all duration-200
-        "
-      >
+      <div className="
+        bg-gradient-to-br from-[#1e2128] to-[#16181d]
+        w-full h-[100dvh] sm:h-auto sm:rounded-2xl sm:max-w-2xl sm:max-h-[85vh] 
+        overflow-hidden flex flex-col border-t sm:border border-[#232732]/10
+        shadow-[8px_8px_16px_#111316,-8px_-8px_16px_#232732]
+        transition-all duration-200
+      ">
         {/* Header */}
         <div className="
           p-6 sm:p-8 border-b border-[#232732]/20
@@ -78,15 +78,15 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
         ">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4 sm:gap-3">
-              <div 
-                className="
-                  bg-blue-500/10 p-3 rounded-xl
-                  shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
-                "
-              >
+              <div className="
+                bg-blue-500/10 p-3 rounded-xl
+                shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
+              ">
                 <Mail className="h-6 w-6 text-blue-400" />
               </div>
-              <h2 className="text-xl font-medium text-white">Import from Gmail</h2>
+              <div className="flex flex-col gap-1">
+                <h2 className="text-xl font-medium text-white">Import from Gmail</h2>
+              </div>
             </div>
             <button 
               onClick={handleClose}
@@ -120,6 +120,9 @@ export const GmailImportModal: React.FC<Props> = observer(({ isOpen, onClose }) 
             <p className="text-sm text-red-400">{viewModel.error}</p>
           </div>
         )}
+
+        {/* Waitlist Notice */}
+        <Waitlist viewModel={waitlistViewModel} />
 
         {/* Footer Logic */}
         {viewModel.step === 'filters' && (
