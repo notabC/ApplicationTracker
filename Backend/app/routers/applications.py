@@ -49,3 +49,8 @@ async def delete_application(
     if not deleted:
         raise HTTPException(status_code=404, detail="Application not found")
     return {"message": "Application deleted"}
+
+@router.delete("/reset/all")
+async def reset_applications(current_user: dict = Depends(get_current_user)):
+    await application_service.delete_all(current_user["email"])
+    return {"message": "All applications deleted"}

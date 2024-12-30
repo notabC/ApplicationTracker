@@ -40,5 +40,7 @@ export interface ApplicationCreate {
     salary?: string;
     location?: string;
     notes?: string;
+    logs?: ApplicationLog[];
+    lastUpdated?: string;
   }
   

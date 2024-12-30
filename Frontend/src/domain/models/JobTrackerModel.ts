@@ -3,6 +3,7 @@ import { makeAutoObservable } from 'mobx';
 import type { Application } from '@/domain/interfaces/IApplication';
 import type { Email, IEmailService } from '@/domain/interfaces/IEmailService';
 import type { RootStore } from '@/viewModels/RootStore';
+import { IWorkflowService } from '../interfaces/IWorkflow';
 
 type AppTypeColorMap = Record<string, string>;
 
@@ -19,6 +20,7 @@ export interface ApplicationViewData {
 export class JobTrackerModel {
   private rootStore: RootStore;
   private emailService: IEmailService;
+  private workflowService: IWorkflowService;
 
   isLoading: boolean = false;
   error: string | null = null;
@@ -37,10 +39,11 @@ export class JobTrackerModel {
     fullstack: 'bg-purple-500/10 text-purple-400',
   };
 
-  constructor(rootStore: RootStore, emailService: IEmailService) {
+  constructor(rootStore: RootStore, emailService: IEmailService, workflowService: IWorkflowService) {
     makeAutoObservable(this);
     this.rootStore = rootStore;
     this.emailService = emailService;
+    this.workflowService = workflowService;
     this.loadEmails();
   }
 
@@ -85,7 +88,7 @@ export class JobTrackerModel {
   async handleStageChange(application: Application, newStage: string): Promise<void> {
     const newLog = {
       id: crypto.randomUUID(),
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString(),
       fromStage: application.stage,
       toStage: newStage,
       message: `Status updated from ${application.stage} to ${newStage}`,
@@ -95,7 +98,7 @@ export class JobTrackerModel {
     const updatedApplication: Application = {
       ...application,
       stage: newStage,
-      lastUpdated: new Date().toISOString().split('T')[0],
+      lastUpdated: new Date().toISOString(),
       logs: [...application.logs, newLog],
     };
 
@@ -285,5 +288,24 @@ export class JobTrackerModel {
       }
     }
     return 'just now';
+  }
+
+  async deleteAllData(): Promise<void> {
+    try {
+      this.isLoading = true;
+      // Call each service's reset method
+      await this.rootStore.applicationService.resetAllApplications();
+      await this.workflowService.resetAllWorkflows();
+      await this.emailService.resetAllEmails();
+
+      window.location.reload();
+
+      this.error = null;
+    } catch (error) {
+      this.error = 'Failed to delete all data';
+      console.error('Failed to delete all data:', error);
+    } finally {
+      this.isLoading = false;
+    }
   }
 }

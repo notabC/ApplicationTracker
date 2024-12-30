@@ -28,3 +28,8 @@ async def process_emails(
     if not processed:
         raise HTTPException(status_code=404, detail="No emails were processed")
     return {"message": "Emails marked as processed"}
+
+@router.delete("/reset/all")
+async def reset_emails(current_user: dict = Depends(get_current_user)):
+    await email_service.delete_all(current_user["email"])
+    return {"message": "All emails deleted"}

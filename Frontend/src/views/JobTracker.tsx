@@ -2,7 +2,8 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import {
-  Search, SlidersHorizontal, PlusCircle, Mail, Settings2, Clock, LineChart, MoreVertical, LogOut
+  Search, SlidersHorizontal, PlusCircle, Mail, Settings2, Clock, LineChart, MoreVertical, LogOut,
+  Trash2
 } from 'lucide-react';
 import { container } from '@/di/container';
 import { JobTrackerViewModel } from '@/viewModels/JobTrackerViewModel';
@@ -16,6 +17,7 @@ import { EmailProcessingModal } from '@/views/components/emailProcessingModal/Em
 import GmailImportModal from '@/views/components/gmailImportModal/GmailImportModal';
 import { WorkflowEditorModal } from '@/views/components/workflow/WorkflowEditorModal';
 import { StageColumn } from './components/jobTracker/StageColumn';
+import { ConfirmResetModal } from './ConfirmResetModal';
 
 export const JobTracker: React.FC = observer(() => {
   const viewModel = container.get<JobTrackerViewModel>(SERVICE_IDENTIFIERS.JobTrackerViewModel);
@@ -26,6 +28,13 @@ export const JobTracker: React.FC = observer(() => {
     { icon: Settings2, label: "Edit Workflow", onClick: () => viewModel.setShowWorkflowModal(true) },
     { icon: Clock, label: "Activity History", onClick: () => viewModel.setShowHistory(true) },
     { icon: LineChart, label: "View Analytics", onClick: () => { window.location.href = '/analytics'; } },
+    {
+      icon: Trash2,
+      label: "Delete All Data",
+      onClick: () => {
+        viewModel.setShowDeleteAllDataModal(true);
+      },
+    },
     { icon: LogOut, label: "Sign Out", onClick: () => authViewModel.signOut() }
   ];
 
@@ -208,6 +217,13 @@ export const JobTracker: React.FC = observer(() => {
 
       <WorkflowEditorModal
         onClose={() => viewModel.setShowWorkflowModal(false)}
+      />
+
+      {/* Confirmation modal for deleting all data */}
+      <ConfirmResetModal
+        isOpen={viewModel.showDeleteAllDataModal}
+        onClose={() => viewModel.setShowDeleteAllDataModal(false)}
+        onConfirm={() => viewModel.deleteAllData()}
       />
 
       {viewModel.showHistory && (

@@ -51,22 +51,13 @@ export class ApplicationService implements IApplicationService {
 
   @action
   async addApplication(applicationData: ApplicationCreate): Promise<Application> {
-    if (!this.authService.isAuthenticated) {
-      throw new Error('User not authenticated');
-    }
-
     try {
-      const userId = localStorage.getItem('gmail_user_id');
-      if (!userId || !this.authService.userEmail) {
-        throw new Error('User ID or email not found');
-      }
-
       const application: Omit<Application, 'id'> = {
         ...applicationData,
-        user_id: userId,
-        user_email: this.authService.userEmail,
-        lastUpdated: new Date().toISOString(),
-        logs: [],
+        user_id: "userId",
+        user_email: "userEmail@gmail.com",
+        lastUpdated: applicationData.lastUpdated ?? new Date().toISOString(),
+        logs: applicationData.logs ?? [],
         description: applicationData.description ?? '',
         salary: applicationData.salary ?? '',
         location: applicationData.location ?? '',
@@ -85,16 +76,7 @@ export class ApplicationService implements IApplicationService {
 
   @action
   async updateApplication(id: string, updates: Partial<ApplicationCreate>): Promise<Application> {
-    if (!this.authService.isAuthenticated) {
-      throw new Error('User not authenticated');
-    }
-
     try {
-      const userId = localStorage.getItem('gmail_user_id');
-      if (!userId || !this.authService.userEmail) {
-        throw new Error('User ID or email not found');
-      }
-
       const updateData = {
         ...updates,
         lastUpdated: new Date().toISOString()
@@ -124,6 +106,23 @@ export class ApplicationService implements IApplicationService {
       await ApiClient.delete(API_ENDPOINTS.APPLICATIONS.BY_ID(id));
     } catch (error) {
       console.error(`Failed to delete application ${id}:`, error);
+      throw error;
+    }
+  }
+
+  @action
+  async resetAllApplications(): Promise<void> {
+    if (!this.authService.isAuthenticated) {
+      throw new Error('User not authenticated');
+    }
+
+    try {
+      // POST /api/applications/reset/all
+      await ApiClient.delete(API_ENDPOINTS.APPLICATIONS.RESET);
+      // You may want to clear local `_applications` after resetting:
+      this._applications = [];
+    } catch (error) {
+      console.error('Failed to reset applications:', error);
       throw error;
     }
   }

@@ -113,4 +113,14 @@ export class WorkflowService implements IWorkflowService {
       throw error;
     }
   }
+
+  async resetAllWorkflows(): Promise<void> {
+    try {
+      // POST /api/workflow/reset/all
+      await ApiClient.delete(API_ENDPOINTS.WORKFLOW.RESET);
+    } catch (error) {
+      console.error('Failed to reset workflow:', error);
+      throw error;
+    }
+  }
 }

@@ -7,6 +7,11 @@ from app.models.user import User
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google.auth.exceptions import RefreshError
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 from datetime import datetime
 from typing import List, Optional, Tuple
 import os
@@ -95,31 +100,62 @@ class GmailService:
             raise ValueError("User not found")
 
     async def check_auth(self, user_id: str) -> dict:
-        """
-        Check authentication status and return user info
-        """
         db = await get_database()
-        creds = await db[self.credentials_collection].find_one({"user_id": user_id})
-        
-        if not creds:
+        creds_doc = await db[self.credentials_collection].find_one({"user_id": user_id})
+        if not creds_doc:
             return {
                 "isAuthenticated": False,
                 "email": None,
                 "user": None
             }
-        
-        # Look up user by email and return full user object
-        user = await db[self.users_collection].find_one({"email": creds["email"]})
-        
+
+        credentials = Credentials(
+            token=creds_doc["access_token"],
+            refresh_token=creds_doc["refresh_token"],
+            token_uri=self.client_config["web"]["token_uri"],
+            client_id=self.client_config["web"]["client_id"],
+            client_secret=self.client_config["web"]["client_secret"]
+        )
+
+        # Attempt to refresh if needed
+        if not credentials.valid:
+            try:
+                credentials.refresh(Request())
+            except RefreshError:
+                # Refresh fails => token revoked/expired => remove from DB
+                await db[self.credentials_collection].delete_one({"user_id": user_id})
+                return {
+                    "isAuthenticated": False,
+                    "email": None,
+                    "user": None
+                }
+
+        # Now do a test call to ensure it’s *really* valid
+        try:
+            gmail = build("gmail", "v1", credentials=credentials)
+            gmail.users().getProfile(userId="me").execute()  # minimal test call
+        except HttpError as e:
+            if e.resp.status in [401, 403]:
+                # Definitely not valid => remove from DB
+                await db[self.credentials_collection].delete_one({"user_id": user_id})
+                return {
+                    "isAuthenticated": False,
+                    "email": None,
+                    "user": None
+                }
+            # If it's some other error, you might handle or re-raise
+
+        # If we got here, the token is valid
+        user_doc = await db[self.users_collection].find_one({"email": creds_doc["email"]})
         return {
-            "isAuthenticated": bool(creds),
-            "email": creds["email"] if creds else None,
+            "isAuthenticated": True,
+            "email": creds_doc["email"],
             "user": {
-                "id": user["id"],
-                "name": user.get("name"),
-                "email": user.get("email"),
-                "created_at": user.get("created_at")
-            } if user else None
+                "id": user_doc["id"],
+                "name": user_doc.get("name"),
+                "email": user_doc.get("email"),
+                "created_at": user_doc.get("created_at")
+            } if user_doc else None
         }
     
     def create_auth_url(self) -> str:

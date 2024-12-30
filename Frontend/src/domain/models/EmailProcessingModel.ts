@@ -69,7 +69,7 @@ export class EmailProcessingModel {
         stage: 'Resume Submitted',
         type: 'frontend',
         tags: ['frontend'],
-        lastUpdated: new Date().toISOString(),
+        lastUpdated: email.date,
         description: email.body,
         salary: 'Not specified',
         location: 'Not specified',
@@ -77,7 +77,7 @@ export class EmailProcessingModel {
         logs: [
           {
             id: crypto.randomUUID(),
-            date: new Date().toISOString(),
+            date: email.date,
             fromStage: null,
             toStage: 'Resume Submitted',
             message: 'Application created from Gmail import',
@@ -111,7 +111,7 @@ export class EmailProcessingModel {
     try {
       const newLog = {
         id: crypto.randomUUID(),
-        date: new Date().toISOString(),
+        date: email.date,
         fromStage: existingApp.stage,
         toStage: newStage,
         message: `Status updated from ${existingApp.stage} to ${newStage}`,
@@ -124,7 +124,7 @@ export class EmailProcessingModel {
       const updatedApplication = {
         ...existingApp,
         stage: newStage,
-        lastUpdated: new Date().toISOString(),
+        lastUpdated: email.date,
         logs: [...existingApp.logs, newLog],
       };
 

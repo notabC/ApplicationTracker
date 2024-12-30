@@ -128,6 +128,7 @@ export const EditableField: React.FC<Props> = observer(({
               border border-[#232732]/20 group-hover:border-cyan-500/30
               shadow-[inset_2px_2px_4px_#111316,inset_-2px_-2px_4px_#232732]
               transition-all duration-200 cursor-pointer
+              break-words
             "
           >
             <div className="text-sm text-gray-300 leading-relaxed">

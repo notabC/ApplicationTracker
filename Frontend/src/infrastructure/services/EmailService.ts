@@ -47,4 +47,16 @@ export class EmailService implements IEmailService {
       processed: email.processed || emailIds.includes(email.id)
     }));
   }
+
+  @action
+  async resetAllEmails(): Promise<void> {
+    try {
+      // POST /api/emails/reset/all
+      await ApiClient.delete(API_ENDPOINTS.EMAIL.RESET);
+      this.emails = []; // Clear in-memory emails if desired
+    } catch (error) {
+      console.error('Failed to reset emails:', error);
+      throw error;
+    }
+  }
 }

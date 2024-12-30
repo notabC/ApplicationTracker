@@ -3,6 +3,7 @@ export interface IEmailService {
   getEmails(): Promise<Email[]>;
   addEmails(emails: Email[]): Promise<void>;
   markAsProcessed(emailIds: string[]): Promise<void>;
+  resetAllEmails(): Promise<void>;
 }
   
   export interface Email {

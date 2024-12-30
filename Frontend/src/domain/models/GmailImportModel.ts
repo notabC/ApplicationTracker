@@ -1,6 +1,5 @@
 // src/domain/models/GmailImportModel.ts
 import { makeAutoObservable, runInAction } from 'mobx';
-import type { IAuthService } from '@/domain/interfaces/IAuthService';
 import { Email } from '@/domain/interfaces/IEmailService';
 import { injectable, inject } from 'inversify';
 import { JobTrackerViewModel } from '@/viewModels/JobTrackerViewModel';
@@ -38,7 +37,6 @@ export class GmailImportModel {
 
   constructor(
     @inject(SERVICE_IDENTIFIERS.GmailService) private gmailService: IGmailService,
-    @inject(SERVICE_IDENTIFIERS.AuthService) private authService: IAuthService,
     @inject(SERVICE_IDENTIFIERS.JobTrackerViewModel) private jobTrackerViewModel: JobTrackerViewModel
   ) {
     makeAutoObservable(this);
@@ -46,17 +44,8 @@ export class GmailImportModel {
 
   /** Actions **/
 
-  async importSelected(): Promise<void> {
-    if (!this.authService.isAuthenticated) {
-      throw new Error('User not authenticated');
-    }
-    
+  async importSelected(): Promise<void> {    
     try {
-      const userId = localStorage.getItem('gmail_user_id');
-      if (!userId || !this.authService.userEmail) {
-        throw new Error('User ID or email not found');
-      }
-
       const selectedEmailData = this.emails.filter(email => 
         this.selectedEmails.has(email.id)
       );
@@ -68,8 +57,8 @@ export class GmailImportModel {
         date: email.date,
         sender: email.sender,
         processed: false,
-        user_id: userId,
-        user_email: this.authService.userEmail
+        user_id: "userId",
+        user_email: "userEmail@gmail.com",
       })) as Email[];
 
       this.jobTrackerViewModel.addEmails(emailsToAdd);

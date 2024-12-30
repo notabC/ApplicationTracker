@@ -148,3 +148,8 @@ class WorkflowService:
             default=True
         )
         return await self.create(default, user)
+
+    async def delete_all(self, user_email: str) -> bool:
+        collection = await self.get_collection()
+        result = await collection.delete_many({"user_email": user_email})
+        return result.deleted_count > 0

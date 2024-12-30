@@ -9,6 +9,7 @@ import { WorkflowEditorViewModel } from "@/viewModels/WorkflowEditorViewModel";
 import { JobTrackerModel, ApplicationViewData } from '@/domain/models/JobTrackerModel';
 import type { Email } from '@/domain/interfaces/IEmailService';
 import { ApplicationModel } from "@/domain/models/ApplicationModel";
+import type { IWorkflowService } from "@/domain/interfaces/IWorkflow";
 
 @injectable()
 export class JobTrackerViewModel {
@@ -22,6 +23,7 @@ export class JobTrackerViewModel {
   showEmailProcessingModal: boolean = false;
   showHistory: boolean = false;
   menuOpen: boolean = false;
+  showDeleteAllDataModal: boolean = false;
 
   public model: JobTrackerModel;
 
@@ -30,8 +32,9 @@ export class JobTrackerViewModel {
     @inject(SERVICE_IDENTIFIERS.RootStore) private rootStore: RootStore,
     @inject(SERVICE_IDENTIFIERS.EmailService) private emailService: IEmailService,
     @inject(SERVICE_IDENTIFIERS.ApplicationModel) private applicationModel: ApplicationModel,
+    @inject(SERVICE_IDENTIFIERS.WorkflowService) private workflowService: IWorkflowService
   ) {
-    this.model = new JobTrackerModel(this.rootStore, this.emailService);
+    this.model = new JobTrackerModel(this.rootStore, this.emailService, this.workflowService);
     makeAutoObservable(this);
   }
 
@@ -45,6 +48,10 @@ export class JobTrackerViewModel {
 
   get searchTerm(): string {
     return this.model.searchTerm;
+  }
+
+  setShowDeleteAllDataModal(show: boolean) {
+    this.showDeleteAllDataModal = show;
   }
 
   getAvailableStages(currentStage: string): string[] {
@@ -228,5 +235,11 @@ export class JobTrackerViewModel {
 
   formatRelativeTime(time: string): string {
     return this.model.formatRelativeTime(time);
+  }
+
+  async deleteAllData(): Promise<void> {
+    await this.model.deleteAllData();
+    // After completion, you might close the modal or show a success message:
+    this.setShowDeleteAllDataModal(false);
   }
 }

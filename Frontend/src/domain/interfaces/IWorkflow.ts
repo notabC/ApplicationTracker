@@ -10,6 +10,7 @@ export interface IWorkflowService {
   updateStage(workflowId: string, stageId: string, stage: WorkflowStage): Promise<Workflow>;
   updateStageOrder(workflowId: string, stageOrder: string[]): Promise<Workflow>;
   updateStageVisibility(workflowId: string, stageId: string, visible: boolean): Promise<Workflow>;
+  resetAllWorkflows(): Promise<void>;
 }
 
 export interface WorkflowStage {

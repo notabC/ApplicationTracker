@@ -42,12 +42,12 @@ class ApplicationService:
         application.id = str(result.inserted_id)
         return application
 
-
     async def update(self, application_id: str, application: Application, user_email: str) -> Optional[Application]:
         collection = await self.get_collection()
         application_dict = application.model_dump()
         application_dict["_id"] = ObjectId(application_id)
         del application_dict["id"]
+        application_dict["user_email"] = user_email
         result = await collection.replace_one(
             {
                 "_id": ObjectId(application_id),
@@ -65,4 +65,9 @@ class ApplicationService:
             "_id": ObjectId(application_id),
             "user_email": user_email
         })
+        return result.deleted_count > 0
+
+    async def delete_all(self, user_email: str) -> bool:
+        collection = await self.get_collection()
+        result = await collection.delete_many({"user_email": user_email})
         return result.deleted_count > 0

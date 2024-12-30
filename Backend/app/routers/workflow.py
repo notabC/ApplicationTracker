@@ -95,3 +95,8 @@ async def update_stage_visibility(
     if not workflow:
         raise HTTPException(status_code=404, detail="Update failed")
     return workflow
+
+@router.delete("/reset/all")
+async def reset_workflows(current_user: dict = Depends(get_current_user)):
+    await workflow_service.delete_all(current_user["email"])
+    return {"message": "All workflows deleted"}

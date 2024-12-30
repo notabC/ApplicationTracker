@@ -13,7 +13,7 @@ export class RootStore {
 
   constructor(
     @inject(SERVICE_IDENTIFIERS.ApplicationService) 
-    private readonly applicationService: IApplicationService
+    public readonly applicationService: IApplicationService
   ) {
     makeAutoObservable(this);
     this.loadApplications();

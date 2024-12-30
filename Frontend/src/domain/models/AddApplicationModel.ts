@@ -114,7 +114,6 @@ export class AddApplicationModel {
         source: 'manual'
       }]
     };
-
     await this.rootStore.addApplication(newApplication);
   }
 }
