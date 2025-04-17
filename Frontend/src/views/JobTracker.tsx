@@ -3,7 +3,7 @@ import React from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   Search, SlidersHorizontal, PlusCircle, Mail, Settings2, Clock, LineChart, MoreVertical, LogOut,
-  Trash2
+  Trash2, BrainCircuit
 } from 'lucide-react';
 import { container } from '@/di/container';
 import { JobTrackerViewModel } from '@/viewModels/JobTrackerViewModel';
@@ -18,6 +18,7 @@ import GmailImportModal from '@/views/components/gmailImportModal/GmailImportMod
 import { WorkflowEditorModal } from '@/views/components/workflow/WorkflowEditorModal';
 import { StageColumn } from './components/jobTracker/StageColumn';
 import { ConfirmResetModal } from './ConfirmResetModal';
+import { OSTOnboardingModal } from './components/ostOnboarding/OSTOnboardingModal';
 
 export const JobTracker: React.FC = observer(() => {
   const viewModel = container.get<JobTrackerViewModel>(SERVICE_IDENTIFIERS.JobTrackerViewModel);
@@ -49,6 +50,20 @@ export const JobTracker: React.FC = observer(() => {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-white/90">Application Tracker</h1>
           <div className="flex items-center gap-2">
+            <button 
+              onClick={() => viewModel.setShowOSTOnboardingModal(true)}
+              title="AI Job Search Optimizer"
+              className="
+                flex items-center gap-2 px-3 py-2 rounded-xl
+                bg-[#1a1d24] border border-[#232732]/20
+                shadow-[4px_4px_8px_#111316,-4px_-4px_8px_#232732]
+                hover:shadow-[inset_4px_4px_8px_#111316,inset_-4px_-4px_8px_#232732]
+                transition-all duration-200 group
+              "
+            >
+              <BrainCircuit className="h-4 w-4 text-purple-400 group-hover:text-purple-300" />
+            </button>
+
             <button 
               onClick={() => viewModel.setShowAddModal(true)}
               className="
@@ -224,6 +239,12 @@ export const JobTracker: React.FC = observer(() => {
         isOpen={viewModel.showDeleteAllDataModal}
         onClose={() => viewModel.setShowDeleteAllDataModal(false)}
         onConfirm={() => viewModel.deleteAllData()}
+      />
+
+      {/* OST Onboarding Modal */}
+      <OSTOnboardingModal 
+        isOpen={viewModel.showOSTOnboardingModal}
+        onClose={() => viewModel.setShowOSTOnboardingModal(false)}
       />
 
       {viewModel.showHistory && (

@@ -1,8 +1,8 @@
 from app.config import settings
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import applications, workflow, email, gmail, auth, ost, ost_application
-from app.database import init_db, get_database
+from app.routers import applications, workflow, email, gmail, auth, ost  # Temporarily remove ost_application
+from app.api.routes import api_router  # Import the main API router
 import logging
 
 # Setup logging
@@ -30,12 +30,18 @@ app.include_router(email.router, prefix="/api/emails", tags=["email"])
 app.include_router(gmail.router, prefix="/api/gmail", tags=["gmail"])
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(ost.router, prefix="/api/ost", tags=["ost"])
-app.include_router(ost_application.router, prefix="/api/ost/applications", tags=["ost-applications"])
+# app.include_router(ost_application.router, prefix="/api/ost/applications", tags=["ost-applications"])
+
+# Initialize and include API routes
+from app.api.routes import setup_routes
+setup_routes()  # Set up routes to avoid circular imports
+app.include_router(api_router, prefix="/api")
 
 @app.on_event("startup")
 async def startup():
     logger.info("Starting up FastAPI application")
     try:
+        from app.database import init_db
         await init_db()
         logger.info("Database initialization completed")
     except Exception as e:
@@ -46,6 +52,7 @@ async def read_root():
     logger.info("Root endpoint accessed")
     try:
         # Test database connection
+        from app.database import get_database
         db = await get_database()
         collections = await db.list_collection_names()
         logger.info(f"Database connection test successful. Collections: {collections}")

@@ -1,27 +1,24 @@
 import os
 import sys
-import logging
-from typing import Dict, List, Any, Optional, Tuple
-import asyncio
-from datetime import datetime
+import base64
+import json
 import uuid
+import logging
+import asyncio
+from typing import Dict, List, Any, Optional, Tuple, AsyncGenerator
+from datetime import datetime
+from dotenv import load_dotenv
 
 # Add OST directory to path
 ost_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "OST")
 sys.path.append(ost_path)
 
-# Import OST modules
+# Import OST application processing modules
 try:
-    from ost import MongoDBUtility, create_user_profile
-    from application_process import (
-        process_application, 
-        ApplicationProcessingConfig, 
-        JobQualityMetric,
-        ApplicationProcessingWorkflowBuilder
-    )
-    from main import AutomatedMetaReasoningAgent, RateLimitedAPI, MongoDBStorage
+    from ost import MongoDBUtility
+    from application_process import process_application, ApplicationProcessingConfig, JobQualityMetric
+    from main import RateLimitedAPI
     import google.generativeai as genai
-    from dotenv import load_dotenv
 except ImportError as e:
     logging.error(f"Failed to import OST application_process modules: {e}")
     # Create mock classes for development without OST
@@ -29,13 +26,13 @@ except ImportError as e:
         def __init__(self): pass
         def save_document(self, *args, **kwargs): return None
         def load_data(self, *args, **kwargs): return {}
-    
     class ApplicationProcessingConfig:
-        def __init__(self, *args, **kwargs): pass
-    
+        def __init__(self): pass
+        def add_metric(self, *args, **kwargs): pass
     class JobQualityMetric:
-        def __init__(self, *args, **kwargs): pass
-    
+        def __init__(self): pass
+    class RateLimitedAPI:
+        def generate_content(self, *args, **kwargs): return type('obj', (object,), {'text': 'Test response'})
     def process_application(*args, **kwargs):
         return {"error": "OST module not available"}
 
@@ -55,7 +52,8 @@ class OSTApplicationService:
         api_key = os.getenv("GEMINI_API_KEY")
         if api_key:
             genai.configure(api_key=api_key)
-            self.ai_model = RateLimitedAPI(genai.GenerativeModel("gemini-1.5-flash"))
+            self.ai_model = RateLimitedAPI()
+            self.ai_model.model = genai.GenerativeModel("gemini-1.5-flash")
         else:
             logger.warning("GEMINI_API_KEY not found in environment variables")
             self.ai_model = None

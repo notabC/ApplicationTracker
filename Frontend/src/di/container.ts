@@ -26,6 +26,10 @@ import { GmailImportModel } from '@/domain/models/GmailImportModel';
 import { PrivateRouteViewModel } from '@/viewModels/PrivateRouteViewModel';
 import { UnsavedChangesViewModel } from '@/viewModels/UnsavedChangesViewModel';
 import { ResetPasswordViewModel } from '@/viewModels/ResetPasswordViewModel';
+import { IOSTService } from '@/domain/interfaces/IOSTService';
+import { OSTService } from '@/infrastructure/services/OSTService';
+import { OSTOnboardingViewModel } from '@/viewModels/OSTOnboardingViewModel';
+import { ReasoningService } from '@/infrastructure/services/ReasoningService';
 
 export const container = new Container();
 
@@ -117,4 +121,17 @@ container.bind<PrivateRouteViewModel>(SERVICE_IDENTIFIERS.PrivateRouteViewModel)
 container.bind<ResetPasswordViewModel>(SERVICE_IDENTIFIERS.ResetPasswordViewModel)
   .to(ResetPasswordViewModel)
   .inSingletonScope();
+
+container.bind<IOSTService>(SERVICE_IDENTIFIERS.OSTService)
+  .to(OSTService)
+  .inSingletonScope();
+
+container.bind<OSTOnboardingViewModel>(SERVICE_IDENTIFIERS.OSTOnboardingViewModel)
+  .to(OSTOnboardingViewModel)
+  .inSingletonScope();
+
+container.bind<ReasoningService>(SERVICE_IDENTIFIERS.ReasoningService)
+  .to(ReasoningService)
+  .inSingletonScope();
+
 export { SERVICE_IDENTIFIERS };

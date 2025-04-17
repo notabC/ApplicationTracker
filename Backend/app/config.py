@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     jwt_secret: str
     EMAIL_ADDRESS: str
     EMAIL_PASSWORD: str
+    GEMINI_API_KEY: str
 
     class Config:
         env_file = ".env"

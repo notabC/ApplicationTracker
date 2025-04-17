@@ -1,6 +1,6 @@
 // src/presentation/viewModels/JobTrackerViewModel.ts
 import { injectable, inject } from "inversify";
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, observable, action } from 'mobx';
 import { SERVICE_IDENTIFIERS } from '@/di/identifiers';
 import type { Application } from '@/domain/interfaces/IApplication';
 import type { IEmailService } from '@/domain/interfaces/IEmailService';
@@ -13,17 +13,18 @@ import type { IWorkflowService } from "@/domain/interfaces/IWorkflow";
 
 @injectable()
 export class JobTrackerViewModel {
-  isFilterExpanded: boolean = false;
-  selectedApplicationId: string | null = null;
-  showAddModal: boolean = false;
-  showImportModal: boolean = false;
-  showWorkflowModal: boolean = false;
-  isGmailModalOpen: boolean = false;
-  selectedEmailId: string | null = null;
-  showEmailProcessingModal: boolean = false;
-  showHistory: boolean = false;
-  menuOpen: boolean = false;
-  showDeleteAllDataModal: boolean = false;
+  @observable isFilterExpanded: boolean = false;
+  @observable selectedApplicationId: string | null = null;
+  @observable showAddModal: boolean = false;
+  @observable showImportModal: boolean = false;
+  @observable showWorkflowModal: boolean = false;
+  @observable isGmailModalOpen: boolean = false;
+  @observable selectedEmailId: string | null = null;
+  @observable showEmailProcessingModal: boolean = false;
+  @observable showHistory: boolean = false;
+  @observable menuOpen: boolean = false;
+  @observable showDeleteAllDataModal: boolean = false;
+  @observable showOSTOnboardingModal: boolean = false;
 
   public model: JobTrackerModel;
 
@@ -38,6 +39,11 @@ export class JobTrackerViewModel {
     makeAutoObservable(this);
   }
 
+  @action
+  setShowOSTOnboardingModal(show: boolean) {
+    this.showOSTOnboardingModal = show;
+  }
+
   get isLoading(): boolean {
     return this.model.isLoading;
   }
@@ -50,6 +56,7 @@ export class JobTrackerViewModel {
     return this.model.searchTerm;
   }
 
+  @action
   setShowDeleteAllDataModal(show: boolean) {
     this.showDeleteAllDataModal = show;
   }
@@ -58,6 +65,7 @@ export class JobTrackerViewModel {
     return this.applicationModel.getAvailableStages(currentStage);
   }
 
+  @action
   setSearchTerm(term: string): void {
     this.model.setSearchTerm(term);
   }
@@ -66,6 +74,7 @@ export class JobTrackerViewModel {
     return this.model.activeFilters;
   }
 
+  @action
   toggleFilter(filter: string) {
     this.model.toggleFilter(filter);
   }
@@ -86,6 +95,7 @@ export class JobTrackerViewModel {
     await this.model.handleStageChange(application, newStage);
   }
 
+  @action
   setSelectedApplicationById(id: string | null) {
     this.selectedApplicationId = id;
   }
@@ -96,18 +106,22 @@ export class JobTrackerViewModel {
       : null;
   }
 
+  @action
   setShowAddModal(show: boolean) {
     this.showAddModal = show;
   }
 
+  @action
   setShowImportModal(show: boolean) {
     this.showImportModal = show;
   }
 
+  @action
   setIsGmailModalOpen(show: boolean) {
     this.isGmailModalOpen = show;
   }
 
+  @action
   setShowWorkflowModal(show: boolean) {
     if (!show) {
       this.workflowEditorViewModel.closeModal();
@@ -125,6 +139,7 @@ export class JobTrackerViewModel {
     return this.model.filteredUnprocessedEmails;
   }
 
+  @action
   setSelectedEmailId(id: string | null): void {
     this.selectedEmailId = id;
     this.showEmailProcessingModal = !!id;
@@ -140,6 +155,7 @@ export class JobTrackerViewModel {
       : null;
   }
 
+  @action
   closeEmailProcessingModal(): void {
     this.showEmailProcessingModal = false;
     this.selectedEmailId = null;
@@ -150,26 +166,32 @@ export class JobTrackerViewModel {
     this.closeEmailProcessingModal();
   }
 
+  @action
   addEmails(newEmails: Email[]): void {
     this.model.addEmails(newEmails);
   }
 
+  @action
   markEmailsAsProcessed(emailIds: string[]): void {
     this.model.markEmailsAsProcessed(emailIds);
   }
 
+  @action
   setShowHistory(show: boolean): void {
     this.showHistory = show;
   }
 
+  @action
   toggleFilterExpanded() {
     this.isFilterExpanded = !this.isFilterExpanded;
   }
 
+  @action
   toggleMenu() {
     this.menuOpen = !this.menuOpen;
   }
 
+  @action
   navigateApplications(direction: 'prev' | 'next'): void {
     if (!this.selectedApplicationId) return;
     const nextAppId = this.model.getNextApplicationId(this.selectedApplicationId, direction);
@@ -189,18 +211,22 @@ export class JobTrackerViewModel {
   }
 
   // Drag and Drop
+  @action
   beginDrag(application: Application) {
     this.model.beginDrag(application);
   }
 
+  @action
   endDrag() {
     this.model.endDrag();
   }
 
+  @action
   dragOverStage(stageId: string) {
     this.model.dragOverStage(stageId);
   }
 
+  @action
   leaveStage() {
     this.model.leaveStage();
   }
@@ -214,10 +240,12 @@ export class JobTrackerViewModel {
   }
 
   // Stage selector UI methods
+  @action
   openStageSelectorForApplication(applicationId: string) {
     this.model.openStageSelectorForApplication(applicationId);
   }
 
+  @action
   closeStageSelector() {
     this.model.closeStageSelector();
   }

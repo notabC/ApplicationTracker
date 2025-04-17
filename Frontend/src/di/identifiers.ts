@@ -25,4 +25,10 @@ export const SERVICE_IDENTIFIERS = {
   GmailImportModel: Symbol('GmailImportModel'),
   PrivateRouteViewModel: Symbol('PrivateRouteViewModel'),
   ResetPasswordViewModel: Symbol('ResetPasswordViewModel'),
+  // OST Identifiers
+  OSTService: Symbol.for('OSTService'),
+  OSTOnboardingViewModel: Symbol.for('OSTOnboardingViewModel'),
+  OSTApplicationService: Symbol.for('OSTApplicationService'), // Add if needed later
+  OSTApplicationViewModel: Symbol.for('OSTApplicationViewModel'), // Add if needed later
+  ReasoningService: Symbol.for('ReasoningService')
 };
